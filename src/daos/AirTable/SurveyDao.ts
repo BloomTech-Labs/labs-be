@@ -8,9 +8,9 @@ class SurveyDao {
     api_key = process.env.AT_API_KEY;
     airtable = new Airtable({apiKey: this.api_key}).base(this.base_id);
   
-    constructor(airtable: any) {
-      this.airtable = airtable;
-    }
+    // constructor(airtable: any) {
+    //   this.airtable = airtable;
+    // }
   
     public getAll(): any {
       this.airtable('Labs - TBSurveys').select({
