@@ -14,7 +14,7 @@ class SurveyDao {
   
     public getAll(): any {
       this.airtable('Labs - TBSurveys').select({
-          maxRecords: 3,
+        //   maxRecords: 3,
           view: "Labs37"
       }).eachPage(function page(records, fetchNextPage) {
 

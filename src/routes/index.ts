@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { getAllUsers, addOneUser, updateOneUser, deleteOneUser } from './Users';
 import { getAllVars } from './env';
 import { getAllAssignments, getAssignment, getAssignmentSubmissions } from './Canvas';
+import { getAllSurveys } from './AirTable';
 
 
 // User-route
@@ -19,10 +20,15 @@ canvasRouter.get('/assignments', getAllAssignments);
 canvasRouter.get('/assignments/:id', getAssignment);
 canvasRouter.get('/assignments/:id/submissions', getAssignmentSubmissions);
 
+// Airtable Route
+const airtableRouter = Router();
+airtableRouter.get('/all', getAllSurveys);
+
 
 // Export the base-router
 const baseRouter = Router();
 baseRouter.use('/users', userRouter);
 baseRouter.use('/vars', envRouter);
 baseRouter.use('/canvas', canvasRouter);
+baseRouter.use('/airtable', airtableRouter);
 export default baseRouter;
