@@ -24,19 +24,5 @@ const { BAD_REQUEST, CREATED, OK } = StatusCodes;
   const surveys = await surveyDao.getAll();
 
   console.log(surveys);
-
-
-//   return res.status(OK).json(assignments);
+  return res.status(OK).json(surveys);
 }
-
-// export async function getAssignment(req: Request, res: Response) {
-//   const { id } = req.params;
-//   const assignment = await assignmentsDao.getOne(parseInt(id));
-//   return res.status(OK).json(assignment);
-// }
-
-// export async function getAssignmentSubmissions(req: Request, res: Response) {
-//   const { id } = req.params;
-//   const assignment = await assignmentsDao.getSubmissions(parseInt(id));
-//   return res.status(OK).json(assignment);
-// }
