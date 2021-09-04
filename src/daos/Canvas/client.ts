@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-export interface IClanvasClient {
+export interface ICanvasClient {
   get: (path: string) => any | null;
 }
 
@@ -10,7 +10,7 @@ class CanvasClient {
   public headers: any;
 
   constructor(opts: any) {
-    if(!opts.token) { throw new Error("missing canvas api token option") }
+    if(!opts.token) { throw new Error("Missing Canvas API token option") }
     this.options =  Object.assign({
       base_url: 'https://lambdaschool.instructure.com/api/v1/',
       ver: "/v1"
