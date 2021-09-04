@@ -7,6 +7,10 @@ import express, { NextFunction, Request, Response } from 'express';
 import StatusCodes from 'http-status-codes';
 import 'express-async-errors';
 
+import jwt from 'express-jwt';
+import jwtAuthz from 'express-jwt-authz';
+import jwksRsa from 'jwks-rsa';
+
 import BaseRouter from './routes';
 import logger from '@shared/Logger';
 
@@ -27,6 +31,24 @@ app.use(cookieParser());
 if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
+
+// Authorization (Auth0)
+const checkJwt = jwt({
+    // Access Token must exist and be verified against the Auth0 JSON Web Key Set.
+    // Dynamically provide a signing key based on the kid in the header and the
+    // signing keys provided by the JWKS endpoint.
+    secret: jwksRsa.expressJwtSecret({
+      cache: true,
+      rateLimit: true,
+      jwksRequestsPerMinute: 5,
+      jwksUri: `${process.env.AUTH_JWKS_URI}`,
+    }),
+  
+    // Validate the audience and the issuer.
+    audience: `${process.env.AUTH_JWT_AUDIENCE}`,
+    issuer: [`${process.env.AUTH_JWT_ISSUER}`],
+    algorithms: ['RS256']
+  });
 
 // Security
 if (process.env.NODE_ENV === 'production') {
