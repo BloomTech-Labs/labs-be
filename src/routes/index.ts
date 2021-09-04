@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { getAllUsers, addOneUser, updateOneUser, deleteOneUser } from './Users';
 import { getAllVars } from './env';
-import { assignRolesForUnit } from './roles';
+import { getAllAssignments, getAssignment, getAssignmentSubmissions } from './Canvas';
 
 
 // User-route
@@ -14,13 +14,15 @@ userRouter.delete('/delete/:id', deleteOneUser);
 const envRouter = Router();
 envRouter.get('/all', getAllVars);
 
-const roleRouter = Router();
-roleRouter.get('/assign/:unitId', assignRolesForUnit);
+const canvasRouter = Router();
+canvasRouter.get('/assignments', getAllAssignments);
+canvasRouter.get('/assignments/:id', getAssignment);
+canvasRouter.get('/assignments/:id/submissions', getAssignmentSubmissions);
 
 
 // Export the base-router
 const baseRouter = Router();
 baseRouter.use('/users', userRouter);
 baseRouter.use('/vars', envRouter);
-baseRouter.use('/roles', roleRouter);
+baseRouter.use('/canvas', canvasRouter);
 export default baseRouter;

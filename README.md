@@ -1,8 +1,20 @@
 # Labs Backend
 
-# Setup
-- Create `/.env` & `./pre-start/env/production.env`
+## Setup
+
+- Create `/.env` [(See sample)](#sample_env)
 - `npm install`
 
-# Quick Start
+### Sample `.env` file <a name="sample_env"></a>
+
+```ini
+JET_LOGGER_MODE=CONSOLE
+JET_LOGGER_FILEPATH=jet-logger.log
+JET_LOGGER_TIMESTAMP=TRUE
+JET_LOGGER_FORMAT=LINE
+canvas_access_token=<your canvas user dev access token>
+```
+
+## Quick start locally
+
 `npm run start:dev`
