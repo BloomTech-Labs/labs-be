@@ -7,7 +7,7 @@ export interface ISubmissionDao {
 
 class SubmissionDao implements ISubmissionDao {
 
-  private client: CanvasClient = new CanvasClient({ token: process.env.canvas_access_token});
+  private client: CanvasClient = new CanvasClient({ token: process.env.CANVAS_ACCESS_TOKEN});
   /**
    * @param id
    */

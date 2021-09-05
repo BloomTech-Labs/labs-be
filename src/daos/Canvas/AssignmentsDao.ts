@@ -12,7 +12,7 @@ class AssignmentsDao implements IAssignmentsDao {
 
   constructor(courseId: number) {
     this.courseId = courseId | 0;
-    this.client = new CanvasClient({ token: process.env.canvas_access_token});
+    this.client = new CanvasClient({ token: process.env.CANVAS_ACCESS_TOKEN});
   }
 
   /**
