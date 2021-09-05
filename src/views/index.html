@@ -7,8 +7,29 @@
     </head>
     <body>
 
+        <div id="login">
+            <h2>Labby</h2>
+            <p>Lambda School Labs</p>
+            <button id="btn-login" disabled="true" onclick="login()">Log in</button>
+            <button id="btn-logout" disabled="true" onclick="logout()">Log out</button>
+        </div>
+
+        <div class="protected" id="profile">
+            <p>
+              <strong>Logged in.</strong>.
+            </p>
+            <label>
+              Access token:
+              <pre id="ipt-access-token"></pre>
+            </label>
+            <label>
+              User profile:
+              <pre id="ipt-user-profile"></pre>
+            </label>
+          </div>
+
         <!-- Add Users -->
-        <div class="users-column add-user-col">
+        <div class="users-column add-user-col protected">
             <div class="column-header">Add User:</div>
             <div>
                 <input id="name-input" placeholder="Name">
@@ -22,13 +43,13 @@
         </div>
 
         <!-- Display Users -->
-        <div class="users-column">
+        <div class="users-column protected">
             <div class="column-header">Users:</div>
             <div id="all-users-anchor"></div>
         </div>
 
         <!-- Display Assignments -->
-        <div class="users-column">
+        <div class="users-column protected">
             <div class="column-header">Assignments:</div>
             <div id="all-assignments-anchor"></div>
         </div>
@@ -36,5 +57,6 @@
 
 
     </body>
-    <script src="scripts/index.js"></script>
+    <script src="https://cdn.auth0.com/js/auth0-spa-js/1.13/auth0-spa-js.production.js"></script>
+    <script type="module" src="scripts/index.js"></script>
 </html>

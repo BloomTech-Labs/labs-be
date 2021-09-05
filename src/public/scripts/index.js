@@ -1,14 +1,87 @@
 /******************************************************************************
- *                          Fetch and display users
+ * Auth0
  ******************************************************************************/
 
-displayUsers();
+let auth0 = null;
+const fetchAuthConfig = () => fetch('/auth/config');
+ 
+const configureClient = async () => {
+    const response = await fetchAuthConfig();
+    const config = await response.json();
+
+    auth0 = await createAuth0Client({
+        domain: config.domain,
+        client_id: config.clientId,
+        audience: config.audience,
+    });
+};
+
+const updateUI = async () => {
+    const isAuthenticated = await auth0.isAuthenticated();
+    document.getElementById("btn-logout").disabled = !isAuthenticated;
+    document.getElementById("btn-login").disabled = isAuthenticated;
+
+    // Show/hide protected content after authentication
+    if (isAuthenticated) {
+        Array.from(document.getElementsByClassName("protected")).forEach ((elm) => elm.classList.remove("hidden"));
+
+        document.getElementById("ipt-access-token").innerHTML = await auth0.getTokenSilently();
+        document.getElementById("ipt-user-profile").textContent = JSON.stringify(await auth0.getUser());
+
+        displayUsers();
+    } else {
+        Array.from(document.getElementsByClassName("protected")).forEach ((elm) => elm.classList.add("hidden"));
+    }
+};
+
+window.login = async () => {
+    await auth0.loginWithRedirect({
+        redirect_uri: window.location.origin
+    });
+};
+
+window.logout = () => {
+    auth0.logout({
+        returnTo: window.location.origin
+    });
+};
+ 
+window.onload = async () => {
+    await configureClient();
+
+    updateUI();
+
+    const isAuthenticated = await auth0.isAuthenticated();
+
+    if (isAuthenticated) {
+        // Show protected content
+        return;
+    }
+
+    // Check for the code and state parameters
+    const query = window.location.search;
+    if (query.includes("code=") && query.includes("state=")) {
+
+        // Process the login state
+        await auth0.handleRedirectCallback();
+
+        updateUI();
+
+        // Use replaceState to redirect the user away and remove the querystring parameters
+        window.history.replaceState({}, document.title, "/");
+    }
+}
 
 
-function displayUsers() {
-    httpGet('/api/users/all')
+/******************************************************************************
+ * Fetch and display users
+ ******************************************************************************/
+
+const displayUsers = async () => {
+    await httpGet('/api/users/all')
         .then(response => response.json())
         .then((response) => {
+            console.log (response);
             var allUsers = response.users;
             // Empty the anchor
             var allUsersAnchor = document.getElementById('all-users-anchor');
@@ -54,7 +127,7 @@ function getUserDisplayEle(user) {
 
 
 /******************************************************************************
- *                        Add, Edit, and Delete Users
+ * Add, Edit, and Delete Users
  ******************************************************************************/
 
 document.addEventListener('click', function (event) {
@@ -134,38 +207,46 @@ function deleteUser(ele) {
 }
 
 
-function httpGet(path) {
-    return fetch(path, getOptions('GET'))
+const httpGet = async (path) => {
+    return await fetch(path, await getOptions('GET'));
+};
+
+
+const httpPost = async (path, data) => {
+    return await fetch(path, await getOptions('POST', data));
+};
+
+
+const httpPut = async (path, data) => {
+    return await fetch(path, await getOptions('PUT', data));
 }
 
 
-function httpPost(path, data) {
-    return fetch(path, getOptions('POST', data));
+const httpDelete = async (path) => {
+    return await fetch(path, await getOptions('DELETE'));
 }
 
 
-function httpPut(path, data) {
-    return fetch(path, getOptions('PUT', data));
-}
+const getOptions = async (verb, data) => {
+    try {
+        // Get the access token from the Auth0 client
+        const token = await auth0.getTokenSilently();
 
-
-function httpDelete(path) {
-    return fetch(path, getOptions('DELETE'));
-}
-
-
-function getOptions(verb, data) {
-    var options = {
-        dataType: 'json',
-        method: verb,
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
+        var options = {
+            dataType: 'json',
+            method: verb,
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        };
+        if (data) {
+            options.body = JSON.stringify(data);
         }
-    };
-    if (data) {
-        options.body = JSON.stringify(data);
-    }
-    return options;
-}
+        return options;
 
+    } catch (e) {
+        console.error (e);
+    }
+}

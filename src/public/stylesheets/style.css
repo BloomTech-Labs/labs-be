@@ -31,3 +31,7 @@ body .users-column .user-display-ele button {
 body .users-column .user-display-ele .edit-view {
   display: none;
 }
+
+body .hidden {
+  display: none;
+}
