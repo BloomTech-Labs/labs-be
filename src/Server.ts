@@ -11,11 +11,13 @@ import jwt from 'express-jwt';
 import jwtAuthz from 'express-jwt-authz';
 import jwksRsa from 'jwks-rsa';
 
-import BaseRouter from './routes';
+import routes from './routes';
 import logger from '@shared/Logger';
 
 const app = express();
 const { BAD_REQUEST } = StatusCodes;
+
+const { authRouter, baseRouter } = routes;
 
 
 
@@ -33,7 +35,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Authorization (Auth0)
-const checkJwt = jwt({
+const authRequired = jwt({
     // Access Token must exist and be verified against the Auth0 JSON Web Key Set.
     // Dynamically provide a signing key based on the kid in the header and the
     // signing keys provided by the JWKS endpoint.
@@ -48,7 +50,7 @@ const checkJwt = jwt({
     audience: `${process.env.AUTH_JWT_AUDIENCE}`,
     issuer: [`${process.env.AUTH_JWT_ISSUER}`],
     algorithms: ['RS256']
-  });
+});
 
 // Security
 if (process.env.NODE_ENV === 'production') {
@@ -56,7 +58,9 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Add APIs
-app.use('/api', BaseRouter);
+app.use('/api', authRequired, baseRouter);
+app.use(authRouter);
+
 
 // Print API errors
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
