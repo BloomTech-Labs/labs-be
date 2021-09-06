@@ -168,4 +168,3 @@ function getOptions(verb, data) {
     }
     return options;
 }
-
