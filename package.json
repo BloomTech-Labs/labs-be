@@ -73,6 +73,7 @@
     "jet-logger": "^1.0.6",
     "jsonfile": "^6.1.0",
     "jwks-rsa": "^2.0.4",
+    "ltijs": "^5.8.1",
     "module-alias": "^2.2.2",
     "morgan": "^1.10.0",
     "node-fetch": "^2.6.1"
