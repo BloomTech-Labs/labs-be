@@ -10,13 +10,20 @@ class SurveyDao {
   
   
     public async getAll(): Promise<any> {
- 
       const surveys = await this.airtable('Labs - TBSurveys').select({
-          view: "Labs37"
+          view: "Grid view"
       }).all();
 
       return surveys;
+    }
 
+    public async getCohort(cohort : string): Promise<any> {
+ 
+      const surveys = await this.airtable('Labs - TBSurveys').select({
+          view: cohort
+      }).all();
+
+      return surveys;
     }
   }
   

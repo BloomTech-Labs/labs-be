@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { getAllUsers, addOneUser, updateOneUser, deleteOneUser } from './Users';
 import { getAllVars } from './env';
 import { getAllAssignments, getAssignment, getAssignmentSubmissions } from './Canvas';
-import { getAllSurveys } from './AirTable';
+import { getAllSurveys, getCohortSurveys } from './AirTable';
 
 
 // User-route
@@ -22,7 +22,8 @@ canvasRouter.get('/assignments/:id/submissions', getAssignmentSubmissions);
 
 // Airtable Route
 const airtableRouter = Router();
-airtableRouter.get('/all', getAllSurveys);
+airtableRouter.get('/surveys', getAllSurveys);
+airtableRouter.get('/surveys/:cohort', getCohortSurveys);
 
 
 // Export the base-router
