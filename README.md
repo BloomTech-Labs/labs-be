@@ -16,6 +16,7 @@ AUTH_JWKS_URI=https://dev-acwosrae.us.auth0.com/.well-known/jwks.json
 AUTH_JWT_AUDIENCE=https://labby/api
 AUTH_JWT_ISSUER=https://dev-acwosrae.us.auth0.com/
 CANVAS_ACCESS_TOKEN=<your canvas user dev access token>
+AT_API_KEY=<your Airtable API key>
 ```
 
 ## Quick start locally
