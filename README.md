@@ -13,6 +13,7 @@ JET_LOGGER_FILEPATH=jet-logger.log
 JET_LOGGER_TIMESTAMP=TRUE
 JET_LOGGER_FORMAT=LINE
 canvas_access_token=<your canvas user dev access token>
+AT_API_KEY=<your Airtable API key>
 ```
 
 ## Quick start locally
