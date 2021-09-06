@@ -60,7 +60,9 @@
     "build.ts"
   ],
   "dependencies": {
+
     "@auth0/auth0-spa-js": "^1.17.1",
+    "airtable": "^0.11.1",
     "command-line-args": "^5.2.0",
     "cookie-parser": "^1.4.5",
     "dotenv": "^10.0.0",
