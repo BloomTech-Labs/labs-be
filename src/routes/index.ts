@@ -3,7 +3,13 @@ import { getAllUsers, addOneUser, updateOneUser, deleteOneUser } from './Users';
 import { getAllVars } from './env';
 import { getAllAssignments, getAssignment, getAssignmentSubmissions } from './Canvas';
 import { getAuthConfig } from './auth';
-import { getAllSurveys, getCohortSurveys } from './AirTable';
+import {
+  getAllSurveys,
+  getCohortSurveys,
+  getAllStudents,
+  getCohortStudents,
+  getStudentByEmail,
+} from './Airtable';
 
 
 const userRouter = Router();
@@ -26,6 +32,9 @@ canvasRouter.get('/assignments/:id/submissions', getAssignmentSubmissions);
 const airtableRouter = Router();
 airtableRouter.get('/surveys', getAllSurveys);
 airtableRouter.get('/surveys/:cohort', getCohortSurveys);
+airtableRouter.get('/students', getAllStudents);
+airtableRouter.get('/students/cohort/:cohort', getCohortStudents);
+airtableRouter.get('/students/email/:email', getStudentByEmail);
 
 
 const baseRouter = Router();
