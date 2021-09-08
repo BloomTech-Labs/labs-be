@@ -1,8 +1,11 @@
 import CanvasClient from "@daos/Canvas/client";
+import Assignment from "@entities/Assignment";
+import Submission from "@entities/Submission";
 
 export interface IAssignmentsDao {
-  getOne: (id: number, courseId: number) => Promise<any | null>;
-  getAll: (courseId: number) => Promise<any[]>;
+  getOne: (id: number, courseId: number) => Promise<Assignment | null>;
+  getAll: (courseId: number) => Promise<Assignment[]>;
+  getSubmissions: (id: number) => Promise<Submission[]>;
 }
 
 class AssignmentsDao implements IAssignmentsDao {
@@ -18,7 +21,7 @@ class AssignmentsDao implements IAssignmentsDao {
   /**
    * @param id
    */
-  public getOne(id: number): Promise<any | null> {
+  public getOne(id: number): Promise<Assignment | null> {
       // https://lambdaschool.instructure.com/api/v1/courses/1482/assignments/47902
       let path = `courses/${this.courseId}/assignments/${id}?include=submission`;
       return this.client.get(path);
@@ -26,14 +29,18 @@ class AssignmentsDao implements IAssignmentsDao {
 
 
   /**
-   * @param assignmentId 
+   * 
    */
-  public getAll(): any {
+  public getAll(): Promise<Assignment[]> {
     let path = `courses/${this.courseId}/assignments/`;
     return this.client.get(path);
   }
 
-  public getSubmissions(id: number): any {
+  
+   /**
+   * @param id 
+   */
+  public getSubmissions(id: number): Promise<Submission[]> {
     // /api/v1/courses/:course_id/assignments/:assignment_id/submissions
     let path = `courses/${this.courseId}/assignments/${id}/submissions?include=user`;
     return this.client.get(path);
