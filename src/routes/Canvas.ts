@@ -21,7 +21,6 @@ const { BAD_REQUEST, CREATED, OK } = StatusCodes;
   const { unitId } = req.params;
   logger.info("unitID: "+ unitId);
   const assignments = await assignmentsDao.getAll();
-  console.log("assignments: ", assignments);
   // Roles entity
     // get application data
   // Get teams with members (and role)

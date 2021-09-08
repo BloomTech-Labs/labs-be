@@ -1,9 +1,10 @@
 import { IUser } from "@entities/User";
 
 declare module 'express' {
-    export interface Request  {
-        body: {
-            user: IUser
-        };
-    }
+    // TODO
+    // export interface Request {
+    //     body: {
+    //         user: IUser | Array <Learner>
+    //     };
+    // }
 }

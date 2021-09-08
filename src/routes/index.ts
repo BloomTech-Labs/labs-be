@@ -10,6 +10,7 @@ import {
   getCohortStudents,
   getStudentByEmail,
 } from './Airtable';
+import { putEventAttendance } from './Attendance';
 
 
 const userRouter = Router();
@@ -36,12 +37,15 @@ airtableRouter.get('/students', getAllStudents);
 airtableRouter.get('/students/cohort/:cohort', getCohortStudents);
 airtableRouter.get('/students/email/:email', getStudentByEmail);
 
+const attendanceRouter = Router();
+attendanceRouter.put ('/event/:eventType/date/:eventDate', putEventAttendance);
 
 const baseRouter = Router();
 baseRouter.use('/users', userRouter);
 baseRouter.use('/vars', envRouter);
 baseRouter.use('/canvas', canvasRouter);
 baseRouter.use('/airtable', airtableRouter);
+baseRouter.use('/attendance', attendanceRouter);
 
 export default {
   baseRouter,

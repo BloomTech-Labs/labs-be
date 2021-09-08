@@ -44,6 +44,29 @@ class StudentDao {
       return (students.length) ? students [0] : null;
     }
 
+    /**
+     *  @param email
+     */
+     public async getByEmails(emails : Array<string>): Promise<any> {
+    
+      // Generate a list of Airtable formula conditions of the form:
+      //  OR(
+      //    {name} != "name 1",
+      //    {name} != "name 2",
+      //    {name} != "name 3",
+      //    {name} != "name 4"
+      //  )
+      const emailConditions = emails.map ((email) => `{Email} = "${email}"`).toString ();
+      const formula = `OR(${emailConditions})`;
+ 
+      const students = await this.airtable('Students').select({
+          view: `Grid view`,
+          filterByFormula: formula,
+      }).all();
+
+      return students;
+    }
+
   }
   
   export default StudentDao;

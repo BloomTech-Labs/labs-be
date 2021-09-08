@@ -31,6 +31,8 @@ class CanvasClient {
     }
 
     const res = await fetch(url, config);
+    // TODO: Pagination: Need to either return res.headers to retrieve Link
+    // to "next" or process it here for all queries.
     return await res.json();
   }
 

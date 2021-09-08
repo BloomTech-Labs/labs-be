@@ -26,9 +26,9 @@ const updateUI = async () => {
         Array.from(document.getElementsByClassName("protected")).forEach ((elm) => elm.classList.remove("hidden"));
 
         document.getElementById("ipt-access-token").innerHTML = await auth0.getTokenSilently();
-        document.getElementById("ipt-user-profile").textContent = JSON.stringify(await auth0.getUser());
+        //document.getElementById("ipt-user-profile").textContent = JSON.stringify(await auth0.getUser());
 
-        displayUsers();
+        //displayUsers();
     } else {
         Array.from(document.getElementsByClassName("protected")).forEach ((elm) => elm.classList.add("hidden"));
     }
@@ -74,138 +74,34 @@ window.onload = async () => {
 
 
 /******************************************************************************
- * Fetch and display users
+ * Attendance
  ******************************************************************************/
+const attendanceForm = document.getElementById ('attendance-form');
+attendanceForm.addEventListener('submit', (event) => {
+    event.preventDefault();
 
-const displayUsers = async () => {
-    await httpGet('/api/users/all')
+    // Parse CSV as JSON before submitting
+    const csv = attendanceForm.elements ['attendance-file'].files [0];
+    const eventType = attendanceForm.elements ['event-type'].value;
+    const eventDate = attendanceForm.elements ['event-date'].value;
+    Papa.parse (csv, {
+        header: true,
+        skipEmptyLines: true,
+        complete: (parsedJson) => submitAttendanceForm (parsedJson, eventType, eventDate),
+    });
+});
+
+// Callback to submit JSON attendance form
+const submitAttendanceForm = async (parsedJson, eventType, eventDate) => {
+    await httpPut (`/api/attendance/event/${eventType}/date/${eventDate}`, parsedJson.data)
         .then(response => response.json())
-        .then((response) => {
-            console.log (response);
-            var allUsers = response.users;
-            // Empty the anchor
-            var allUsersAnchor = document.getElementById('all-users-anchor');
-            allUsersAnchor.innerHTML = '';
-            // Append users to anchor
-            allUsers.forEach((user) => {
-                allUsersAnchor.innerHTML += getUserDisplayEle(user);
-            });
-        });
+        .then ((response) => console.log (response));
 };
 
 
-function getUserDisplayEle(user) {
-    return `<div class="user-display-ele">
-
-        <div class="normal-view">
-            <div>Name: ${user.name}</div>
-            <div>Email: ${user.email}</div>
-            <button class="edit-user-btn" data-user-id="${user.id}">
-                Edit
-            </button>
-            <button class="delete-user-btn" data-user-id="${user.id}">
-                Delete
-            </button>
-        </div>
-        
-        <div class="edit-view">
-            <div>
-                Name: <input class="name-edit-input" value="${user.name}">
-            </div>
-            <div>
-                Email: <input class="email-edit-input" value="${user.email}">
-            </div>
-            <button class="submit-edit-btn" data-user-id="${user.id}">
-                Submit
-            </button>
-            <button class="cancel-edit-btn" data-user-id="${user.id}">
-                Cancel
-            </button>
-        </div>
-    </div>`;
-}
-
-
 /******************************************************************************
- * Add, Edit, and Delete Users
+ * API Methods
  ******************************************************************************/
-
-document.addEventListener('click', function (event) {
-    event.preventDefault();
-    var ele = event.target;
-    if (ele.matches('#add-user-btn')) {
-        addUser();
-    } else if (ele.matches('.edit-user-btn')) {
-        showEditView(ele.parentNode.parentNode);
-    } else if (ele.matches('.cancel-edit-btn')) {
-        cancelEdit(ele.parentNode.parentNode);
-    } else if (ele.matches('.submit-edit-btn')) {
-        submitEdit(ele);
-    } else if (ele.matches('.delete-user-btn')) {
-        deleteUser(ele);
-    }
-}, false)
-
-
-function addUser() {
-    var nameInput = document.getElementById('name-input');
-    var emailInput = document.getElementById('email-input');
-    var data = {
-        user: {
-            name: nameInput.value,
-            email: emailInput.value
-        },
-    };
-    httpPost('/api/users/add', data)
-        .then(() => {
-            displayUsers();
-        })
-}
-
-
-function showEditView(userEle) {
-    var normalView = userEle.getElementsByClassName('normal-view')[0];
-    var editView = userEle.getElementsByClassName('edit-view')[0];
-    normalView.style.display = 'none';
-    editView.style.display = 'block';
-}
-
-
-function cancelEdit(userEle) {
-    var normalView = userEle.getElementsByClassName('normal-view')[0];
-    var editView = userEle.getElementsByClassName('edit-view')[0];
-    normalView.style.display = 'block';
-    editView.style.display = 'none';
-}
-
-
-function submitEdit(ele) {
-    var userEle = ele.parentNode.parentNode;
-    var nameInput = userEle.getElementsByClassName('name-edit-input')[0];
-    var emailInput = userEle.getElementsByClassName('email-edit-input')[0];
-    var id = ele.getAttribute('data-user-id');
-    var data = {
-        user: {
-            name: nameInput.value,
-            email: emailInput.value,
-            id: id
-        }
-    };
-	httpPut('/api/users/update', data)
-        .then(() => {
-            displayUsers();
-        })
-}
-
-
-function deleteUser(ele) {
-    var id = ele.getAttribute('data-user-id');
-	httpDelete('/api/users/delete/' + id)
-        .then(() => {
-            displayUsers();
-        })
-}
-
 
 const httpGet = async (path) => {
     return await fetch(path, await getOptions('GET'));
@@ -225,7 +121,6 @@ const httpPut = async (path, data) => {
 const httpDelete = async (path) => {
     return await fetch(path, await getOptions('DELETE'));
 }
-
 
 const getOptions = async (verb, data) => {
     try {
