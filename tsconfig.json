@@ -84,6 +84,6 @@
     "src/**/*.ts",
     "spec/**/*.ts"],
   "exclude": [
-    "src/public/"
+    
   ]
 }
