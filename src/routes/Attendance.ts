@@ -55,14 +55,14 @@ const { BAD_REQUEST, CREATED, OK } = StatusCodes;
     // For each module, find the relevant assignment in each module by name
     // (e.g. has "Stakeholder Meeting"), and get the first ungraded assignment.
     let sprintMilestones = [];
-    for (let module of modules) {
+    for (let module of (modules || [])) {
       if (module.name.match (/^Sprint [1-9]*$/)) {
         // Get the relevant event assignment from this module
         const moduleItems = await modulesDao.getItems (courseId, module.id);
-        for (let item of moduleItems) {
+        for (let item of (moduleItems || [])) {
           if (item.title.includes (eventType)) {
             const id = item ['content_id'];
-            const points = item ['completion_requirement'].min_score;
+            const points = (item ['completion_requirement'] || {}).min_score;
             const userSubmission = await submissionDao.getByAssignmentAndUser (
               courseId, id, learner ['Lambda ID']
             );

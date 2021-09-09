@@ -2,10 +2,10 @@ import { ISubmission } from '@entities/Submission';
 import CanvasClient from "@daos/Canvas/client";
 
 export interface ISubmissionDao {
-  getOne: (id: string) => Promise<ISubmission | null>;
-  getAll: (assignmentId: string) => Promise<ISubmission[]>;
-  getByAssignmentAndUser: (courseId: string, assignmentId: string, lambdaId: string) => Promise<ISubmission>;
-  putOne: (courseId: string, assignmentId: string, lambdaId: string, points: number) => Promise<void>;
+  getOne: (id: number) => Promise<ISubmission | null>;
+  getAll: (assignmentId: number) => Promise<ISubmission[]>;
+  getByAssignmentAndUser: (courseId: number, assignmentId: number, lambdaId: string) => Promise<ISubmission>;
+  putOne: (courseId: number, assignmentId: number, lambdaId: string, points: number | null | undefined) => Promise<void>;
 }
 
 class SubmissionDao implements ISubmissionDao {
@@ -14,7 +14,7 @@ class SubmissionDao implements ISubmissionDao {
   /**
    * @param id
    */
-  public getOne(id: string): Promise<any | null> {
+  public getOne(id: number): Promise<any | null> {
       // TODO
       return Promise.resolve(null);
   }
@@ -24,7 +24,7 @@ class SubmissionDao implements ISubmissionDao {
    * @param assignmentId 
    */
   // TODO
-  public getAll(assignmentId: string): Promise<ISubmission[]> {
+  public getAll(assignmentId: number): Promise<ISubmission[]> {
       const courseId = 'Q291cnNlLTE0ODI='; // TEMP
       let path = `courses/${courseId}/assignments/${assignmentId}/submissions`;
       return this.client.get(path);
@@ -36,7 +36,7 @@ class SubmissionDao implements ISubmissionDao {
  * @param assignmentId
  * @param lambdaId
  */
-  public getByAssignmentAndUser(courseId: string, assignmentId: string, lambdaId: string): Promise<ISubmission> {
+  public getByAssignmentAndUser(courseId: number, assignmentId: number, lambdaId: string): Promise<ISubmission> {
     // <canvasURL>/api/v1/courses/1474/assignments/47330/submissions/sis_user_id:<lambdaId>
     let path = `courses/${courseId}/assignments/${assignmentId}/submissions/sis_user_id:${lambdaId}`;
     return this.client.get(path);
@@ -48,7 +48,7 @@ class SubmissionDao implements ISubmissionDao {
  * @param assignmentId
  * @param lambdaId
  */
-   public putOne(courseId: string, assignmentId: string, lambdaId: string, points: number): Promise<void> {
+   public putOne(courseId: number, assignmentId: number, lambdaId: string, points: number | null | undefined): Promise<void> {
     // <canvasURL>/api/v1/courses/:courseid/assignments/<id>/submissions/sis_user_id:<lambdaID>?submission[posted_grade]=<points>
     let path = `courses/${courseId}/assignments/${assignmentId}/submissions/sis_user_id:${lambdaId}?submission[posted_grade]=${points}`;
     return this.client.get(path);

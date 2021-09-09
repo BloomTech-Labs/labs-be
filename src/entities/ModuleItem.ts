@@ -1,6 +1,6 @@
 // https://canvas.iastate.edu/doc/api/modules.html
 export interface IModuleItem {
-  id: string;
+  id: number;
   module_id: number;
   position: number;
   title: string;
@@ -66,7 +66,7 @@ class ModuleItemContentDetails {
 }
 
 class Module implements IModuleItem {
-  public id: string;
+  public id: number;
   public module_id: number;
   public position: number;
   public title: string;
@@ -83,7 +83,7 @@ class Module implements IModuleItem {
   public published?: boolean | null;
 
   constructor (
-    id: string,
+    id: number,
     module_id: number,
     position: number,
     title: string,
@@ -100,7 +100,7 @@ class Module implements IModuleItem {
     published?: boolean | null
   ) {
 
-    this.id = id || "";
+    this.id = id;
     this.module_id = module_id;
     this.position = position;
     this.title = title || "";

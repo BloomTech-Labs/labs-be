@@ -2,7 +2,7 @@ import { IModuleItem } from '@entities/ModuleItem';
 
 // https://canvas.iastate.edu/doc/api/modules.html
 export interface IModule {
-  id: string;
+  id: number;
   workflow_state: string;
   position: number;
   name: string;
@@ -19,7 +19,7 @@ export interface IModule {
 }
 
 class Module implements IModule {
-  public id: string;
+  public id: number;
   public workflow_state: string;
   public position: number;
   public name: string;
@@ -35,7 +35,7 @@ class Module implements IModule {
   public published?: boolean | null;
 
   constructor (
-    id: string,
+    id: number,
     workflow_state?: string,
     position?: number,
     name?: string,
@@ -51,7 +51,7 @@ class Module implements IModule {
     published?: boolean | null
   ) {
     
-    this.id = id || "";
+    this.id = id;
     this.workflow_state = workflow_state || "";
     this.position = position || 0;
     this.name = name || "";
