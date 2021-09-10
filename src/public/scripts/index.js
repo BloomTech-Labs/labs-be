@@ -1,79 +1,4 @@
 /******************************************************************************
- * Auth0
- ******************************************************************************/
-
-let auth0 = null;
-const fetchAuthConfig = () => fetch('/auth/config');
- 
-const configureClient = async () => {
-    const response = await fetchAuthConfig();
-    const config = await response.json();
-
-    auth0 = await createAuth0Client({
-        domain: config.domain,
-        client_id: config.clientId,
-        audience: config.audience,
-    });
-};
-
-const updateUI = async () => {
-    const isAuthenticated = await auth0.isAuthenticated();
-    document.getElementById("btn-logout").disabled = !isAuthenticated;
-    document.getElementById("btn-login").disabled = isAuthenticated;
-
-    // Show/hide protected content after authentication
-    if (isAuthenticated) {
-        Array.from(document.getElementsByClassName("protected")).forEach ((elm) => elm.classList.remove("hidden"));
-
-        document.getElementById("ipt-access-token").innerHTML = await auth0.getTokenSilently();
-        //document.getElementById("ipt-user-profile").textContent = JSON.stringify(await auth0.getUser());
-
-        //displayUsers();
-    } else {
-        Array.from(document.getElementsByClassName("protected")).forEach ((elm) => elm.classList.add("hidden"));
-    }
-};
-
-window.login = async () => {
-    await auth0.loginWithRedirect({
-        redirect_uri: window.location.origin
-    });
-};
-
-window.logout = () => {
-    auth0.logout({
-        returnTo: window.location.origin
-    });
-};
- 
-window.onload = async () => {
-    await configureClient();
-
-    updateUI();
-
-    const isAuthenticated = await auth0.isAuthenticated();
-
-    if (isAuthenticated) {
-        // Show protected content
-        return;
-    }
-
-    // Check for the code and state parameters
-    const query = window.location.search;
-    if (query.includes("code=") && query.includes("state=")) {
-
-        // Process the login state
-        await auth0.handleRedirectCallback();
-
-        updateUI();
-
-        // Use replaceState to redirect the user away and remove the querystring parameters
-        window.history.replaceState({}, document.title, "/");
-    }
-}
-
-
-/******************************************************************************
  * Attendance
  ******************************************************************************/
 const attendanceForm = document.getElementById ('attendance-form');
@@ -124,14 +49,10 @@ const httpDelete = async (path) => {
 
 const getOptions = async (verb, data) => {
     try {
-        // Get the access token from the Auth0 client
-        const token = await auth0.getTokenSilently();
-
         var options = {
             dataType: 'json',
             method: verb,
             headers: {
-                'Authorization': `Bearer ${token}`,
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             }

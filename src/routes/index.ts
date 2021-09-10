@@ -2,7 +2,6 @@ import { Router } from 'express';
 import { getAllUsers, addOneUser, updateOneUser, deleteOneUser } from './Users';
 import { getAllVars } from './env';
 import { getAllAssignments, getAssignment, getAssignmentSubmissions } from './Canvas';
-import { getAuthConfig } from './auth';
 import {
   getAllSurveys,
   getCohortSurveys,
@@ -21,9 +20,6 @@ userRouter.delete('/delete/:id', deleteOneUser);
 
 const envRouter = Router();
 envRouter.get('/all', getAllVars);
-
-const authRouter = Router();
-authRouter.get ('/auth/config', getAuthConfig);
 
 const canvasRouter = Router();
 canvasRouter.get('/assignments', getAllAssignments);
@@ -47,7 +43,4 @@ baseRouter.use('/canvas', canvasRouter);
 baseRouter.use('/airtable', airtableRouter);
 baseRouter.use('/attendance', attendanceRouter);
 
-export default {
-  baseRouter,
-  authRouter,
-};
+export default { baseRouter };
