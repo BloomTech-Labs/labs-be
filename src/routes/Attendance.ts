@@ -3,7 +3,6 @@ import { Request, Response } from 'express';
 import { join } from "path";
 import fs from 'fs';
 import logger from '@shared/Logger';
-import * as Papa from 'papaparse';
 import util from 'util';
 
 import StudentDao from '@daos/Airtable/StudentDao';

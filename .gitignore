@@ -1,6 +1,11 @@
 .vscode
 apidoc
 dist-api
+build
+.dist
+
+#docker generated files
+data/pg
 
 # test output
 coverage
