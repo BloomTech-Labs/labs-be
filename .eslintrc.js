@@ -11,7 +11,7 @@ module.exports = {
   parserOptions: {
     project: "./tsconfig.json"
   },
-  plugins: ["@typescript-eslint"],
+  plugins: ["import", "@typescript-eslint"],
   rules: {
     "no-console": 1,
     "no-use-before-define": "off",
