@@ -1,0 +1,13 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "API-dev",
+      "Group": "Dev",
+      "Port": 5432,
+      "Username": "docker",
+      "Host": "labs-be-pg",
+      "SSLMode": "prefer",
+      "MaintenanceDB": "postgres"
+    }
+  }
+}
