@@ -18,16 +18,16 @@ export interface IModuleItem {
 }
 
 export interface IModuleItemCompletionRequirement {
-  type: string,
-  min_score: number | null,
-  completed: boolean,
+  type: string;
+  min_score: number | null;
+  completed: boolean;
 }
 
 export interface IModuleItemContentDetails {
-  points_possible?: number | null,
-    due_at?: Date | null,
-    unlock_at?: Date | null,
-    lock_at?: Date | null
+  points_possible?: number | null;
+  due_at?: Date | null;
+  unlock_at?: Date | null;
+  lock_at?: Date | null;
 }
 
 class ModuleItemCompletionRequirement {
@@ -35,11 +35,7 @@ class ModuleItemCompletionRequirement {
   public min_score: number | null;
   public completed: boolean;
 
-  constructor (
-    type: string,
-    min_score: number | null,
-    completed: boolean
-  ) {
+  constructor(type: string, min_score: number | null, completed: boolean) {
     this.type = type;
     this.min_score = min_score;
     this.completed = completed;
@@ -52,7 +48,7 @@ class ModuleItemContentDetails {
   public unlock_at?: Date | null;
   public lock_at?: Date | null;
 
-  constructor (
+  constructor(
     points_possible?: number | null,
     due_at?: Date | null,
     unlock_at?: Date | null,
@@ -82,7 +78,7 @@ class Module implements IModuleItem {
   public content_details?: IModuleItemContentDetails;
   public published?: boolean | null;
 
-  constructor (
+  constructor(
     id: number,
     module_id: number,
     position: number,
@@ -99,7 +95,6 @@ class Module implements IModuleItem {
     content_details?: IModuleItemContentDetails,
     published?: boolean | null
   ) {
-
     this.id = id;
     this.module_id = module_id;
     this.position = position;
@@ -112,8 +107,11 @@ class Module implements IModuleItem {
     this.page_url = page_url || "";
     this.external_url = external_url || "";
     this.new_tab = new_tab || "";
-    this.completion_requirement = completion_requirement || new ModuleItemCompletionRequirement ("", null, false);
-    this.content_details = content_details || new ModuleItemContentDetails (null, null, null, null);
+    this.completion_requirement =
+      completion_requirement ||
+      new ModuleItemCompletionRequirement("", null, false);
+    this.content_details =
+      content_details || new ModuleItemContentDetails(null, null, null, null);
     this.published = published;
   }
 }

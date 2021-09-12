@@ -1,20 +1,19 @@
-import { Router } from 'express';
-import { getAllUsers, addOneUser, updateOneUser, deleteOneUser } from './Users';
-import { getAllVars } from './env';
+import { Router } from "express";
+import { getAllUsers, addOneUser, updateOneUser, deleteOneUser } from "./Users";
+import { getAllVars } from "./env";
 import {
   getAllAssignments,
   getAssignment,
-  getAssignmentSubmissions
-} from './Canvas';
+  getAssignmentSubmissions,
+} from "./Canvas";
 import {
   getAllSurveys,
   getCohortSurveys,
   getAllStudents,
   getCohortStudents,
   getStudentByEmail,
-} from './Airtable';
-import { putEventAttendance } from './Attendance';
-
+} from "./Airtable";
+import { putEventAttendance } from "./Attendance";
 
 const userRouter = Router();
 userRouter.get("/all", getAllUsers);
@@ -31,20 +30,20 @@ canvasRouter.get("/assignments/:id", getAssignment);
 canvasRouter.get("/assignments/:id/submissions", getAssignmentSubmissions);
 
 const airtableRouter = Router();
-airtableRouter.get('/surveys', getAllSurveys);
-airtableRouter.get('/surveys/:cohort', getCohortSurveys);
-airtableRouter.get('/students', getAllStudents);
-airtableRouter.get('/students/cohort/:cohort', getCohortStudents);
-airtableRouter.get('/students/email/:email', getStudentByEmail);
+airtableRouter.get("/surveys", getAllSurveys);
+airtableRouter.get("/surveys/:cohort", getCohortSurveys);
+airtableRouter.get("/students", getAllStudents);
+airtableRouter.get("/students/cohort/:cohort", getCohortStudents);
+airtableRouter.get("/students/email/:email", getStudentByEmail);
 
 const attendanceRouter = Router();
-attendanceRouter.put('/event/:eventType/date/:eventDate', putEventAttendance);
+attendanceRouter.put("/event/:eventType/date/:eventDate", putEventAttendance);
 
 const baseRouter = Router();
-baseRouter.use('/users', userRouter);
-baseRouter.use('/vars', envRouter);
-baseRouter.use('/canvas', canvasRouter);
-baseRouter.use('/airtable', airtableRouter);
-baseRouter.use('/attendance', attendanceRouter);
+baseRouter.use("/users", userRouter);
+baseRouter.use("/vars", envRouter);
+baseRouter.use("/canvas", canvasRouter);
+baseRouter.use("/airtable", airtableRouter);
+baseRouter.use("/attendance", attendanceRouter);
 
 export default { baseRouter };

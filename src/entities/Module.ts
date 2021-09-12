@@ -1,4 +1,4 @@
-import { IModuleItem } from '@entities/ModuleItem';
+import { IModuleItem } from "@entities/ModuleItem";
 
 // https://canvas.iastate.edu/doc/api/modules.html
 export interface IModule {
@@ -34,7 +34,7 @@ class Module implements IModule {
   public publish_final_grade: boolean | null;
   public published?: boolean | null;
 
-  constructor (
+  constructor(
     id: number,
     workflow_state?: string,
     position?: number,
@@ -50,7 +50,6 @@ class Module implements IModule {
     publish_final_grade?: boolean | null,
     published?: boolean | null
   ) {
-    
     this.id = id;
     this.workflow_state = workflow_state || "";
     this.position = position || 0;
@@ -60,7 +59,7 @@ class Module implements IModule {
     this.prerequisite_module_ids = prerequisite_module_ids || [];
     this.items_count = items_count || 0;
     this.items_url = items_url || "";
-    this.items = items ;
+    this.items = items;
     this.state = state || "";
     this.completed_at = completed_at ? new Date(completed_at) : new Date();
     this.publish_final_grade = publish_final_grade || null;

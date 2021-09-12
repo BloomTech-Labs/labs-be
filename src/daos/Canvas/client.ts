@@ -5,6 +5,6 @@ export interface ICanvasClient {
   /* eslint-enable @typescript-eslint/no-explicit-any */
 }
 
-class CanvasClient extends BaseClient implements ICanvasClient { }
+class CanvasClient extends BaseClient implements ICanvasClient {}
 
 export default CanvasClient;

@@ -24,7 +24,7 @@ DATABASE_URL=<connection string for postgres database using the knex url format>
 
 1. Use docker. [Install](https://docs.docker.com/get-docker/) for your platform
    - run: `docker-compose up -d` to start up the postgresql database and pgadmin.
-   - Open a browser to [pgadmin](http://localhost:5050/) 
+   - Open a browser to [pgadmin](http://localhost:5050/)
      - Login with `pgadmin4@pgadmin.org` and `admin`
      - you should see the Dev server already defined.
      - open the server and enter the password `docker`

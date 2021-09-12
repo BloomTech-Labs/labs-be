@@ -82,18 +82,11 @@ class SectionGradingCount {
   public section_id: string;
   public needs_grading_count: number;
 
-  constructor (
-    id: string,
-    needs_grading_count: number
-  ) {
+  constructor(id: string, needs_grading_count: number) {
     this.section_id = id;
     this.needs_grading_count = needs_grading_count;
   }
 }
-
-
-
-
 
 class Assignment implements IAssignment {
   public id: string;
@@ -166,7 +159,7 @@ class Assignment implements IAssignment {
   public score_statistics?: any; // ?
   public can_submit?: boolean | null;
 
-  constructor (
+  constructor(
     id: string,
     name: string,
     description: string,
@@ -246,7 +239,7 @@ class Assignment implements IAssignment {
     this.lock_at = lock_at ? new Date(lock_at) : new Date();
     this.unlock_at = unlock_at ? new Date(unlock_at) : new Date();
     this.has_overrides = has_overrides;
-    this.all_dates = all_dates ? all_dates.map(date => new Date (date)) : [];
+    this.all_dates = all_dates ? all_dates.map((date) => new Date(date)) : [];
     this.course_id = course_id;
     this.html_url = html_url;
     this.submissions_download_url = submissions_download_url;
@@ -257,16 +250,20 @@ class Assignment implements IAssignment {
     this.turnitin_enabled = turnitin_enabled || null;
     this.vericite_enabled = vericite_enabled || null;
     this.turnitin_settings = turnitin_settings || null;
-    this.grade_group_students_individually = grade_group_students_individually || null;
+    this.grade_group_students_individually =
+      grade_group_students_individually || null;
     this.external_tool_tag_attributes = external_tool_tag_attributes || null;
     this.peer_reviews = peer_reviews;
     this.automatic_peer_reviews = automatic_peer_reviews;
     this.peer_review_count = peer_review_count || null;
-    this.peer_reviews_assign_at = peer_reviews_assign_at ? new Date(peer_reviews_assign_at) : new Date();
+    this.peer_reviews_assign_at = peer_reviews_assign_at
+      ? new Date(peer_reviews_assign_at)
+      : new Date();
     this.intra_group_peer_reviews = intra_group_peer_reviews;
     this.group_category_id = group_category_id || null;
     this.needs_grading_count = needs_grading_count || null;
-    this.needs_grading_count_by_section = needs_grading_count_by_section || null;
+    this.needs_grading_count_by_section =
+      needs_grading_count_by_section || null;
     this.position = position;
     this.post_to_sis = post_to_sis || null;
     this.integration_id = integration_id || null;
@@ -298,9 +295,11 @@ class Assignment implements IAssignment {
     this.moderated_grading = moderated_grading;
     this.grader_count = grader_count;
     this.final_grader_id = final_grader_id || null;
-    this.grader_comments_visible_to_graders = grader_comments_visible_to_graders || null;
+    this.grader_comments_visible_to_graders =
+      grader_comments_visible_to_graders || null;
     this.graders_anonymous_to_graders = graders_anonymous_to_graders || null;
-    this.grader_names_visible_to_final_grader = grader_names_visible_to_final_grader || null;
+    this.grader_names_visible_to_final_grader =
+      grader_names_visible_to_final_grader || null;
     this.anonymous_grading = anonymous_grading;
     this.allowed_attempts = allowed_attempts;
     this.post_manually = post_manually || null;
