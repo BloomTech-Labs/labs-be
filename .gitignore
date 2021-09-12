@@ -1,6 +1,9 @@
 apidoc
 dist
 
+#docker generated files
+data/pg
+
 # test output
 coverage
 test-report.xml
