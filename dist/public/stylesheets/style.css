@@ -3,31 +3,31 @@ body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
-body .display-column {
+body .users-column {
   display: inline-block;
   margin-right: 2em;
   vertical-align: top;
 }
 
-body .display-column .column-header {
+body .users-column .column-header {
   padding-bottom: 5px;
   font-weight: 700;
   font-size: 1.2em;
 }
 
-body .add-ele-col input {
+body .add-user-col input {
   margin-bottom: 10px;
 }
 
-body .display-column .display-ele {
+body .users-column .user-display-ele {
   padding-bottom: 10px;
 }
 
-body .display-column .display-ele button {
+body .users-column .user-display-ele button {
   margin-top: 2px;
   margin-bottom: 10px;
 }
 
-body .display-column .display-ele .edit-view {
+body .users-column .user-display-ele .edit-view {
   display: none;
 }

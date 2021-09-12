@@ -1,7 +1,7 @@
-import { IRoleApplication } from '@entities/RoleApplication';
-import { getRandomInt } from '@shared/functions';
-import { IRoleDao } from './RoleDao';
-import MockDaoMock from '../MockDb/MockDao.mock';
+import { IRoleApplication } from "@entities/RoleApplication";
+import { getRandomInt } from "@shared/functions";
+import { IRoleDao } from "./RoleDao";
+import MockDaoMock from "../MockDb/MockDao.mock";
 
 class RoleDao implements IRoleDao {
   /**

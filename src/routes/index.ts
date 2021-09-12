@@ -13,18 +13,18 @@ import { putEventAttendance } from './Attendance';
 
 
 const userRouter = Router();
-userRouter.get('/all', getAllUsers);
-userRouter.post('/add', addOneUser);
-userRouter.put('/update', updateOneUser);
-userRouter.delete('/delete/:id', deleteOneUser);
+userRouter.get("/all", getAllUsers);
+userRouter.post("/add", addOneUser);
+userRouter.put("/update", updateOneUser);
+userRouter.delete("/delete/:id", deleteOneUser);
 
 const envRouter = Router();
-envRouter.get('/all', getAllVars);
+envRouter.get("/all", getAllVars);
 
 const canvasRouter = Router();
-canvasRouter.get('/assignments', getAllAssignments);
-canvasRouter.get('/assignments/:id', getAssignment);
-canvasRouter.get('/assignments/:id/submissions', getAssignmentSubmissions);
+canvasRouter.get("/assignments", getAllAssignments);
+canvasRouter.get("/assignments/:id", getAssignment);
+canvasRouter.get("/assignments/:id/submissions", getAssignmentSubmissions);
 
 const airtableRouter = Router();
 airtableRouter.get('/surveys', getAllSurveys);
@@ -34,7 +34,7 @@ airtableRouter.get('/students/cohort/:cohort', getCohortStudents);
 airtableRouter.get('/students/email/:email', getStudentByEmail);
 
 const attendanceRouter = Router();
-attendanceRouter.put ('/event/:eventType/date/:eventDate', putEventAttendance);
+attendanceRouter.put('/event/:eventType/date/:eventDate', putEventAttendance);
 
 const baseRouter = Router();
 baseRouter.use('/users', userRouter);
