@@ -1,7 +1,11 @@
 import { Router } from 'express';
 import { getAllUsers, addOneUser, updateOneUser, deleteOneUser } from './Users';
 import { getAllVars } from './env';
-import { getAllAssignments, getAssignment, getAssignmentSubmissions } from './Canvas';
+import {
+  getAllAssignments,
+  getAssignment,
+  getAssignmentSubmissions
+} from './Canvas';
 import {
   getAllSurveys,
   getCohortSurveys,

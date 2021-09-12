@@ -17,7 +17,7 @@ const { BAD_REQUEST, CREATED, OK } = StatusCodes;
  * @param res 
  * @returns 
  */
- export async function getAllSurveys(req: Request, res: Response) {
+export async function getAllSurveys(req: Request, res: Response) {
 
   const surveys = await surveyDao.getAll();
 
@@ -32,7 +32,7 @@ const { BAD_REQUEST, CREATED, OK } = StatusCodes;
  * @param res 
  * @returns 
  */
- export async function getCohortSurveys(req: Request, res: Response) {
+export async function getCohortSurveys(req: Request, res: Response) {
   const { cohort } = req.params;
   const surveys = await surveyDao.getCohort(cohort);
 
@@ -46,7 +46,7 @@ const { BAD_REQUEST, CREATED, OK } = StatusCodes;
  * @param res 
  * @returns 
  */
- export async function getAllStudents(req: Request, res: Response) {
+export async function getAllStudents(req: Request, res: Response) {
 
   const students = await studentDao.getAll();
 
@@ -60,7 +60,7 @@ const { BAD_REQUEST, CREATED, OK } = StatusCodes;
  * @param res 
  * @returns
  */
- export async function getCohortStudents(req: Request, res: Response) {
+export async function getCohortStudents(req: Request, res: Response) {
 
   const { cohort } = req.params;
   const students = await studentDao.getCohort(cohort);
@@ -74,7 +74,7 @@ const { BAD_REQUEST, CREATED, OK } = StatusCodes;
  * @param res 
  * @returns
  */
- export async function getStudentByEmail(req: Request, res: Response) {
+export async function getStudentByEmail(req: Request, res: Response) {
 
   const { email } = req.params;
   const student = await studentDao.getByEmail(email);
