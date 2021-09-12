@@ -1,8 +1,5 @@
-.vscode
 apidoc
-dist-api
-build
-.dist
+dist
 
 #docker generated files
 data/pg

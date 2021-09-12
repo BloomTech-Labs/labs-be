@@ -6,24 +6,24 @@ export interface ISubmissionDao {
 }
 
 class SubmissionDao implements ISubmissionDao {
-
-  private client: CanvasClient = new CanvasClient({ token: process.env.canvas_access_token});
+  private client: CanvasClient = new CanvasClient({
+    token: process.env.canvas_access_token,
+  });
   /**
    * @param id
    */
   public getOne(id: string): Promise<any | null> {
-      // TODO
-      return Promise.resolve(null);
+    // TODO
+    return Promise.resolve(null);
   }
 
-
   /**
-   * @param assignmentId 
+   * @param assignmentId
    */
   public getAll(assignmentId: string): any {
-      const courseId = 'Q291cnNlLTE0ODI=';
-      let path = `courses/${courseId}/assignments/${assignmentId}/submissions`;
-      return this.client.get(path);
+    const courseId = "Q291cnNlLTE0ODI=";
+    const path = `courses/${courseId}/assignments/${assignmentId}/submissions`;
+    return this.client.get(path);
   }
 }
 
