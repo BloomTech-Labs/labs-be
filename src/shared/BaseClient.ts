@@ -1,6 +1,9 @@
 import fetch from "node-fetch";
 import { RequestInit, HeadersInit, BodyInit } from "node-fetch";
 
+export enum AuthTypes {
+  JWT = "JWT",
+}
 export interface IBaseClient {
   /* eslint-disable @typescript-eslint/no-explicit-any */
   get: (path: string) => Promise<any | null>;
@@ -13,21 +16,22 @@ class BaseClient implements IBaseClient {
   public headers: Record<string, unknown>;
 
   constructor(opts: Record<string, unknown> = {}) {
-    if (!opts.token) {
-      throw new Error("missing canvas api token option");
+    if (opts.auth_type == AuthTypes.JWT && !opts.token) {
+      throw new Error("missing api JWT token option");
     }
     this.options = Object.assign(
       {
-        base_url: "https://lambdaschool.instructure.com/api/v1/",
-        ver: "/v1",
+        base_url: opts.base_url,
       },
       opts
     );
     this.headers = {
-      Authorization: `Bearer ${this.options.token as string}`,
       "Content-Type": "application/vnd.api+json",
       Accept: "application/vnd.api+json",
     };
+    if (opts.auth_type == AuthTypes.JWT) {
+      this.headers.Authorization = `Bearer ${opts.token as string}`;
+    }
   }
   /* eslint-disable @typescript-eslint/no-explicit-any */
   public async request(
