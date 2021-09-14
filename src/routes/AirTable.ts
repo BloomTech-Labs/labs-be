@@ -15,9 +15,10 @@ const { BAD_REQUEST, CREATED, OK } = StatusCodes;
  * @param res
  * @returns
  */
-export async function getAllSurveys(req: Request, res: Response) {
-  const surveys = await surveyDao.getAll();
-
+export function getAllSurveys(req: Request, res: Response) {
+  const surveys: unknown = (async () => {
+    await surveyDao.getAll();
+  })();
   console.log(surveys);
   return res.status(OK).json(surveys);
 }
@@ -29,9 +30,10 @@ export async function getAllSurveys(req: Request, res: Response) {
  * @param res
  * @returns
  */
-export async function getCohortSurveys(req: Request, res: Response) {
+export function getCohortSurveys(req: Request, res: Response) {
   const { cohort } = req.params;
-  const surveys = await surveyDao.getCohort(cohort);
-
+  const surveys: unknown = (async () => {
+    await surveyDao.getCohort(cohort);
+  })();
   return res.status(OK).json(surveys);
 }

@@ -11,25 +11,19 @@ export interface IBaseClient {
   /* eslint-enable @typescript-eslint/no-explicit-any */
 }
 
-class BaseClient implements IBaseClient {
-  public options: Record<string, unknown>;
-  public headers: Record<string, unknown>;
+export class BaseClient implements IBaseClient {
+  options: Record<string, unknown>;
+  headers: Record<string, unknown> = {
+    "Content-Type": "application/vnd.api+json",
+    Accept: "application/vnd.api+json",
+  };
 
   constructor(opts: Record<string, unknown> = {}) {
     if (opts.auth_type == AuthTypes.JWT && !opts.token) {
       throw new Error("missing api JWT token option");
     }
-    this.options = Object.assign(
-      {
-        base_url: opts.base_url,
-      },
-      opts
-    );
-    this.headers = {
-      "Content-Type": "application/vnd.api+json",
-      Accept: "application/vnd.api+json",
-    };
-    if (opts.auth_type == AuthTypes.JWT) {
+    this.options = opts;
+    if (opts.authType == AuthTypes.JWT) {
       this.headers.Authorization = `Bearer ${opts.token as string}`;
     }
   }
@@ -55,11 +49,11 @@ class BaseClient implements IBaseClient {
     return res.json();
   }
 
-  public get(path: string): Promise<any> {
+  public get(path: string): any {
     return this.request(path);
   }
 
-  public post(path: string, body = {}): Promise<any> {
+  public post(path: string, body = {}): any {
     if (body == {}) {
       throw new Error("Body is missing for POST method.");
     }
@@ -67,5 +61,3 @@ class BaseClient implements IBaseClient {
   }
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
-
-export default BaseClient;
