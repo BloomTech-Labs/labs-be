@@ -1,6 +1,9 @@
 import fetch from "node-fetch";
 import { RequestInit, HeadersInit, BodyInit } from "node-fetch";
 
+export enum AuthTypes {
+  JWT = "JWT",
+}
 export interface IBaseClient {
   /* eslint-disable @typescript-eslint/no-explicit-any */
   get: (path: string) => Promise<any | null>;
@@ -8,26 +11,21 @@ export interface IBaseClient {
   /* eslint-enable @typescript-eslint/no-explicit-any */
 }
 
-class BaseClient implements IBaseClient {
-  public options: Record<string, unknown>;
-  public headers: Record<string, unknown>;
+export class BaseClient implements IBaseClient {
+  options: Record<string, unknown>;
+  headers: Record<string, unknown> = {
+    "Content-Type": "application/vnd.api+json",
+    Accept: "application/vnd.api+json",
+  };
 
   constructor(opts: Record<string, unknown> = {}) {
-    if (!opts.token) {
-      throw new Error("missing canvas api token option");
+    if (opts.auth_type == AuthTypes.JWT && !opts.token) {
+      throw new Error("missing api JWT token option");
     }
-    this.options = Object.assign(
-      {
-        base_url: "https://lambdaschool.instructure.com/api/v1/",
-        ver: "/v1",
-      },
-      opts
-    );
-    this.headers = {
-      Authorization: `Bearer ${this.options.token as string}`,
-      "Content-Type": "application/vnd.api+json",
-      Accept: "application/vnd.api+json",
-    };
+    this.options = opts;
+    if (opts.authType == AuthTypes.JWT) {
+      this.headers.Authorization = `Bearer ${opts.token as string}`;
+    }
   }
   /* eslint-disable @typescript-eslint/no-explicit-any */
   public async request(
@@ -51,11 +49,11 @@ class BaseClient implements IBaseClient {
     return res.json();
   }
 
-  public get(path: string): Promise<any> {
+  public get(path: string): any {
     return this.request(path);
   }
 
-  public post(path: string, body = {}): Promise<any> {
+  public post(path: string, body = {}): any {
     if (body == {}) {
       throw new Error("Body is missing for POST method.");
     }
@@ -63,5 +61,3 @@ class BaseClient implements IBaseClient {
   }
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
-
-export default BaseClient;

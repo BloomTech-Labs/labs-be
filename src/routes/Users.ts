@@ -17,8 +17,10 @@ const { BAD_REQUEST, CREATED, OK } = StatusCodes;
 export async function getAllUsers(
   req: Request,
   res: Response
-): Promise<Response> {
-  const users = await userDao.getAll();
+): Promise<Response<any, Record<string, any>>> {
+  const users = (async () => {
+    await userDao.getAll();
+  })();
   return res.status(OK).json({ users });
 }
 
@@ -39,7 +41,9 @@ export async function addOneUser(
       error: paramMissingError,
     });
   }
-  await userDao.add(user);
+  void (async () => {
+    await userDao.add(user);
+  })();
   return res.status(CREATED).end();
 }
 
@@ -61,7 +65,9 @@ export async function updateOneUser(
     });
   }
   user.id = Number(user.id);
-  await userDao.update(user);
+  void (async () => {
+    await userDao.update(user);
+  })();
   return res.status(OK).end();
 }
 
@@ -77,6 +83,8 @@ export async function deleteOneUser(
   res: Response
 ): Promise<void> {
   const { id } = req.params;
-  await userDao.delete(Number(id));
+  void (async () => {
+    await userDao.delete(Number(id));
+  })();
   return res.status(OK).end();
 }

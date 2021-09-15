@@ -46,4 +46,4 @@ baseRouter.use("/canvas", canvasRouter);
 baseRouter.use("/airtable", airtableRouter);
 baseRouter.use("/attendance", attendanceRouter);
 
-export default { baseRouter };
+export default baseRouter;

@@ -18,10 +18,10 @@ const { BAD_REQUEST, CREATED, OK } = StatusCodes;
 export async function getAllAssignments(
   req: Request,
   res: Response
-): Promise<Response | void> {
+): Promise <Response<any, Record<string, any>>> {
   const { unitId } = req.params;
   logger.info("unitID: " + unitId);
-  const assignments = await assignmentsDao.getAll();
+  const assignments: unknown = await assignmentsDao.getAll();
   // Roles entity
   // get application data
   // Get teams with members (and role)
@@ -32,20 +32,24 @@ export async function getAllAssignments(
   return res.status(OK).json(assignments);
 }
 
-export async function getAssignment(
+export function getAssignment(
   req: Request,
   res: Response
-): Promise<Response | void> {
+): Response<any, Record<string, any>> {
   const { id } = req.params;
-  const assignment = await assignmentsDao.getOne(parseInt(id));
+  const assignment: unknown = (async () => {
+    await assignmentsDao.getOne(parseInt(id));
+  })();
   return res.status(OK).json(assignment);
 }
 
-export async function getAssignmentSubmissions(
+export function getAssignmentSubmissions(
   req: Request,
   res: Response
-): Promise<Response | void> {
+): Response<any, Record<string, any>> {
   const { id } = req.params;
-  const assignment = await assignmentsDao.getSubmissions(parseInt(id));
+  const assignment: unknown = (async () => {
+    await assignmentsDao.getSubmissions(parseInt(id));
+  })();
   return res.status(OK).json(assignment);
 }
