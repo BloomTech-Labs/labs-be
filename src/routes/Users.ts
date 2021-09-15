@@ -14,11 +14,13 @@ const { BAD_REQUEST, CREATED, OK } = StatusCodes;
  * @param res
  * @returns
  */
-export async function getAllUsers(
+export function getAllUsers(
   req: Request,
   res: Response
-): Promise<Response> {
-  const users = await userDao.getAll();
+): Response<any, Record<string, any>> {
+  const users = (async () => {
+    await userDao.getAll();
+  })();
   return res.status(OK).json({ users });
 }
 
@@ -29,17 +31,16 @@ export async function getAllUsers(
  * @param res
  * @returns
  */
-export async function addOneUser(
-  req: Request,
-  res: Response
-): Promise<Response | void> {
+export function addOneUser(req: Request, res: Response): Response | void {
   const { user } = req.body;
   if (!user) {
     return res.status(BAD_REQUEST).json({
       error: paramMissingError,
     });
   }
-  await userDao.add(user);
+  void (async () => {
+    await userDao.add(user);
+  })();
   return res.status(CREATED).end();
 }
 
@@ -50,10 +51,7 @@ export async function addOneUser(
  * @param res
  * @returns
  */
-export async function updateOneUser(
-  req: Request,
-  res: Response
-): Promise<Response | void> {
+export function updateOneUser(req: Request, res: Response): Response | void {
   const { user } = req.body;
   if (!user) {
     return res.status(BAD_REQUEST).json({
@@ -61,7 +59,9 @@ export async function updateOneUser(
     });
   }
   user.id = Number(user.id);
-  await userDao.update(user);
+  void (async () => {
+    await userDao.update(user);
+  })();
   return res.status(OK).end();
 }
 
@@ -72,11 +72,10 @@ export async function updateOneUser(
  * @param res
  * @returns
  */
-export async function deleteOneUser(
-  req: Request,
-  res: Response
-): Promise<void> {
+export function deleteOneUser(req: Request, res: Response): void {
   const { id } = req.params;
-  await userDao.delete(Number(id));
+  void (async () => {
+    await userDao.delete(Number(id));
+  })();
   return res.status(OK).end();
 }
