@@ -43,8 +43,8 @@ async function mergeStudentRecords(
   learners: Array<any>,
   studentRecords: any
 ): Promise<Array<any>> {
-  for (let learner of learners) {
-    let airtableRecord = studentRecords.find(
+  for (const learner of learners) {
+    const airtableRecord = studentRecords.find(
       (elm: any) => elm.fields["Email"] == learner["Email"]
     ); // TODO: Type validation
     learner["Lambda ID"] = airtableRecord.fields["Lambda ID"];
@@ -105,7 +105,7 @@ async function getMilestone(
   module: IModule
 ) {
   const moduleItems = await modulesDao.getItems(courseId, module.id);
-  for (let item of moduleItems || []) {
+  for (const item of moduleItems || []) {
     if (item.title.includes(eventType)) {
       const assignmentId = item["content_id"];
       const points = (item["completion_requirement"] || {}).min_score;
@@ -142,9 +142,9 @@ async function getNextAssignment(
   courseId: number,
   modules: Array<IModule> | null
 ) {
-  let sprintMilestones = [];
-  for (let module of modules || []) {
-    if (module.name.match(/^Sprint [1-9]*$/)) {
+  const sprintMilestones = [];
+  for (const module of modules || []) {
+    if (/^Sprint [1-9]*$/.exec(module.name)) {
       // Matches "Sprint #"
       // Get the relevant milestone from this module.
       const milestone = await getMilestone(
@@ -162,7 +162,7 @@ async function getNextAssignment(
   // Alphabetize sprintMilestones and check each for completion
   let nextAssignment = null;
   sprintMilestones.sort((a, b) => a.name.localeCompare(b.name));
-  for (let milestone of sprintMilestones) {
+  for (const milestone of sprintMilestones) {
     if (!milestone.completed) {
       nextAssignment = milestone;
       break;
@@ -229,7 +229,7 @@ export async function processAttendance(
 
   // For each learner, submit the next open attendance slot in the Canvas
   // gradebook for the given event type.
-  for (let learner of learners) {
+  for (const learner of learners) {
     try {
       await submitNextEventAttendance(learner, eventType);
     } catch (e) {
@@ -250,7 +250,7 @@ export async function processAttendance(
  */
 export async function putEventAttendance(req: Request, res: Response) {
   const { eventType, eventDate } = req.params;
-  let learners: Array<any> = req.body; // TODO: Type validation
+  const learners: Array<any> = req.body; // TODO: Type validation
 
   await processAttendance(eventType, eventDate, learners);
 

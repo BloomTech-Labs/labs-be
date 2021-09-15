@@ -37,7 +37,7 @@ class StudentDao {
   public async getByEmail(email: string): Promise<any> {
     const students = await this.airtable("Students")
       .select({
-        view: `Grid view`,
+        view: "Grid view",
         maxRecords: 1,
         filterByFormula: `{Email} = "${email}"`,
       })
@@ -64,7 +64,7 @@ class StudentDao {
 
     const students = await this.airtable("Students")
       .select({
-        view: `Grid view`,
+        view: "Grid view",
         filterByFormula: formula,
       })
       .all();

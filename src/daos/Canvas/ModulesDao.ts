@@ -22,7 +22,7 @@ class ModulesDao implements IModulesDao {
    */
   public getAllInCourse(courseId: number): Promise<IModule[] | null> {
     // <canvasURL>/api/v1/courses/:courseId/modules
-    let path = `courses/${courseId}/modules?per_page=50`;
+    const path = `courses/${courseId}/modules?per_page=50`;
     // TODO: Canvas paginates query responses at 10 per page—in these requests,
     // we should loop through the Link headers to retrieve all results.
     // https://canvas.instructure.com/doc/api/file.pagination.html
@@ -37,7 +37,7 @@ class ModulesDao implements IModulesDao {
     moduleId: number
   ): Promise<IModuleItem[] | null> {
     // <canvasURL>/api/v1/courses/:courseId/modules/:moduleId>/items
-    let path = `courses/${courseId}/modules/${moduleId}/items?include[content_details]&per_page=50`;
+    const path = `courses/${courseId}/modules/${moduleId}/items?include[content_details]&per_page=50`;
     // TODO: Canvas paginates query responses at 10 per page—in these requests,
     // we should loop through the Link headers to retrieve all results.
     // https://canvas.instructure.com/doc/api/file.pagination.html

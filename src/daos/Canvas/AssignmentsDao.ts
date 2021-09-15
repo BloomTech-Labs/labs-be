@@ -22,7 +22,7 @@ class AssignmentsDao implements IAssignmentsDao {
    */
   public getOne(id: number): Promise<Assignment | null> {
     // https://lambdaschool.instructure.com/api/v1/courses/1482/assignments/47902
-    let path = `courses/${this.courseId}/assignments/${id}?include=submission`;
+    const path = `courses/${this.courseId}/assignments/${id}?include=submission`;
     return this.client.get(path);
   }
 
@@ -30,7 +30,7 @@ class AssignmentsDao implements IAssignmentsDao {
    *
    */
   public getAll(): Promise<Assignment[]> {
-    let path = `courses/${this.courseId}/assignments/`;
+    const path = `courses/${this.courseId}/assignments/`;
     return this.client.get(path);
   }
 
@@ -39,7 +39,7 @@ class AssignmentsDao implements IAssignmentsDao {
    */
   public getSubmissions(id: number): Promise<Submission[]> {
     // /api/v1/courses/:course_id/assignments/:assignment_id/submissions
-    let path = `courses/${this.courseId}/assignments/${id}/submissions?include=user`;
+    const path = `courses/${this.courseId}/assignments/${id}/submissions?include=user`;
     return this.client.get(path);
   }
 }

@@ -49,7 +49,7 @@ class SubmissionDao implements ISubmissionDao {
     lambdaId: string
   ): Promise<ISubmission> {
     // <canvasURL>/api/v1/courses/1474/assignments/47330/submissions/sis_user_id:<lambdaId>
-    let path = `courses/${courseId}/assignments/${assignmentId}/submissions/sis_user_id:${lambdaId}`;
+    const path = `courses/${courseId}/assignments/${assignmentId}/submissions/sis_user_id:${lambdaId}`;
     return this.client.get(path);
   }
 
@@ -65,7 +65,7 @@ class SubmissionDao implements ISubmissionDao {
     points: number | null | undefined
   ): Promise<void> {
     // <canvasURL>/api/v1/courses/:courseid/assignments/<id>/submissions/sis_user_id:<lambdaID>?submission[posted_grade]=<points>
-    let path = `courses/${courseId}/assignments/${assignmentId}/submissions/sis_user_id:${lambdaId}?submission[posted_grade]=${points}`;
+    const path = `courses/${courseId}/assignments/${assignmentId}/submissions/sis_user_id:${lambdaId}?submission[posted_grade]=${points}`;
     return this.client.get(path);
   }
 }

@@ -5,6 +5,7 @@
     "build": "./node_modules/.bin/ts-node build.ts",
     "format": "npx prettier --write .",
     "lint": "npx eslint src --ext .ts",
+    "lint:fix": "npx eslint src --ext .ts --fix",
     "start": "node -r module-alias/register ./dist --env=production",
     "start:dev": "npx nodemon",
     "test": "npx nodemon --config ./spec/nodemon.json",

@@ -38,7 +38,7 @@ class CanvasCoursesDao {
   public async getObjectiveCourseByRole(role: string): Promise<any> {
     const courses = await this.airtable("Labs - Courses")
       .select({
-        view: `Objective Courses`,
+        view: "Objective Courses",
         maxRecords: 1,
         filterByFormula: `{Role} = "${role}"`,
       })
