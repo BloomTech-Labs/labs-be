@@ -26,7 +26,7 @@ module.exports = {
     "no-shadow": "off",
     "no-unsafe-assignment": "off",
     "@typescript-eslint/no-shadow": ["error"],
-    "max-len": ["warn", { code: 89 }],
+    "max-len": ["warn", { code: 89, "ignoreTemplateLiterals": true }],
     "import/prefer-default-export": "off",
     quotes: [2, "double", { avoidEscape: true }],
   },
