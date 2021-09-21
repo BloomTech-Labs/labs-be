@@ -13,9 +13,11 @@ export interface IModulesDao {
 }
 
 class ModulesDao implements IModulesDao {
-  private client: CanvasClient<Module | ModuleItem> = new CanvasClient<
-    Module | ModuleItem
-  >();
+  private client: CanvasClient<Module | ModuleItem>;
+
+  constructor() {
+    this.client = new CanvasClient<Module | ModuleItem>();
+  }
 
   /**
    * @param courseId
