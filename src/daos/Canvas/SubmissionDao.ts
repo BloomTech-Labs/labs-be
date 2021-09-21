@@ -10,10 +10,7 @@ export interface ISubmissionDao {
     assignmentId: number,
     lambdaId: string
   ) => SubmissionResponse;
-  getAll: (
-    courseId: number,
-    assignmentId: number
-  ) => SubmissionArrayResponse;
+  getAll: (courseId: number, assignmentId: number) => SubmissionArrayResponse;
   getByAssignmentAndUser: (
     courseId: number,
     assignmentId: number,
@@ -28,7 +25,6 @@ export interface ISubmissionDao {
 }
 
 class SubmissionDao implements ISubmissionDao {
-
   private client: CanvasClient<ISubmission>;
 
   constructor() {
@@ -53,7 +49,10 @@ class SubmissionDao implements ISubmissionDao {
    * @param courseId
    * @param assignmentId
    */
-  public getAll(courseId: number, assignmentId: number): SubmissionArrayResponse {
+  public getAll(
+    courseId: number,
+    assignmentId: number
+  ): SubmissionArrayResponse {
     const path = `courses/${courseId}/assignments/${assignmentId}/submissions`;
     return this.client.get(path) as SubmissionArrayResponse;
   }

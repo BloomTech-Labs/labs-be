@@ -34,7 +34,9 @@ class StudentDao {
   /**
    *  @param email
    */
-  public async getByEmail(email: string): Promise<Record<string, unknown> | null> {
+  public async getByEmail(
+    email: string
+  ): Promise<Record<string, unknown> | null> {
     const students = await this.airtable("Students")
       .select({
         view: "Grid view",
@@ -42,9 +44,9 @@ class StudentDao {
         filterByFormula: `{Email} = "${email}"`,
       })
       .all();
-    
+
     if (students.length) {
-      const student = students [0];
+      const student = students[0];
       return student as unknown as Record<string, unknown>;
     } else {
       return null;

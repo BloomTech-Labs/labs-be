@@ -16,7 +16,7 @@ const { BAD_REQUEST, CREATED, OK } = StatusCodes;
  * @param res
  * @returns
  */
-export async function assignRolesForUnit(req: Request, res: Response) {
+export function assignRolesForUnit(req: Request, res: Response): Response {
   const { unitId } = req.params;
   logger.info("unitID: " + unitId);
   // Roles entity

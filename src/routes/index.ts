@@ -29,7 +29,10 @@ envRouter.get("/all", getAllVars);
 const canvasRouter = Router();
 canvasRouter.get("/courses/:courseId/assignments", getAllAssignments);
 canvasRouter.get("/courses/:courseId/assignments/:assignmentId", getAssignment);
-canvasRouter.get("/courses/:courseId/assignments/:assignmentId/submissions", getAssignmentSubmissions);
+canvasRouter.get(
+  "/courses/:courseId/assignments/:assignmentId/submissions",
+  getAssignmentSubmissions
+);
 
 const airtableRouter = Router();
 airtableRouter.get("/surveys", getAllSurveys);

@@ -22,8 +22,9 @@ export async function getAllAssignments(
   res: Response
 ): Promise<Response> {
   const { courseId } = req.params;
-  const assignments: Assignment[] | null =
-    await assignmentsDao.getAll(parseInt(courseId));
+  const assignments: Assignment[] | null = await assignmentsDao.getAll(
+    parseInt(courseId)
+  );
   // Roles entity
   // get application data
   // Get teams with members (and role)
@@ -33,7 +34,6 @@ export async function getAllAssignments(
 
   return res.status(OK).json(assignments);
 }
-
 
 /**
  * Get one assignment by its ID.
@@ -47,11 +47,12 @@ export async function getAssignment(
   res: Response
 ): Promise<Response> {
   const { courseId, assignmentId } = req.params;
-  const assignment: Assignment | null =
-    await assignmentsDao.getOne(parseInt(courseId), parseInt(assignmentId));
+  const assignment: Assignment | null = await assignmentsDao.getOne(
+    parseInt(courseId),
+    parseInt(assignmentId)
+  );
   return res.status(OK).json(assignment);
 }
-
 
 /**
  * Get all submissions for an assignment by the assignment's ID.
@@ -65,7 +66,9 @@ export async function getAssignmentSubmissions(
   res: Response
 ): Promise<Response> {
   const { courseId, assignmentId } = req.params;
-  const assignment: Submission[] | null =
-    await assignmentsDao.getSubmissions(parseInt(courseId), parseInt(assignmentId));
+  const assignment: Submission[] | null = await assignmentsDao.getSubmissions(
+    parseInt(courseId),
+    parseInt(assignmentId)
+  );
   return res.status(OK).json(assignment);
 }

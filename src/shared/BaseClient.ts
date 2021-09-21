@@ -50,7 +50,7 @@ export class BaseClient<T> implements IBaseClient<T> {
       method,
       body: body ? JSON.stringify(body) : undefined,
     };
-    
+
     const res = await fetch(url, config);
     return res.json() as ClientResponse<T>;
   }
@@ -59,7 +59,7 @@ export class BaseClient<T> implements IBaseClient<T> {
     return this.request(path);
   }
 
-  public put (path: string, body = {}): ClientResponse<T> {
+  public put(path: string, body = {}): ClientResponse<T> {
     return this.request(path, "PUT", {}, body as BodyInit);
   }
 

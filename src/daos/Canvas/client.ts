@@ -3,7 +3,7 @@ import {
   BaseClient,
   AuthTypes,
   ClientResponse,
-  ClientArrayResponse
+  ClientArrayResponse,
 } from "@shared/BaseClient";
 
 export interface ICanvasClient<T> {

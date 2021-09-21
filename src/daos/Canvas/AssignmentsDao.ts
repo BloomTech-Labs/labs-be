@@ -5,16 +5,17 @@ import { SubmissionResponse, SubmissionArrayResponse } from "./SubmissionDao";
 export type AssignmentResponse = Promise<Assignment | null>;
 export type AssignmentArrayResponse = Promise<Assignment[] | null>;
 
-
 export interface IAssignmentsDao {
   getOne: (courseId: number, assignmentId: number) => AssignmentResponse;
   getAll: (courseId: number) => AssignmentArrayResponse;
-  getSubmissions: (courseId: number, assignmentId: number) => SubmissionArrayResponse;
+  getSubmissions: (
+    courseId: number,
+    assignmentId: number
+  ) => SubmissionArrayResponse;
 }
 
 class AssignmentsDao implements IAssignmentsDao {
   private client: CanvasClient<Assignment>;
-
 
   constructor() {
     this.client = new CanvasClient<Assignment>();

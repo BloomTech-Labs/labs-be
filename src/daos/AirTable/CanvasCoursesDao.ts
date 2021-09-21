@@ -1,7 +1,6 @@
 import Airtable, { FieldSet, Records } from "airtable";
 import { AirtableBase } from "airtable/lib/airtable_base";
 
-
 class CanvasCoursesDao {
   private api_key: string;
   private base_id: string;

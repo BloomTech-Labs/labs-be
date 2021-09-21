@@ -25,10 +25,10 @@ const submissionDao = new SubmissionDao();
 const { BAD_REQUEST, CREATED, OK } = StatusCodes;
 
 interface IMilestone {
-  name: string,
-  itemId: number,
-  points: number,
-  completed: boolean,
+  name: string;
+  itemId: number;
+  points: number;
+  completed: boolean;
 }
 
 /**
@@ -37,8 +37,8 @@ interface IMilestone {
  * @param learners
  * @returns
  */
-async function getStudentRecords (
-  learners: Record<string,unknown>[]
+async function getStudentRecords(
+  learners: Record<string, unknown>[]
 ): Promise<Records<FieldSet>> {
   const emails: string[] = learners.map((learner) => learner.Email as string);
   return await studentDao.getByEmails(emails);
@@ -52,9 +52,9 @@ async function getStudentRecords (
  * @returns
  */
 function mergeStudentRecords(
-  learners: Record<string,unknown>[],
+  learners: Record<string, unknown>[],
   studentRecords: Records<FieldSet>
-): Record<string,unknown>[] {
+): Record<string, unknown>[] {
   for (const learner of learners) {
     const airtableRecord = studentRecords.find(
       (elm) => elm.fields["Email"] == learner["Email"]
@@ -77,9 +77,7 @@ function mergeStudentRecords(
  * @param labsRole
  * @returns
  */
-async function getObjectivesCourseId(
-  labsRole: string
-): Promise<number | null> {
+async function getObjectivesCourseId(labsRole: string): Promise<number | null> {
   return await canvasCoursesDao.getObjectiveCourseByRole(labsRole);
 }
 
@@ -120,8 +118,10 @@ async function getMilestone(
   courseId: number,
   module: Module
 ): Promise<IMilestone | null> {
-  const moduleItems: ModuleItem[] =
-    await modulesDao.getItems(courseId, module.id) as ModuleItem[];
+  const moduleItems: ModuleItem[] = (await modulesDao.getItems(
+    courseId,
+    module.id
+  )) as ModuleItem[];
   for (const item of moduleItems || []) {
     if (item.title.includes(eventType)) {
       const assignmentId = item["content_id"];
@@ -200,7 +200,7 @@ async function getNextAssignment(
  * @param eventType
  * @returns
  */
-async function submitNextEventAttendance (
+async function submitNextEventAttendance(
   lambdaId: string,
   labsRole: string,
   eventType: string
@@ -209,7 +209,7 @@ async function submitNextEventAttendance (
   const courseId = await getObjectivesCourseId(labsRole);
   if (!courseId) {
     // eslint-disable-next-line no-console
-    console.error (`Objectives course not found for role: ${labsRole}`);
+    console.error(`Objectives course not found for role: ${labsRole}`);
     return;
   }
 
@@ -248,7 +248,7 @@ async function submitNextEventAttendance (
 export async function processAttendance(
   eventType: string,
   eventDate: string,
-  learners: Record<string,unknown>[]
+  learners: Record<string, unknown>[]
 ): Promise<Record<string, unknown>[]> {
   // Get each learner's student record from Airtable by their email.
   const studentRecords = await getStudentRecords(learners);
@@ -260,7 +260,7 @@ export async function processAttendance(
   // gradebook for the given event type.
   for (const learner of learners) {
     try {
-      await submitNextEventAttendance (
+      await submitNextEventAttendance(
         learner["Lambda ID"] as string,
         learner["Labs Role"] as string,
         eventType
@@ -268,7 +268,7 @@ export async function processAttendance(
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error(error);
-      continue
+      continue;
     }
   }
 
@@ -283,13 +283,15 @@ export async function processAttendance(
  * @param res
  * @returns
  */
-export async function putEventAttendance (
+export async function putEventAttendance(
   req: Request,
   res: Response
 ): Promise<Response> {
   const { eventType, eventDate } = req.params;
-  const learners: Record<string,unknown>[] = 
-    req.body as Record<string, unknown>[];
+  const learners: Record<string, unknown>[] = req.body as Record<
+    string,
+    unknown
+  >[];
 
   await processAttendance(eventType, eventDate, learners);
 
