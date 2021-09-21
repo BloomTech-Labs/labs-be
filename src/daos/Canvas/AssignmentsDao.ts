@@ -1,6 +1,6 @@
 import Assignment from "@entities/Assignment";
 import CanvasClient from "@daos/Canvas/client";
-import { SubmissionResponse, SubmissionArrayResponse } from "./SubmissionDao";
+import { SubmissionArrayResponse } from "./SubmissionDao";
 
 export type AssignmentResponse = Promise<Assignment | null>;
 export type AssignmentArrayResponse = Promise<Assignment[] | null>;
