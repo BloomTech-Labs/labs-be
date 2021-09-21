@@ -101,7 +101,7 @@ async function getMilestoneCompleted(
     learnerId
   );
 
-  return userSubmission ? userSubmission.grade === "complete" : null;
+  return userSubmission?.grade === "complete";
 }
 
 /**
