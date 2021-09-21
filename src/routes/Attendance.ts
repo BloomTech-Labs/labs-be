@@ -78,7 +78,8 @@ function mergeStudentRecords(
  * @returns
  */
 async function getObjectivesCourseId(labsRole: string): Promise<number | null> {
-  return await canvasCoursesDao.getObjectiveCourseByRole(labsRole);
+  const courseId = await canvasCoursesDao.getObjectiveCourseIdByRole(labsRole);
+  return courseId || null;
 }
 
 /**

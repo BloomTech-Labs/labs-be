@@ -35,7 +35,7 @@ class CanvasCoursesDao {
   /**
    *  @param role
    */
-  public async getObjectiveCourseByRole(role: string): Promise<number | null> {
+  public async getObjectiveCourseIdByRole(role: string): Promise<number | null> {
     const courses = await this.airtable("Labs - Courses")
       .select({
         view: "Objective Courses",
@@ -50,7 +50,7 @@ class CanvasCoursesDao {
       }
     }
 
-    return null; // TODO: Do we want to return null or [] ?
+    return null;
   }
 }
 
