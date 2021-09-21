@@ -267,6 +267,7 @@ class Assignment implements IAssignment {
     this.position = position;
     this.post_to_sis = post_to_sis || null;
     this.integration_id = integration_id || null;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.integration_data = integration_data || null; // This might be anything
     this.points_possible = points_possible;
     this.submission_types = submission_types;
@@ -277,19 +278,24 @@ class Assignment implements IAssignment {
     this.unpublishable = unpublishable;
     this.only_visible_to_overrides = only_visible_to_overrides;
     this.locked_for_user = locked_for_user || null;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.lock_info = lock_info || null; // ?
     this.lock_explanation = lock_explanation || null;
     this.quiz_id = quiz_id || null;
     this.anonymous_submissions = anonymous_submissions || null;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.discussion_topic = discussion_topic || null; // ?
     this.freeze_on_copy = freeze_on_copy || null;
     this.frozen = frozen || null;
     this.frozen_attributes = frozen_attributes || null;
     this.submission = submission || null;
     this.use_rubric_for_grading = use_rubric_for_grading || null;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.rubric_settings = rubric_settings || null; // ?
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.rubric = rubric || null; // ?
     this.assignment_visibility = assignment_visibility || null;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.overrides = overrides || null; // TOOD = Assignment Override entity?
     this.omit_from_final_grade = omit_from_final_grade || null;
     this.moderated_grading = moderated_grading;
@@ -303,6 +309,7 @@ class Assignment implements IAssignment {
     this.anonymous_grading = anonymous_grading;
     this.allowed_attempts = allowed_attempts;
     this.post_manually = post_manually || null;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.score_statistics = score_statistics || null; // ?
     this.can_submit = can_submit || null;
   }

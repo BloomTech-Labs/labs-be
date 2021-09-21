@@ -1,5 +1,6 @@
-import Airtable from "airtable";
+import Airtable, { FieldSet, Records } from "airtable";
 import { AirtableBase } from "airtable/lib/airtable_base";
+
 
 class CanvasCoursesDao {
   private api_key: string;
@@ -22,7 +23,7 @@ class CanvasCoursesDao {
   /**
    *
    */
-  public async getAll(): Promise<any> {
+  public async getAll(): Promise<Records<FieldSet>> {
     const courses = await this.airtable("Labs - Courses")
       .select({
         view: "Grid view",
@@ -33,9 +34,9 @@ class CanvasCoursesDao {
   }
 
   /**
-   *  @param cohort
+   *  @param role
    */
-  public async getObjectiveCourseByRole(role: string): Promise<any> {
+  public async getObjectiveCourseByRole(role: string): Promise<number | null> {
     const courses = await this.airtable("Labs - Courses")
       .select({
         view: "Objective Courses",
@@ -46,7 +47,7 @@ class CanvasCoursesDao {
 
     if (courses.length) {
       if (courses[0].fields) {
-        return courses[0].fields["Course ID"];
+        return courses[0].fields["Course ID"] as number;
       }
     }
 

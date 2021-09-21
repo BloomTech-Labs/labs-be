@@ -1,3 +1,5 @@
+/* eslint-disable max-len */
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import { Router } from "express";
 import { getAllUsers, addOneUser, updateOneUser, deleteOneUser } from "./Users";
 import { getAllVars } from "./env";
@@ -25,9 +27,9 @@ const envRouter = Router();
 envRouter.get("/all", getAllVars);
 
 const canvasRouter = Router();
-canvasRouter.get("/assignments", getAllAssignments);
-canvasRouter.get("/assignments/:id", getAssignment);
-canvasRouter.get("/assignments/:id/submissions", getAssignmentSubmissions);
+canvasRouter.get("/courses/:courseId/assignments", getAllAssignments);
+canvasRouter.get("/courses/:courseId/assignments/:assignmentId", getAssignment);
+canvasRouter.get("/courses/:courseId/assignments/:assignmentId/submissions", getAssignmentSubmissions);
 
 const airtableRouter = Router();
 airtableRouter.get("/surveys", getAllSurveys);

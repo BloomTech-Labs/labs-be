@@ -1,18 +1,21 @@
 import StatusCodes from "http-status-codes";
-import { Request, Response } from "express";
+import e, { Request, Response } from "express";
 import { join } from "path";
 import fs from "fs";
 import logger from "@shared/Logger";
+import path from "path/posix";
 import util from "util";
+
+import { FieldSet, Records } from "airtable";
 
 import StudentDao from "@daos/Airtable/StudentDao";
 import CanvasCoursesDao from "@daos/Airtable/CanvasCoursesDao";
 import ModulesDao from "@daos/Canvas/ModulesDao";
 import { paramMissingError } from "@shared/constants";
-import path from "path/posix";
 import SubmissionDao from "@daos/Canvas/SubmissionDao";
-
-import Module, { IModule } from "@entities/Module";
+import Module from "@entities/Module";
+import Submission from "@entities/Submission";
+import ModuleItem from "@entities/ModuleItem";
 
 const studentDao = new StudentDao();
 const canvasCoursesDao = new CanvasCoursesDao();
@@ -21,14 +24,23 @@ const submissionDao = new SubmissionDao();
 
 const { BAD_REQUEST, CREATED, OK } = StatusCodes;
 
+interface IMilestone {
+  name: string,
+  itemId: number,
+  points: number,
+  completed: boolean,
+}
+
 /**
  * Get a set of learners' student records from Airtable by their email.
  *
  * @param learners
  * @returns
  */
-async function getStudentRecords(learners: Array<any>): Promise<Array<any>> {
-  const emails = learners.map((learner) => learner.Email);
+async function getStudentRecords (
+  learners: Record<string,unknown>[]
+): Promise<Records<FieldSet>> {
+  const emails: string[] = learners.map((learner) => learner.Email as string);
   return await studentDao.getByEmails(emails);
 }
 
@@ -39,16 +51,21 @@ async function getStudentRecords(learners: Array<any>): Promise<Array<any>> {
  * @param learners
  * @returns
  */
-async function mergeStudentRecords(
-  learners: Array<any>,
-  studentRecords: any
-): Promise<Array<any>> {
+function mergeStudentRecords(
+  learners: Record<string,unknown>[],
+  studentRecords: Records<FieldSet>
+): Record<string,unknown>[] {
   for (const learner of learners) {
     const airtableRecord = studentRecords.find(
-      (elm: any) => elm.fields["Email"] == learner["Email"]
-    ); // TODO: Type validation
-    learner["Lambda ID"] = airtableRecord.fields["Lambda ID"];
-    learner["Labs Role"] = airtableRecord.fields["Labs Role"];
+      (elm) => elm.fields["Email"] == learner["Email"]
+    );
+    if (!airtableRecord) {
+      learner["Lambda ID"] = null;
+      learner["Labs Role"] = null;
+    } else {
+      learner["Lambda ID"] = airtableRecord.fields["Lambda ID"];
+      learner["Labs Role"] = airtableRecord.fields["Labs Role"];
+    }
   }
 
   return learners;
@@ -57,15 +74,13 @@ async function mergeStudentRecords(
 /**
  * Look up a learner's Objectives course ID in Airtable by their Labs role.
  *
- * @param learner
  * @param labsRole
  * @returns
  */
 async function getObjectivesCourseId(
-  learner: any,
   labsRole: string
-): Promise<number> {
-  return await canvasCoursesDao.getObjectiveCourseByRole(learner["Labs Role"]);
+): Promise<number | null> {
+  return await canvasCoursesDao.getObjectiveCourseByRole(labsRole);
 }
 
 /**
@@ -80,13 +95,14 @@ async function getMilestoneCompleted(
   courseId: number,
   assignmentId: number,
   learnerId: string
-) {
+): Promise<boolean | null> {
   const userSubmission = await submissionDao.getByAssignmentAndUser(
     courseId,
     assignmentId,
     learnerId
   );
-  return userSubmission.grade === "complete";
+
+  return userSubmission ? userSubmission.grade === "complete" : null;
 }
 
 /**
@@ -102,28 +118,32 @@ async function getMilestone(
   learnerId: string,
   eventType: string,
   courseId: number,
-  module: IModule
-) {
-  const moduleItems = await modulesDao.getItems(courseId, module.id);
+  module: Module
+): Promise<IMilestone | null> {
+  const moduleItems: ModuleItem[] =
+    await modulesDao.getItems(courseId, module.id) as ModuleItem[];
   for (const item of moduleItems || []) {
     if (item.title.includes(eventType)) {
       const assignmentId = item["content_id"];
-      const points = (item["completion_requirement"] || {}).min_score;
+      const points = item["completion_requirement"]?.min_score;
       const completed = await getMilestoneCompleted(
         courseId,
         assignmentId,
         learnerId
       );
-      const milestone = {
+      // Defaulting to points=0, completed=false anticipating those values somehow
+      // getting omitted even if we get an otherwise valid response object.
+      const milestone: IMilestone = {
         name: module.name,
         itemId: assignmentId,
-        points,
-        completed,
+        points: points || 0,
+        completed: completed || false,
       };
 
       return milestone;
     }
   }
+  return null;
 }
 
 /**
@@ -140,7 +160,7 @@ async function getNextAssignment(
   learnerId: string,
   eventType: string,
   courseId: number,
-  modules: Array<IModule> | null
+  modules: Array<Module> | null
 ) {
   const sprintMilestones = [];
   for (const module of modules || []) {
@@ -180,9 +200,18 @@ async function getNextAssignment(
  * @param eventType
  * @returns
  */
-async function submitNextEventAttendance(learner: any, eventType: string) {
+async function submitNextEventAttendance (
+  lambdaId: string,
+  labsRole: string,
+  eventType: string
+): Promise<void> {
   // Look up this learner's Objectives course ID.
-  const courseId = await getObjectivesCourseId(learner, learner["Labs Role"]);
+  const courseId = await getObjectivesCourseId(labsRole);
+  if (!courseId) {
+    // eslint-disable-next-line no-console
+    console.error (`Objectives course not found for role: ${labsRole}`);
+    return;
+  }
 
   // Get that course's modules from Canvas.
   const modules = await modulesDao.getAllInCourse(courseId);
@@ -190,7 +219,7 @@ async function submitNextEventAttendance(learner: any, eventType: string) {
   // For each module, find the relevant assignment by name (e.g., has
   // "Stakeholder Meeting"), and get the first ungraded assignment.
   const nextAssignment = await getNextAssignment(
-    learner["Lambda Id"],
+    lambdaId,
     eventType,
     courseId,
     modules
@@ -201,7 +230,7 @@ async function submitNextEventAttendance(learner: any, eventType: string) {
     await submissionDao.putOne(
       courseId,
       nextAssignment.itemId,
-      learner["Lambda ID"],
+      lambdaId,
       nextAssignment.points
     );
   }
@@ -219,21 +248,27 @@ async function submitNextEventAttendance(learner: any, eventType: string) {
 export async function processAttendance(
   eventType: string,
   eventDate: string,
-  learners: Array<any>
-) {
+  learners: Record<string,unknown>[]
+): Promise<Record<string, unknown>[]> {
   // Get each learner's student record from Airtable by their email.
   const studentRecords = await getStudentRecords(learners);
 
   // Merge each learner's Lambda ID and Labs Role from their student record.
-  learners = await mergeStudentRecords(learners, studentRecords);
+  learners = mergeStudentRecords(learners, studentRecords);
 
   // For each learner, submit the next open attendance slot in the Canvas
   // gradebook for the given event type.
   for (const learner of learners) {
     try {
-      await submitNextEventAttendance(learner, eventType);
-    } catch (e) {
-      console.error(e);
+      await submitNextEventAttendance (
+        learner["Lambda ID"] as string,
+        learner["Labs Role"] as string,
+        eventType
+      );
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+      continue
     }
   }
 
@@ -248,9 +283,13 @@ export async function processAttendance(
  * @param res
  * @returns
  */
-export async function putEventAttendance(req: Request, res: Response) {
+export async function putEventAttendance (
+  req: Request,
+  res: Response
+): Promise<Response> {
   const { eventType, eventDate } = req.params;
-  const learners: Array<any> = req.body; // TODO: Type validation
+  const learners: Record<string,unknown>[] = 
+    req.body as Record<string, unknown>[];
 
   await processAttendance(eventType, eventDate, learners);
 

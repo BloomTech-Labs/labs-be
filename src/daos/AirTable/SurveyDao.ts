@@ -1,11 +1,11 @@
-import Airtable from "airtable";
+import Airtable, { FieldSet, Records } from "airtable";
 
 class SurveyDao {
   base_id = "appvMqcwCQosrsHhM";
   api_key = process.env.AT_API_KEY;
   airtable = new Airtable({ apiKey: this.api_key }).base(this.base_id);
 
-  public async getAll(): Promise<any> {
+  public async getAll(): Promise<Records<FieldSet>> {
     const surveys = await this.airtable("Labs - TBSurveys")
       .select({
         view: "Grid view",
@@ -15,7 +15,7 @@ class SurveyDao {
     return surveys;
   }
 
-  public async getCohort(cohort: string): Promise<any> {
+  public async getCohort(cohort: string): Promise<Records<FieldSet>> {
     const surveys = await this.airtable("Labs - TBSurveys")
       .select({
         view: cohort,

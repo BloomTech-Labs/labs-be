@@ -1,17 +1,23 @@
 import fetch from "node-fetch";
+import { Response } from "express";
 import { RequestInit, HeadersInit, BodyInit } from "node-fetch";
 
 export enum AuthTypes {
   JWT = "JWT",
 }
-export interface IBaseClient {
+
+export type ClientResponse<T> = Promise<Response<T> | null>;
+export type ClientArrayResponse<T> = Promise<Response<T[]> | null>;
+
+export interface IBaseClient<T> {
   /* eslint-disable @typescript-eslint/no-explicit-any */
-  get: (path: string) => Promise<any | null>;
-  post: (path: string, body: any) => Promise<any | null>;
+  get: (path: string) => ClientResponse<T> | ClientArrayResponse<T>;
+  put: (path: string, body: any) => ClientResponse<T>;
+  post: (path: string, body: any) => ClientResponse<T>;
   /* eslint-enable @typescript-eslint/no-explicit-any */
 }
 
-export class BaseClient implements IBaseClient {
+export class BaseClient<T> implements IBaseClient<T> {
   options: Record<string, unknown>;
   headers: Record<string, unknown> = {
     "Content-Type": "application/vnd.api+json",
@@ -33,8 +39,8 @@ export class BaseClient implements IBaseClient {
     method = "GET",
     headers = {},
     body: BodyInit = ""
-  ): Promise<any> {
-    const url = `${this.options.base_url as string}${path}`;
+  ): ClientResponse<T> {
+    const url = `${this.options.baseUrl as string}${path}`;
     const myHeaders: HeadersInit = Object.assign(
       this.headers,
       headers
@@ -42,18 +48,22 @@ export class BaseClient implements IBaseClient {
     const config: RequestInit = {
       headers: myHeaders,
       method,
-      body: JSON.stringify(body),
+      body: body ? JSON.stringify(body) : undefined,
     };
-
+    
     const res = await fetch(url, config);
-    return res.json();
+    return res.json() as ClientResponse<T>;
   }
 
-  public get(path: string): any {
+  public get(path: string): ClientResponse<T> | ClientArrayResponse<T> {
     return this.request(path);
   }
 
-  public post(path: string, body = {}): any {
+  public put (path: string, body = {}): ClientResponse<T> {
+    return this.request(path, "PUT", {}, body as BodyInit);
+  }
+
+  public post(path: string, body = {}): ClientResponse<T> {
     if (body == {}) {
       throw new Error("Body is missing for POST method.");
     }

@@ -1,46 +1,52 @@
-import CanvasClient from "@daos/Canvas/client";
 import Assignment from "@entities/Assignment";
-import Submission from "@entities/Submission";
+import CanvasClient from "@daos/Canvas/client";
+import { SubmissionResponse, SubmissionArrayResponse } from "./SubmissionDao";
+
+export type AssignmentResponse = Promise<Assignment | null>;
+export type AssignmentArrayResponse = Promise<Assignment[] | null>;
+
 
 export interface IAssignmentsDao {
-  getOne: (id: number, courseId: number) => Promise<Assignment | null>;
-  getAll: (courseId: number) => Promise<Assignment[]>;
-  getSubmissions: (id: number) => Promise<Submission[]>;
+  getOne: (courseId: number, assignmentId: number) => AssignmentResponse;
+  getAll: (courseId: number) => AssignmentArrayResponse;
+  getSubmissions: (courseId: number, assignmentId: number) => SubmissionArrayResponse;
 }
 
 class AssignmentsDao implements IAssignmentsDao {
-  courseId: number;
-  client: CanvasClient;
+  private client: CanvasClient<Assignment>;
 
-  constructor(courseId: number) {
-    this.courseId = courseId | 0;
-    this.client = new CanvasClient();
+
+  constructor() {
+    this.client = new CanvasClient<Assignment>();
   }
 
   /**
-   * @param id
+   * @param courseId
+   * @param assignmentId
    */
-  public getOne(id: number): Promise<Assignment | null> {
-    // https://lambdaschool.instructure.com/api/v1/courses/1482/assignments/47902
-    const path = `courses/${this.courseId}/assignments/${id}?include=submission`;
-    return this.client.get(path);
+  public getOne(courseId: number, assignmentId: number): AssignmentResponse {
+    const path = `courses/${courseId}/assignments/${assignmentId}?include=submission`;
+    return this.client.get(path) as AssignmentResponse;
   }
 
   /**
-   *
+   * @param courseId
    */
-  public getAll(): Promise<Assignment[]> {
-    const path = `courses/${this.courseId}/assignments/`;
-    return this.client.get(path);
+  public getAll(courseId: number): AssignmentArrayResponse {
+    const path = `courses/${courseId}/assignments/`;
+    return this.client.get(path) as AssignmentArrayResponse;
   }
 
   /**
-   * @param id
+   * @param courseId
+   * @param assignmentId
    */
-  public getSubmissions(id: number): Promise<Submission[]> {
-    // /api/v1/courses/:course_id/assignments/:assignment_id/submissions
-    const path = `courses/${this.courseId}/assignments/${id}/submissions?include=user`;
-    return this.client.get(path);
+  public getSubmissions(
+    courseId: number,
+    assignmentId: number
+  ): SubmissionArrayResponse {
+    const path = `courses/${courseId}/assignments/${assignmentId}/submissions?include=user`;
+    return this.client.get(path) as SubmissionArrayResponse;
   }
 }
 

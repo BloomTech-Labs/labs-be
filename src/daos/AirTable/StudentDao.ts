@@ -1,4 +1,4 @@
-import Airtable from "airtable";
+import Airtable, { FieldSet, Records } from "airtable";
 
 class StudentDao {
   base_id = "appvMqcwCQosrsHhM";
@@ -8,7 +8,7 @@ class StudentDao {
   /**
    *
    */
-  public async getAll(): Promise<any> {
+  public async getAll(): Promise<Records<FieldSet>> {
     const students = await this.airtable("Students")
       .select({
         view: "Grid view",
@@ -21,7 +21,7 @@ class StudentDao {
   /**
    *  @param cohort
    */
-  public async getCohort(cohort: string): Promise<any> {
+  public async getCohort(cohort: string): Promise<Records<FieldSet>> {
     const students = await this.airtable("Students")
       .select({
         view: `[DND] Labs ${cohort}`,
@@ -34,7 +34,7 @@ class StudentDao {
   /**
    *  @param email
    */
-  public async getByEmail(email: string): Promise<any> {
+  public async getByEmail(email: string): Promise<Record<string, unknown> | null> {
     const students = await this.airtable("Students")
       .select({
         view: "Grid view",
@@ -42,14 +42,19 @@ class StudentDao {
         filterByFormula: `{Email} = "${email}"`,
       })
       .all();
-
-    return students.length ? students[0] : null;
+    
+    if (students.length) {
+      const student = students [0];
+      return student as unknown as Record<string, unknown>;
+    } else {
+      return null;
+    }
   }
 
   /**
    *  @param email
    */
-  public async getByEmails(emails: Array<string>): Promise<any> {
+  public async getByEmails(emails: Array<string>): Promise<Records<FieldSet>> {
     // Generate a list of Airtable formula conditions of the form:
     //  OR(
     //    {name} != "name 1",

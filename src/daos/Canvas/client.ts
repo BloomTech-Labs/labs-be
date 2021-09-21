@@ -1,14 +1,19 @@
-import { BaseClient, AuthTypes } from "@shared/BaseClient";
-export interface ICanvasClient {
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  get: (path: string) => Promise<any | null>;
-  /* eslint-enable @typescript-eslint/no-explicit-any */
+import { Request, Response } from "express";
+import {
+  BaseClient,
+  AuthTypes,
+  ClientResponse,
+  ClientArrayResponse
+} from "@shared/BaseClient";
+
+export interface ICanvasClient<T> {
+  get: (path: string) => ClientResponse<T> | ClientArrayResponse<T>;
 }
 
-class CanvasClient extends BaseClient implements ICanvasClient {
+class CanvasClient<T> extends BaseClient<T> implements ICanvasClient<T> {
   constructor() {
     const opts = {
-      token: process.env.canvas_access_token,
+      token: process.env.CANVAS_ACCESS_TOKEN,
       baseUrl: "https://lambdaschool.instructure.com/api/v1/",
       authType: AuthTypes.JWT,
     };

@@ -16,7 +16,7 @@ export interface ISubmission {
   workflow_state: string;
 }
 
-class Submission implements ISubmission {
+export class Submission implements ISubmission {
   public id: string;
   public user_id: string;
   public grader_id: string;
