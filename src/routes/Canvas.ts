@@ -4,25 +4,27 @@ import logger from "@shared/Logger";
 
 import AssignmentsDao from "@daos/Canvas/AssignmentsDao";
 import { paramMissingError } from "@shared/constants";
+import Assignment from "@entities/Assignment";
+import Submission from "@entities/Submission";
 
-const assignmentsDao = new AssignmentsDao(1482);
+const assignmentsDao = new AssignmentsDao();
 const { BAD_REQUEST, CREATED, OK } = StatusCodes;
 
 /**
- * Get all env vars.
+ * Get all Canvas assignments for a given course.
  *
  * @param req
  * @param res
  * @returns
  */
-export function getAllAssignments(
+export async function getAllAssignments(
   req: Request,
   res: Response
-): Response<any, Record<string, any>> {
-  const { unitId } = req.params;
-  logger.info("unitID: " + unitId);
-  const assignments: unknown = assignmentsDao.getAll();
-  console.log("assignments: ", assignments);
+): Promise<Response> {
+  const { courseId } = req.params;
+  const assignments: Assignment[] | null = await assignmentsDao.getAll(
+    parseInt(courseId)
+  );
   // Roles entity
   // get application data
   // Get teams with members (and role)
@@ -33,24 +35,40 @@ export function getAllAssignments(
   return res.status(OK).json(assignments);
 }
 
-export function getAssignment(
+/**
+ * Get one assignment by its ID.
+ *
+ * @param req
+ * @param res
+ * @returns
+ */
+export async function getAssignment(
   req: Request,
   res: Response
-): Response<any, Record<string, any>> {
-  const { id } = req.params;
-  const assignment: unknown = (async () => {
-    await assignmentsDao.getOne(parseInt(id));
-  })();
+): Promise<Response> {
+  const { courseId, assignmentId } = req.params;
+  const assignment: Assignment | null = await assignmentsDao.getOne(
+    parseInt(courseId),
+    parseInt(assignmentId)
+  );
   return res.status(OK).json(assignment);
 }
 
-export function getAssignmentSubmissions(
+/**
+ * Get all submissions for an assignment by the assignment's ID.
+ *
+ * @param req
+ * @param res
+ * @returns
+ */
+export async function getAssignmentSubmissions(
   req: Request,
   res: Response
-): Response<any, Record<string, any>> {
-  const { id } = req.params;
-  const assignment: unknown = (async () => {
-    await assignmentsDao.getSubmissions(parseInt(id));
-  })();
+): Promise<Response> {
+  const { courseId, assignmentId } = req.params;
+  const assignment: Submission[] | null = await assignmentsDao.getSubmissions(
+    parseInt(courseId),
+    parseInt(assignmentId)
+  );
   return res.status(OK).json(assignment);
 }

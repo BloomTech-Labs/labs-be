@@ -12,7 +12,7 @@ JET_LOGGER_MODE=CONSOLE
 JET_LOGGER_FILEPATH=jet-logger.log
 JET_LOGGER_TIMESTAMP=TRUE
 JET_LOGGER_FORMAT=LINE
-canvas_access_token=<your canvas user dev access token>
+CANVAS_ACCESS_TOKEN=<your canvas user dev access token>
 AT_API_KEY=<your Airtable API key>
 DATABASE_URL=<connection string for postgres database using the knex url format>
 ```
@@ -21,7 +21,7 @@ DATABASE_URL=<connection string for postgres database using the knex url format>
 
 1. Use docker. [Install](https://docs.docker.com/get-docker/) for your platform
    - run: `docker-compose up -d` to start up the postgresql database and pgadmin.
-   - Open a browser to [pgadmin](http://localhost:5050/) 
+   - Open a browser to [pgadmin](http://localhost:5050/)
      - Login with `pgadmin4@pgadmin.org` and `admin`
      - you should see the Dev server already defined.
      - open the server and enter the password `docker`

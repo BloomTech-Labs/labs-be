@@ -1,8 +1,9 @@
 import StatusCodes from "http-status-codes";
 import { Request, Response } from "express";
 
-import UserDao from "@daos/User/UserDao.mock";
+import UserDao from "@daos/User/UserDao";
 import { paramMissingError } from "@shared/constants";
+import { IUser } from "@entities/User";
 
 const userDao = new UserDao();
 const { BAD_REQUEST, CREATED, OK } = StatusCodes;
@@ -14,13 +15,11 @@ const { BAD_REQUEST, CREATED, OK } = StatusCodes;
  * @param res
  * @returns
  */
-export function getAllUsers(
+export async function getAllUsers(
   req: Request,
   res: Response
-): Response<any, Record<string, any>> {
-  const users = (async () => {
-    await userDao.getAll();
-  })();
+): Promise<Response> {
+  const users = await userDao.getAll();
   return res.status(OK).json({ users });
 }
 
@@ -31,16 +30,17 @@ export function getAllUsers(
  * @param res
  * @returns
  */
-export function addOneUser(req: Request, res: Response): Response | void {
-  const { user } = req.body;
+export async function addOneUser(
+  req: Request,
+  res: Response
+): Promise<Response | void> {
+  const user: IUser = req.body as IUser;
   if (!user) {
     return res.status(BAD_REQUEST).json({
       error: paramMissingError,
     });
   }
-  void (async () => {
-    await userDao.add(user);
-  })();
+  await userDao.add(user);
   return res.status(CREATED).end();
 }
 
@@ -51,17 +51,18 @@ export function addOneUser(req: Request, res: Response): Response | void {
  * @param res
  * @returns
  */
-export function updateOneUser(req: Request, res: Response): Response | void {
-  const { user } = req.body;
+export async function updateOneUser(
+  req: Request,
+  res: Response
+): Promise<Response | void> {
+  const user: IUser = req.body as IUser;
   if (!user) {
     return res.status(BAD_REQUEST).json({
       error: paramMissingError,
     });
   }
   user.id = Number(user.id);
-  void (async () => {
-    await userDao.update(user);
-  })();
+  await userDao.update(user);
   return res.status(OK).end();
 }
 
@@ -72,10 +73,11 @@ export function updateOneUser(req: Request, res: Response): Response | void {
  * @param res
  * @returns
  */
-export function deleteOneUser(req: Request, res: Response): void {
+export async function deleteOneUser(
+  req: Request,
+  res: Response
+): Promise<void> {
   const { id } = req.params;
-  void (async () => {
-    await userDao.delete(Number(id));
-  })();
+  await userDao.delete(Number(id));
   return res.status(OK).end();
 }

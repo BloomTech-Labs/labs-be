@@ -16,7 +16,7 @@ export interface ISubmission {
   workflow_state: string;
 }
 
-class Submission implements ISubmission {
+export class Submission implements ISubmission {
   public id: string;
   public user_id: string;
   public grader_id: string;
@@ -32,11 +32,22 @@ class Submission implements ISubmission {
   public assignment_visible: boolean;
   public workflow_state: string;
 
-  constructor(id: string, user_id?: string, grader_id?: string, canvadoc_document_id?: string
-    ,submitted_at?: Date, score?: number, body?: string, grade?: string
-    ,grade_matches_current_submission?: boolean, late?: boolean, url?: string
-    ,preview_url?: string, assignment_visible?: boolean, workflow_state?: string) {
-    
+  constructor(
+    id: string,
+    user_id?: string,
+    grader_id?: string,
+    canvadoc_document_id?: string,
+    submitted_at?: Date,
+    score?: number,
+    body?: string,
+    grade?: string,
+    grade_matches_current_submission?: boolean,
+    late?: boolean,
+    url?: string,
+    preview_url?: string,
+    assignment_visible?: boolean,
+    workflow_state?: string
+  ) {
     this.id = id || "";
     this.user_id = user_id || "";
     this.grader_id = grader_id || "";
@@ -45,7 +56,8 @@ class Submission implements ISubmission {
     this.score = score ? score : 0;
     this.body = body || "";
     this.grade = grade || "";
-    this.grade_matches_current_submission = grade_matches_current_submission || false;
+    this.grade_matches_current_submission =
+      grade_matches_current_submission || false;
     this.late = late || false;
     this.preview_url = preview_url || "";
     this.url = url || "";

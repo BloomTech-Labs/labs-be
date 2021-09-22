@@ -3,10 +3,8 @@ import { Request, Response } from "express";
 import logger from "@shared/Logger";
 
 import RoleDao from "@daos/Role/RoleDao.mock";
-import AssignmentsDao from "@daos/Canvas/AssignmentsDao";
 import { paramMissingError } from "@shared/constants";
 
-const roleDao = new RoleDao();
 const { BAD_REQUEST, CREATED, OK } = StatusCodes;
 
 /**
@@ -16,7 +14,7 @@ const { BAD_REQUEST, CREATED, OK } = StatusCodes;
  * @param res
  * @returns
  */
-export function assignRolesForUnit(req: Request, res: Response) {
+export function assignRolesForUnit(req: Request, res: Response): Response {
   const { unitId } = req.params;
   logger.info("unitID: " + unitId);
   // Roles entity

@@ -27,7 +27,7 @@ jobs:
       # A GitHub action to setup Node.js
       - uses: actions/setup-node@v1
         with:
-          node-version: '14'
+          node-version: "14"
 
       # Run the NPM install command before proceeding
       - run: npm install

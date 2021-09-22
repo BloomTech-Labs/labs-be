@@ -5,11 +5,11 @@ module.exports = {
   },
   extends: [
     "plugin:@typescript-eslint/recommended",
-    "plugin:@typescript-eslint/recommended-requiring-type-checking"
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
   ],
   parser: "@typescript-eslint/parser",
   parserOptions: {
-    project: "./tsconfig.json"
+    project: "./tsconfig.json",
   },
   plugins: ["import", "@typescript-eslint"],
   rules: {
@@ -26,7 +26,7 @@ module.exports = {
     "no-shadow": "off",
     "no-unsafe-assignment": "off",
     "@typescript-eslint/no-shadow": ["error"],
-    "max-len": ["warn", { code: 89 }],
+    "max-len": ["warn", { code: 89, ignoreTemplateLiterals: true }],
     "import/prefer-default-export": "off",
     quotes: [2, "double", { avoidEscape: true }],
   },

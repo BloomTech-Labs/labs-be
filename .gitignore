@@ -1,4 +1,10 @@
 apidoc
+dist-api
+build
+.dist
+
+#docker generated files
+data/pg
 dist
 
 #docker generated files
