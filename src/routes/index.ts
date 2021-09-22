@@ -7,6 +7,8 @@ import {
   getAllAssignments,
   getAssignment,
   getAssignmentSubmissions,
+  getCourseModuleCompletion,
+  getCourseModules,
 } from "./Canvas";
 import {
   getAllSurveys,
@@ -33,6 +35,10 @@ canvasRouter.get(
   "/courses/:courseId/assignments/:assignmentId/submissions",
   getAssignmentSubmissions
 );
+canvasRouter.get("/courses/:courseId/modules/", getCourseModules);
+canvasRouter.get("/courses/:courseId/modules/completion", getCourseModuleCompletion);
+// canvasRouter.get("/courses/:courseId/modules/:moduleId", getModule);
+// canvasRouter.get("/courses/:courseId/modules/:moduleId/completion", getModuleCompletion);
 
 const airtableRouter = Router();
 airtableRouter.get("/surveys", getAllSurveys);
