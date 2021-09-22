@@ -6,17 +6,23 @@ import AssignmentsDao from "@daos/Canvas/AssignmentsDao";
 import ModulesDao from "@daos/Canvas/ModulesDao";
 import UsersDao from "@daos/Canvas/UsersDao";
 import CanvasCoursesDao from "@daos/Airtable/CanvasCoursesDao";
-import { paramMissingError } from "@shared/constants";
 import Assignment from "@entities/Assignment";
 import Submission from "@entities/Submission";
 import Module from "@entities/Module";
-import CanvasUser from "@entities/CanvasUser";
+import {
+  processCourseCompleted,
+  processCourseModuleCompletion
+} from "src/services/Canvas";
+
+import { paramMissingError } from "@shared/constants";
+
+const { BAD_REQUEST, CREATED, OK } = StatusCodes;
 
 const assignmentsDao = new AssignmentsDao();
 const modulesDao = new ModulesDao();
 const usersDao = new UsersDao();
 const canvasCoursesDao = new CanvasCoursesDao();
-const { BAD_REQUEST, CREATED, OK } = StatusCodes;
+
 
 /**
  * Get all Canvas assignments for a given course.
@@ -99,86 +105,6 @@ export async function getCourseModules(
   );
 
   return res.status(OK).json(modules);
-}
-
-
-/**
- * Get a user's Canvas ID by their SIS ID.
- * TODO: Move to a service layer
- *
- * @param userSisId
- * @returns
- */
-export async function getUserIdBySisId(userSisId: string): Promise<number | null> {
-  const user: CanvasUser | null = await usersDao.getOneBySisId (userSisId);
-  return user?.id || null;
-} 
-
-
-/**
- * Process completion information for all modules in a given Canvas course.
- * TODO: Move to a service layer
- *
- * @param courseId
- * @param lambdaId
- * @returns
- */
-export async function processCourseModuleCompletion (
-  courseId: number,
-  lambdaId: string
-): Promise<Module[] | null> {
-  const userId : number | null = await getUserIdBySisId (lambdaId);
-
-  if (!userId) {
-    return Promise.reject ("Canvas user ID not found for that SIS ID.")
-  }
-
-  const modules: Module[] | null = await modulesDao.getAllCompletionInCourse(
-    courseId, userId
-  );
-
-  return modules;
-}
-
-
-/**
- * Process whether a given Canvas course was completed by a given learner.
- * TODO: Move to a service layer
- *
- * @param courseId
- * @param lambdaId
- * @returns
- */
-export async function processCourseCompleted (
-  courseId: number,
-  lambdaId: string
-): Promise<boolean> {
-  try {
-
-    // Get all modules from the course along with completion information.
-    const modules: Module[] | null =
-      await processCourseModuleCompletion(courseId, lambdaId);
-    if (!modules) {
-      throw new Error ("No course modules found.");
-    }
-
-    // Get which modules must be completed from Airtable (SMT: "Labs - Courses")
-    const completionModuleIds: number[] | null =
-      await canvasCoursesDao.getCompletionModules(courseId);
-
-    // Check if all modules that need to be completed have been completed.
-    for (const completionModuleId of completionModuleIds || []) {
-      const module = modules.find(x => x.id === completionModuleId);
-      if (module?.state !== "completed") {
-        return false;
-      }
-    }
-    
-    return true;
-
-  } catch (error) {
-    return Promise.reject (error);
-  }
 }
 
 
