@@ -44,7 +44,7 @@ class ModulesDao implements IModulesDao {
     userId: number
   ): ModuleResponse {
     // <canvasURL>/api/v1/courses/:courseId/modules/:moduleId
-    const path = `courses/${courseId}/modules/${moduleId}student_id=${userId}`;
+    const path = `courses/${courseId}/modules/${moduleId}?student_id=${userId}`;
     // TODO: Canvas paginates query responses at 10 per page—in these requests,
     // we should loop through the Link headers to retrieve all results.
     // https://canvas.instructure.com/doc/api/file.pagination.html

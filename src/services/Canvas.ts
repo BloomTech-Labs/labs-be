@@ -42,17 +42,17 @@ export async function processModuleCompletion (
   if (!userId) {
     return Promise.reject ("Canvas user ID not found for that SIS ID.")
   }
-
+  
   const module: Module | null =
     await modulesDao.getCompletion(courseId, moduleId, userId);
-
+  
   const moduleCompletion = module ? new ModuleCompletion (
     module.id,
     module.name,
     module.state === "completed",
     module.completed_at || undefined
   ) : null;
-
+  
   return moduleCompletion;
 }
 
