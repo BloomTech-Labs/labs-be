@@ -3,12 +3,12 @@ import ZoomMeetingInstanceParticipantsDao from "@daos/Zoom/ZoomMeetingInstancePa
 
 const zoomMeetingInstanceParticipantsDao = new ZoomMeetingInstanceParticipantsDao();
 
-export interface IZoomRouter {
+export interface IZoomAdmin {
     emailId: string;
     meetings: Array<any>;
 }
 
-class ZoomRouter implements IZoomRouter {
+class ZoomAdmin implements IZoomAdmin {
     public emailId: string;
     public meetings: Array<any>;
 
@@ -113,4 +113,4 @@ class ZoomRouter implements IZoomRouter {
     }
 }
 
-export default ZoomRouter;
+export default ZoomAdmin;
