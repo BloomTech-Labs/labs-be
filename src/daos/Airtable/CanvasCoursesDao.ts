@@ -52,6 +52,32 @@ class CanvasCoursesDao {
 
     return null;
   }
+
+
+  /**
+   *  @param role
+   */
+  public async getCompletionModules(courseId: number): Promise<number[] | null> {
+    const courses = await this.airtable("Labs - Courses")
+      .select ({
+        view: "Curriculum Courses",
+        maxRecords: 1,
+        filterByFormula: `{Course Id} = ${courseId}`,
+      })
+      .all ();
+    
+    if (courses.length) {
+      if (courses[0].fields) {
+        // The "Completion Modules" field contains a comma-separated list of Canvas
+        // module IDs
+        return JSON.parse(`[${courses[0].fields["Completion Modules"] as string}]`) as number[];
+      }
+    }
+
+    return null;
+  }
+
 }
+
 
 export default CanvasCoursesDao;

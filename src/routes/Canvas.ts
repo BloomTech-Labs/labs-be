@@ -5,6 +5,7 @@ import logger from "@shared/Logger";
 import AssignmentsDao from "@daos/Canvas/AssignmentsDao";
 import ModulesDao from "@daos/Canvas/ModulesDao";
 import UsersDao from "@daos/Canvas/UsersDao";
+import CanvasCoursesDao from "@daos/Airtable/CanvasCoursesDao";
 import { paramMissingError } from "@shared/constants";
 import Assignment from "@entities/Assignment";
 import Submission from "@entities/Submission";
@@ -14,6 +15,7 @@ import CanvasUser from "@entities/CanvasUser";
 const assignmentsDao = new AssignmentsDao();
 const modulesDao = new ModulesDao();
 const usersDao = new UsersDao();
+const canvasCoursesDao = new CanvasCoursesDao();
 const { BAD_REQUEST, CREATED, OK } = StatusCodes;
 
 /**
@@ -114,6 +116,73 @@ export async function getUserIdBySisId(userSisId: string): Promise<number | null
 
 
 /**
+ * Process completion information for all modules in a given Canvas course.
+ * TODO: Move to a service layer
+ *
+ * @param courseId
+ * @param lambdaId
+ * @returns
+ */
+export async function processCourseModuleCompletion (
+  courseId: number,
+  lambdaId: string
+): Promise<Module[] | null> {
+  const userId : number | null = await getUserIdBySisId (lambdaId);
+
+  if (!userId) {
+    return Promise.reject ("Canvas user ID not found for that SIS ID.")
+  }
+
+  const modules: Module[] | null = await modulesDao.getAllCompletionInCourse(
+    courseId, userId
+  );
+
+  return modules;
+}
+
+
+/**
+ * Process whether a given Canvas course was completed by a given learner.
+ * TODO: Move to a service layer
+ *
+ * @param courseId
+ * @param lambdaId
+ * @returns
+ */
+export async function processCourseCompleted (
+  courseId: number,
+  lambdaId: string
+): Promise<boolean> {
+  try {
+
+    // Get all modules from the course along with completion information.
+    const modules: Module[] | null =
+      await processCourseModuleCompletion(courseId, lambdaId);
+    if (!modules) {
+      throw new Error ("No course modules found.");
+    }
+
+    // Get which modules must be completed from Airtable (SMT: "Labs - Courses")
+    const completionModuleIds: number[] | null =
+      await canvasCoursesDao.getCompletionModules(courseId);
+
+    // Check if all modules that need to be completed have been completed.
+    for (const completionModuleId of completionModuleIds || []) {
+      const module = modules.find(x => x.id === completionModuleId);
+      if (module?.state !== "completed") {
+        return false;
+      }
+    }
+    
+    return true;
+
+  } catch (error) {
+    return Promise.reject (error);
+  }
+}
+
+
+/**
  * Get completion information for all modules in a given Canvas course.
  *
  * @param req
@@ -131,15 +200,43 @@ export async function getCourseModuleCompletion(
     return res.status(BAD_REQUEST);
   }
 
-  const userId : number | null = await getUserIdBySisId (lambdaId as string);
+  try {
+    const modules: Module[] | null =
+      await processCourseModuleCompletion(parseInt(courseId), lambdaId as string);
+    return res.status(OK).json(modules);
+  }
+  catch (error) {
+    return res.status(BAD_REQUEST).json(error);
+  }
+}
 
-  if (!userId) {
-    return res.status(BAD_REQUEST).json("Canvas user ID not found for that SIS ID.");
+
+/**
+ * Get whether a given Canvas course was completed by a given learner.
+ * - A course is completed if all modules requiring completion are completed.
+ * - We read which modules require completion from the "Labs - Courses" table in SMT.
+ *
+ * @param req
+ * @param res
+ * @returns
+ */
+export async function getCourseCompleted(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  const { courseId } = req.params;
+  const { lambdaId } = req.query;
+  
+  if (!courseId || !lambdaId) {
+    return res.status(BAD_REQUEST);
   }
 
-  const modules: Module[] | null = await modulesDao.getAllCompletionInCourse(
-    parseInt(courseId), userId
-  );
-
-  return res.status(OK).json(modules);
+  try {
+    const completed: boolean =
+      await processCourseCompleted(parseInt(courseId), lambdaId as string);
+    return res.status(OK).json(completed);
+  }
+  catch (error) {
+    return res.status(BAD_REQUEST).json(error);
+  }
 }
