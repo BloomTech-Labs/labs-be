@@ -1,25 +1,21 @@
+import { Entity, Column, Index, PrimaryGeneratedColumn } from "typeorm";
+
 export interface IUser {
-  id: number;
+  // this should be the okta id
+  id: string;
   name: string;
   email: string;
 }
 
-class User implements IUser {
-  public id: number;
+@Entity()
+export class User implements IUser {
+  @PrimaryGeneratedColumn()
+  public id: string;
+  @Column()
   public name: string;
+  @Column()
+  @Index({ unique: true })
   public email: string;
-
-  constructor(nameOrUser: string | IUser, email?: string, id?: number) {
-    if (typeof nameOrUser === "string") {
-      this.name = nameOrUser;
-      this.email = email || "";
-      this.id = id || -1;
-    } else {
-      this.name = nameOrUser.name;
-      this.email = nameOrUser.email;
-      this.id = nameOrUser.id;
-    }
-  }
 }
 
 export default User;
