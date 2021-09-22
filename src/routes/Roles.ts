@@ -3,10 +3,8 @@ import { Request, Response } from "express";
 import logger from "@shared/Logger";
 
 import RoleDao from "@daos/Role/RoleDao.mock";
-import AssignmentsDao from "@daos/Canvas/AssignmentsDao";
 import { paramMissingError } from "@shared/constants";
 
-const roleDao = new RoleDao();
 const { BAD_REQUEST, CREATED, OK } = StatusCodes;
 
 /**

@@ -12,7 +12,7 @@ const { BAD_REQUEST, CREATED, OK } = StatusCodes;
  * @param res
  * @returns
  */
-export function getAllVars(req: Request, res: Response) {
+export function getAllVars(req: Request, res: Response): Response {
   const envs = process.env;
   return res.status(OK).json({ envs });
 }
