@@ -1,5 +1,6 @@
 import Airtable, { FieldSet, Records } from "airtable";
 import { AirtableBase } from "airtable/lib/airtable_base";
+import { stringify } from "querystring";
 
 class CanvasCoursesDao {
   private api_key: string;
@@ -31,6 +32,25 @@ class CanvasCoursesDao {
 
     return courses;
   }
+
+
+  /**
+   *  @param role
+   */
+  public async getGeneralCourseIds(): Promise<number[] | null> {
+    const records = await this.airtable("Labs - Courses")
+      .select({
+        view: "Curriculum Courses",
+        filterByFormula: "{Type} = 'All'",
+      })
+      .all()
+
+    const courses: number[] =
+      records.map(record => record.fields ["Course ID"] as number);
+
+    return courses;
+  }
+
 
   /**
    *  @param role

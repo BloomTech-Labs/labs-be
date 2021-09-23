@@ -5,8 +5,11 @@ import CanvasCoursesDao from "@daos/Airtable/CanvasCoursesDao";
 import CanvasUser from "@entities/CanvasUser";
 import Module from "@entities/Module";
 import ModuleCompletion from "@entities/ModuleCompletion";
+import StudentDao from "@daos/Airtable/StudentDao";
+import { getGeneralCourseIds, getObjectivesCourseId } from "./Airtable";
 
 const assignmentsDao = new AssignmentsDao();
+const studentDao = new StudentDao();
 const modulesDao = new ModulesDao();
 const usersDao = new UsersDao();
 const canvasCoursesDao = new CanvasCoursesDao();
@@ -21,6 +24,41 @@ const canvasCoursesDao = new CanvasCoursesDao();
 export async function getUserIdBySisId(userSisId: string): Promise<number | null> {
   const user: CanvasUser | null = await usersDao.getOneBySisId (userSisId);
   return user?.id || null;
+}
+
+
+/**
+ * Get the required courses for a given learner.
+ *
+ * @param lambdaId
+ * @returns
+ */
+export async function getRequiredCourses(lambdaId: string): Promise<number[] | null> {
+
+  const courses: number[] = [];
+
+  // Get the learner's role
+  const record: Record<string, unknown> | null = await studentDao.getOne(lambdaId);
+  if (!record) {
+    return null;
+  }
+  const learner = record.fields as Record<string, string[]>;
+
+  const labsRole: string = learner ["Labs Role"] [0];
+  
+  // Get general courses
+  const generalCourses: number[] | null = await getGeneralCourseIds();
+  if (generalCourses) {
+    courses.push (...generalCourses);
+  }
+  
+  // Get the learner's objectives course
+  const objectivesCourseId = await getObjectivesCourseId(labsRole);
+  if (objectivesCourseId) {
+    courses.push (objectivesCourseId);
+  }
+
+  return courses;
 }
 
 
@@ -118,6 +156,52 @@ export async function processCourseCompleted (
       if (!module?.completed) {
         return false;
       }
+    }
+    
+    return true;
+
+  } catch (error) {
+    return Promise.reject (error);
+  }
+}
+
+
+/**
+ * Process whether all required Canvas courses have been completed by a given learner.
+ *
+ * @param courseId
+ * @param lambdaId
+ * @returns
+ */
+export async function processAllRequiredCoursesCompleted (
+  lambdaId: string
+): Promise<boolean> {
+  try {
+
+    // Get which courses must be completed for this learner.
+    const courseIds: number[] | null = await getRequiredCourses(lambdaId);
+
+    for (const courseId of courseIds || []) {
+
+      // Get all modules from the course along with completion information.
+      const modules: ModuleCompletion[] | null =
+        await processCourseModuleCompletion(courseId, lambdaId);
+      if (!modules) {
+        throw new Error ("No course modules found.");
+      }
+
+      // Get which modules must be completed from Airtable (SMT: "Labs - Courses")
+      const completionModuleIds: number[] | null =
+        await canvasCoursesDao.getCompletionModules(courseId);
+
+      // Check if all modules that need to be completed have been completed.
+      for (const completionModuleId of completionModuleIds || []) {
+        const module = modules.find(x => x.id === completionModuleId);
+        if (!module?.completed) {
+          return false;
+        }
+      }
+
     }
     
     return true;

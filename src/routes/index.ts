@@ -5,6 +5,7 @@ import { getAllUsers, addOneUser, updateOneUser, deleteOneUser } from "./Users";
 import { getAllVars } from "./env";
 import {
   getAllAssignments,
+  getAllRequiredCoursesCompleted,
   getAssignment,
   getAssignmentSubmissions,
   getCourseCompleted,
@@ -42,7 +43,8 @@ canvasRouter.get("/courses/:courseId/modules/", getCourseModules);
 canvasRouter.get("/courses/:courseId/modules/completion", getCourseModuleCompletion);
 canvasRouter.get("/courses/:courseId/modules/:moduleId", getModule);
 canvasRouter.get("/courses/:courseId/modules/:moduleId/completion", getModuleCompletion);
-canvasRouter.get("/courses/:courseId/completion", getCourseCompleted);
+canvasRouter.get("/courses/:courseId/completed", getCourseCompleted);
+canvasRouter.get("/courses/completed", getAllRequiredCoursesCompleted);
 
 const airtableRouter = Router();
 airtableRouter.get("/surveys", getAllSurveys);

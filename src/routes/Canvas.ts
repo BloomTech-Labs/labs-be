@@ -10,6 +10,7 @@ import Assignment from "@entities/Assignment";
 import Submission from "@entities/Submission";
 import Module from "@entities/Module";
 import {
+  processAllRequiredCoursesCompleted,
   processCourseCompleted,
   processCourseModuleCompletion,
   processModuleCompletion
@@ -218,6 +219,36 @@ export async function getCourseCompleted(
   try {
     const completed: boolean =
       await processCourseCompleted(parseInt(courseId), lambdaId as string);
+    return res.status(OK).json(completed);
+  }
+  catch (error) {
+    return res.status(BAD_REQUEST).json(error);
+  }
+}
+
+
+/**
+ * Get whether all required Canvas courses have been completed by a given learner.
+ * - A course is completed if all modules requiring completion are completed.
+ * - We read which modules require completion from the "Labs - Courses" table in SMT.
+ *
+ * @param req
+ * @param res
+ * @returns
+ */
+export async function getAllRequiredCoursesCompleted(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  const { lambdaId } = req.query;
+  
+  if (!lambdaId) {
+    return res.status(BAD_REQUEST);
+  }
+
+  try {
+    const completed: boolean =
+      await processAllRequiredCoursesCompleted(lambdaId as string);
     return res.status(OK).json(completed);
   }
   catch (error) {

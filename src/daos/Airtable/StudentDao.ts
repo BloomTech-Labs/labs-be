@@ -33,6 +33,26 @@ class StudentDao {
   }
 
   /**
+   *
+   */
+  public async getOne(lambdaId: string): Promise<Record<string, unknown> | null> {
+    const students = await this.airtable("Students")
+      .select({
+        view: "Grid view",
+        maxRecords: 1,
+        filterByFormula: `{Lambda ID} = "${lambdaId}"`,
+      })
+      .all();
+
+    if (students.length) {
+      const student = students[0];
+      return student as unknown as Record<string, unknown>;
+    } else {
+      return null;
+    }
+  }
+
+  /**
    *  @param cohort
    */
   public async getCohort(cohort: string): Promise<Records<FieldSet>> {
