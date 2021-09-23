@@ -4,8 +4,6 @@ import logger from "@shared/Logger";
 
 import AssignmentsDao from "@daos/Canvas/AssignmentsDao";
 import ModulesDao from "@daos/Canvas/ModulesDao";
-import UsersDao from "@daos/Canvas/UsersDao";
-import CanvasCoursesDao from "@daos/Airtable/CanvasCoursesDao";
 import Assignment from "@entities/Assignment";
 import Submission from "@entities/Submission";
 import Module from "@entities/Module";
@@ -23,8 +21,6 @@ const { BAD_REQUEST, CREATED, OK } = StatusCodes;
 
 const assignmentsDao = new AssignmentsDao();
 const modulesDao = new ModulesDao();
-const usersDao = new UsersDao();
-const canvasCoursesDao = new CanvasCoursesDao();
 
 
 /**

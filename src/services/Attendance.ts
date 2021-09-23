@@ -1,5 +1,4 @@
 import StudentDao from "@daos/Airtable/StudentDao";
-import CanvasCoursesDao from "@daos/Airtable/CanvasCoursesDao";
 import ModulesDao from "@daos/Canvas/ModulesDao";
 import SubmissionDao from "@daos/Canvas/SubmissionDao";
 import { FieldSet, Records } from "airtable";
@@ -8,7 +7,6 @@ import ModuleItem from "@entities/ModuleItem";
 import { getObjectivesCourseId } from "./Airtable";
 
 const studentDao = new StudentDao();
-const canvasCoursesDao = new CanvasCoursesDao();
 const modulesDao = new ModulesDao();
 const submissionDao = new SubmissionDao();
 
