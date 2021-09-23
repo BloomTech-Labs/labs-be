@@ -18,40 +18,42 @@ const makeUserFromClaims = (claims: JwtClaims): IUser => {
  * if the token is not present or fails validation. If the token is valid its
  * contents are attached to req.profile
  */
-const authRequired = async (
+const authRequired = (
   req: express.Request,
   res: express.Response,
   next: express.NextFunction
-): Promise<void> => {
-  try {
-    const authHeader = req.headers.authorization || "";
-    const jwtIdToken = authHeader.split(" ")[1];
+): void => {
+  void (async () => {
+    try {
+      const authHeader = req.headers.authorization || "";
+      const jwtIdToken = authHeader.split(" ")[1];
 
-    if (!jwtIdToken)
-      throw new Error("Expected a Bearer Token of idToken type JWT");
+      if (!jwtIdToken)
+        throw new Error("Expected a Bearer Token of idToken type JWT");
 
-    const oktaJwtVerifier = new OktaJwtVerifier(oktaConfig.config);
+      const oktaJwtVerifier = new OktaJwtVerifier(oktaConfig.config);
 
-    const jwt = req.headers.authorization || "";
-    const { claims } = await oktaJwtVerifier.verifyAccessToken(
-      jwt,
-      oktaConfig.expectedAudience
-    );
-    const user = makeUserFromClaims(claims);
-    // find or create profile
-    const userDao = new UserDao();
-    const newUser = await userDao.findOrCreate(user);
-    // add profile to request object
-    if (newUser) {
-      req.currentUser = newUser;
-    } else {
-      throw new Error("Unable to process idToken");
+      const jwt = req.headers.authorization || "";
+      const { claims } = await oktaJwtVerifier.verifyAccessToken(
+        jwt,
+        oktaConfig.expectedAudience
+      );
+      const user = makeUserFromClaims(claims);
+      // find or create profile
+      const userDao = new UserDao();
+      const newUser = await userDao.findOrCreate(user);
+      // add profile to request object
+      if (newUser) {
+        req.currentUser = newUser;
+      } else {
+        throw new Error("Unable to process idToken");
+      }
+      next();
+    } catch (err) {
+      Logger.err(err);
+      next({ status: 401, error: err });
     }
-    next();
-  } catch (err) {
-    Logger.err(err);
-    next({ status: 401, error: err });
-  }
+  })();
 };
 
 export default authRequired;

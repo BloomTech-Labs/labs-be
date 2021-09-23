@@ -1,7 +1,9 @@
 import "reflect-metadata";
-import { createConnection } from "typeorm";
+import { ConnectionOptions, createConnection } from "typeorm";
+import * as config from "../../ormconfig";
 import logger from "./Logger";
+
 export async function intializeDB(): Promise<void> {
-  await createConnection();
+  await createConnection(config as ConnectionOptions);
   logger.info("Database successfully initialized");
 }

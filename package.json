@@ -16,16 +16,19 @@
     "watch": [
       "src"
     ],
-    "ext": "ts, html",
+    "ext": "ts, js, json, html",
     "ignore": [
-      "src/public"
+      "src/public",
+      ".git", 
+      "node_modules/**/node_modules"
     ],
-    "exec": "./node_modules/.bin/ts-node -r tsconfig-paths/register ./src"
+    "exec": "./node_modules/.bin/ts-node -r tsconfig-paths/register --files ./src"
   },
   "_moduleAliases": {
     "@daos": "dist/daos",
     "@entities": "dist/entities",
     "@shared": "dist/shared",
+    "@middleware": "dist/middleware",
     "@server": "dist/Server"
   },
   "dependencies": {

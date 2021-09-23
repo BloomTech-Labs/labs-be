@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 
 import UserDao from "@daos/User/UserDao.mock";
 import { paramMissingError } from "@shared/constants";
+import { IUser } from "@entities/User";
 
 const userDao = new UserDao();
 const { BAD_REQUEST, CREATED, OK } = StatusCodes;
@@ -14,14 +15,11 @@ const { BAD_REQUEST, CREATED, OK } = StatusCodes;
  * @param res
  * @returns
  */
-export function getAllUsers(
-  req: Request,
-  res: Response
-): Response<any, Record<string, any>> {
+export function getAllUsers(req: Request, res: Response): Response<IUser[]> {
   const users = (async () => {
     await userDao.getAll();
   })();
-  return res.status(OK).json({ users });
+  return res.status(OK).json(users) as Response<IUser[]>;
 }
 
 /**
@@ -32,7 +30,7 @@ export function getAllUsers(
  * @returns
  */
 export function addOneUser(req: Request, res: Response): Response | void {
-  const { user } = req.body;
+  const user = req.body as IUser;
   if (!user) {
     return res.status(BAD_REQUEST).json({
       error: paramMissingError,
@@ -52,13 +50,12 @@ export function addOneUser(req: Request, res: Response): Response | void {
  * @returns
  */
 export function updateOneUser(req: Request, res: Response): Response | void {
-  const { user } = req.body;
+  const user = req.body as IUser;
   if (!user) {
     return res.status(BAD_REQUEST).json({
       error: paramMissingError,
     });
   }
-  user.id = Number(user.id);
   void (async () => {
     await userDao.update(user);
   })();

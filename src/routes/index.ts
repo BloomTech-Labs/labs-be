@@ -22,9 +22,10 @@ import {
   getStudentByEmail,
 } from "./Airtable";
 import { putEventAttendance } from "./Attendance";
+import authRequired from "../middleware/authRequired";
 
 const userRouter = Router();
-userRouter.get("/all", getAllUsers);
+userRouter.get("/all", authRequired, getAllUsers);
 userRouter.post("/add", addOneUser);
 userRouter.put("/update", updateOneUser);
 userRouter.delete("/delete/:id", deleteOneUser);
