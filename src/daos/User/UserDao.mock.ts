@@ -1,10 +1,10 @@
-import { IUser } from "@entities/User";
+import { IUser, User } from "@entities/User";
 import { getRandomStringId } from "@shared/functions";
-import { IUserDao } from "./UserDao";
+import { IDatabaseDao } from "../BaseDatabaseDao";
 import MockDaoMock from "../MockDb/MockDao.mock";
 
-class UserDao extends MockDaoMock implements IUserDao {
-  public async getOne(id: string): Promise<IUser | undefined> {
+class UserDao extends MockDaoMock implements IDatabaseDao<User> {
+  public async getOne(id: number | string): Promise<IUser | undefined> {
     const db = await super.openDb();
     for (const user of db.users) {
       if (user.id === id) {
@@ -14,7 +14,7 @@ class UserDao extends MockDaoMock implements IUserDao {
     return undefined;
   }
 
-  public async getAll(): Promise<IUser[]> {
+  public async list(): Promise<IUser[]> {
     const db = await super.openDb();
     return db.users;
   }
@@ -38,7 +38,7 @@ class UserDao extends MockDaoMock implements IUserDao {
     throw new Error("User not found");
   }
 
-  public async delete(id: string): Promise<void> {
+  public async delete(id: number | string): Promise<void> {
     const db = await super.openDb();
     for (let i = 0; i < db.users.length; i++) {
       if (db.users[i].id === id) {
