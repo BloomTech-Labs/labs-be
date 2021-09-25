@@ -1,7 +1,7 @@
 import StatusCodes from "http-status-codes";
 import { Request, Response } from "express";
 
-import UserDao from "@daos/User/UserDao.mock";
+import UserDao from "@daos/User/UserDao";
 import { paramMissingError } from "@shared/constants";
 import { IUser } from "@entities/User";
 
@@ -15,10 +15,11 @@ const { BAD_REQUEST, CREATED, OK } = StatusCodes;
  * @param res
  * @returns
  */
-export function getAllUsers(req: Request, res: Response): Response<IUser[]> {
-  const users = (async () => {
-    await userDao.getAll();
-  })();
+export async function getAllUsers(
+  req: Request,
+  res: Response
+): Promise<Response<IUser[]>> {
+  const users = await userDao.list();
   return res.status(OK).json(users) as Response<IUser[]>;
 }
 
