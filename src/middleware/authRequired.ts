@@ -4,6 +4,7 @@ import oktaConfig from "@shared/oktaConfig";
 import { IUser } from "@entities/User";
 import UserDao from "@daos/User/UserDao";
 import Logger from "@shared/Logger";
+import logger from "@shared/Logger";
 
 const makeUserFromClaims = (claims: JwtClaims): IUser => {
   return {
@@ -27,15 +28,14 @@ const authRequired = (
     try {
       const authHeader = req.headers.authorization || "";
       const jwtIdToken = authHeader.split(" ")[1];
-
+      // logger.info(`JWT: ${jwtIdToken}`);
       if (!jwtIdToken)
         throw new Error("Expected a Bearer Token of idToken type JWT");
 
       const oktaJwtVerifier = new OktaJwtVerifier(oktaConfig.config);
 
-      const jwt = req.headers.authorization || "";
       const { claims } = await oktaJwtVerifier.verifyAccessToken(
-        jwt,
+        jwtIdToken,
         oktaConfig.expectedAudience
       );
       const user = makeUserFromClaims(claims);
@@ -46,7 +46,7 @@ const authRequired = (
       if (newUser) {
         req.currentUser = newUser;
       } else {
-        throw new Error("Unable to process idToken");
+        throw new Error("Unable to process idToken, may be invalid");
       }
       next();
     } catch (err) {
