@@ -1,13 +1,12 @@
 import StudentDao from "@daos/Airtable/StudentDao";
-import CanvasCoursesDao from "@daos/Airtable/CanvasCoursesDao";
 import ModulesDao from "@daos/Canvas/ModulesDao";
 import SubmissionDao from "@daos/Canvas/SubmissionDao";
 import { FieldSet, Records } from "airtable";
 import Module from "@entities/Module";
 import ModuleItem from "@entities/ModuleItem";
+import { getObjectivesCourseId } from "./Airtable";
 
 const studentDao = new StudentDao();
-const canvasCoursesDao = new CanvasCoursesDao();
 const modulesDao = new ModulesDao();
 const submissionDao = new SubmissionDao();
 
@@ -56,17 +55,6 @@ function mergeStudentRecords(
   }
 
   return learners;
-}
-
-/**
- * Look up a learner's Objectives course ID in Airtable by their Labs role.
- *
- * @param labsRole
- * @returns
- */
-async function getObjectivesCourseId(labsRole: string): Promise<number | null> {
-  const courseId = await canvasCoursesDao.getObjectiveCourseIdByRole(labsRole);
-  return courseId || null;
 }
 
 /**
