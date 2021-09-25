@@ -1,4 +1,4 @@
-import { Entity, Column, Index, PrimaryGeneratedColumn } from "typeorm";
+import { Entity, Column, Index, PrimaryColumn } from "typeorm";
 
 export interface IUser {
   // this should be the okta id
@@ -9,7 +9,7 @@ export interface IUser {
 
 @Entity()
 export class User implements IUser {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   public id: string;
   @Column()
   public name: string;
