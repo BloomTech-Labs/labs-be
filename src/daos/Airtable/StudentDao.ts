@@ -90,6 +90,28 @@ class StudentDao {
   /**
    *  @param email
    */
+  public async getByRecordId(
+    recordId: string
+  ): Promise<Record<string, unknown> | null> {
+    const students = await this.airtable("Students")
+      .select({
+        view: "Grid view",
+        maxRecords: 1,
+        filterByFormula: `{Record ID} = "${recordId}"`,
+      })
+      .all();
+
+    if (students.length) {
+      const student = students[0];
+      return student as unknown as Record<string, unknown>;
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   *  @param email
+   */
   public async getByEmails(emails: Array<string>): Promise<Records<FieldSet>> {
     // Generate a list of Airtable formula conditions of the form:
     //  OR(

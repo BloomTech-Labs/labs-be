@@ -7,6 +7,7 @@ export type UserArrayResponse = Promise<CanvasUser[] | null>;
 export interface IUsersDao {
   getOneBySisId: (id: string) => UserResponse;
   getAll: () => UserArrayResponse;
+  getUsersInGroup: (groupId: number) => UserArrayResponse;
 }
 
 class UsersDao implements IUsersDao {
@@ -27,12 +28,28 @@ class UsersDao implements IUsersDao {
 
   /**
    * @param courseId
+   * @param assignmentId
+   */
+  public getOne(id: number): UserResponse {
+    const path = `users/${id}`;
+    return this.client.get(path) as UserResponse;
+  }
+
+  /**
+   * @param courseId
    */
   public getAll(): UserArrayResponse {
     const path = "users";
     return this.client.get(path) as UserArrayResponse;
   }
 
+  /**
+   * @param courseId
+   */
+  public getUsersInGroup(groupId: number): UserArrayResponse {
+    const path = `groups/${groupId}/users?per_page=250`;
+    return this.client.get(path) as UserArrayResponse;
+  }
   
 }
 

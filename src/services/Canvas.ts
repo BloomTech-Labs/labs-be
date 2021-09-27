@@ -210,3 +210,18 @@ export async function processAllRequiredCoursesCompleted (
     return Promise.reject (error);
   }
 }
+
+
+/**
+ * Get the given cohort's Role Quiz scores from the Labs Application in Canvas.
+ *
+ * @param courseId
+ * @param lambdaId
+ * @returns
+ */
+// export async function getQuizScores(cohort: string) {
+  
+// }
+
+
+

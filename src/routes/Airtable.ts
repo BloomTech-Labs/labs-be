@@ -4,10 +4,13 @@ import logger from "@shared/Logger";
 
 import SurveyDao from "@daos/Airtable/SurveyDao";
 import StudentDao from "@daos/Airtable/StudentDao";
+import ProjectsDao from "@daos/Airtable/ProjectsDao";
+
 import { paramMissingError } from "@shared/constants";
 
 const surveyDao = new SurveyDao();
 const studentDao = new StudentDao();
+const projectsDao = new ProjectsDao();
 const { BAD_REQUEST, CREATED, OK } = StatusCodes;
 
 /**
@@ -92,3 +95,59 @@ export async function getStudentByEmail(
 
   return res.status(OK).json(student);
 }
+
+/**
+ * Get all projects from the "Labs - Projects" view.
+ *
+ * @param req
+ * @param res
+ * @returns
+ */
+export async function getAllProjects(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  const projects = await projectsDao.getAll();
+
+  return res.status(OK).json(projects);
+}
+
+/**
+ * Get all projects from the given cohort view.
+ *
+ * @param req
+ * @param res
+ * @returns
+ */
+export async function getCohortProjects(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  const { cohort } = req.params;
+  const projects = await projectsDao.getCohort(cohort);
+
+  return res.status(OK).json(projects);
+}
+
+/** TODO
+ * Put new projects to the given cohort view. The view must already exist in the
+ * "Labs - Projects" table.
+ *
+ * @param req
+ * @param res
+ * @returns
+ */
+// export async function putCohortProjects(
+//   req: Request,
+//   res: Response
+// ): Promise<Response> {
+//   const { cohort } = req.params;
+//   const body = req.body as Record<
+//     string,
+//     unknown
+//   >[];
+//   const learners: Record<string, unknown> = body.learners as Record<string, unknown>;
+//   const projects = await projectsDao.putCohortProjects(cohort);
+
+//   return res.status(OK).json(projects);
+// }

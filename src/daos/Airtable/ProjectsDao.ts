@@ -1,7 +1,7 @@
 import Airtable, { FieldSet, Records } from "airtable";
 import { AirtableBase } from "airtable/lib/airtable_base";
 
-class SurveyDao {
+class ProjectsDao {
   private api_key: string;
   private base_id: string;
   public airtable: AirtableBase;
@@ -20,43 +20,24 @@ class SurveyDao {
   }
 
   public async getAll(): Promise<Records<FieldSet>> {
-    const surveys = await this.airtable("Labs - TBSurveys")
+    const projects = await this.airtable("Labs - Projects")
       .select({
         view: "Grid view",
       })
       .all();
 
-    return surveys;
+    return projects;
   }
-
-
-  public async getOne(lambdaId: string): Promise<Record<string, unknown> | null> {
-    const surveys = await this.airtable("Labs - TBSurveys")
-      .select({
-        view: "Grid view",
-        maxRecords: 1,
-        filterByFormula: `{Lambda ID} = "${lambdaId}"`,
-      })
-      .all();
-
-    if (surveys.length) {
-      const survey = surveys[0];
-      return survey as unknown as Record<string, unknown>;
-    } else {
-      return null;
-    }
-  }
-
 
   public async getCohort(cohort: string): Promise<Records<FieldSet>> {
-    const surveys = await this.airtable("Labs - TBSurveys")
+    const projects = await this.airtable("Labs - Projects")
       .select({
         view: `Labs ${cohort}`,
       })
       .all();
 
-    return surveys;
+    return projects;
   }
 }
 
-export default SurveyDao;
+export default ProjectsDao;
