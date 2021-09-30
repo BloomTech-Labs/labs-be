@@ -19,10 +19,10 @@ export interface IQuizSubmissionDao {
 }
 
 class QuizSubmissionDao implements IQuizSubmissionDao {
-  private client: CanvasClient<Record<string,IQuizSubmission>>;
+  private client: CanvasClient<Record<string, IQuizSubmission>>;
 
   constructor() {
-    this.client = new CanvasClient<Record<string,IQuizSubmission>>();
+    this.client = new CanvasClient<Record<string, IQuizSubmission>>();
   }
 
   /**
@@ -36,8 +36,10 @@ class QuizSubmissionDao implements IQuizSubmissionDao {
     lambdaId: string
   ): QuizSubmissionArrayResponse {
     const path = `courses/${courseId}/quizzes/${quizId}/submissions/sis_user_id:${lambdaId}`;
-    const response =
-      await this.client.get(path) as unknown as Record<string, QuizSubmission[]>;
+    const response = (await this.client.get(path)) as unknown as Record<
+      string,
+      QuizSubmission[]
+    >;
     return response.quiz_submissions;
   }
 
@@ -50,8 +52,10 @@ class QuizSubmissionDao implements IQuizSubmissionDao {
     quizId: number
   ): QuizSubmissionArrayResponse {
     const path = `courses/${courseId}/quizzes/${quizId}/submissions?per_page=100`;
-    const response =
-      await this.client.get(path) as unknown as Record<string, QuizSubmission[]>;
+    const response = (await this.client.get(path)) as unknown as Record<
+      string,
+      QuizSubmission[]
+    >;
     return response.quiz_submissions;
   }
 
@@ -66,11 +70,12 @@ class QuizSubmissionDao implements IQuizSubmissionDao {
     lambdaId: string
   ): QuizSubmissionArrayResponse {
     const path = `courses/${courseId}/quizzes/${quizId}/submissions/sis_user_id:${lambdaId}?per_page=100`;
-    const response =
-      await this.client.get(path) as unknown as Record<string, QuizSubmission[]>;
+    const response = (await this.client.get(path)) as unknown as Record<
+      string,
+      QuizSubmission[]
+    >;
     return response.quiz_submissions;
   }
-
 }
 
 export default QuizSubmissionDao;

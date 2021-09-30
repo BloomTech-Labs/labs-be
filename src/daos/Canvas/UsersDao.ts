@@ -50,7 +50,6 @@ class UsersDao implements IUsersDao {
     const path = `groups/${groupId}/users?per_page=250`;
     return this.client.get(path) as UserArrayResponse;
   }
-  
 }
 
 export default UsersDao;

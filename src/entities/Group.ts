@@ -11,7 +11,7 @@ export interface IGroup {
   members_count: number;
   avatar_url: string;
   context_type: string;
-  course_id: number,
+  course_id: number;
   role: string;
   group_category_id: number;
   sis_group_id: string;
@@ -68,8 +68,7 @@ export class Group implements IGroup {
     this.members_count = members_count;
     this.avatar_url = avatar_url;
     this.context_type = context_type;
-    this.course_id = course_id,
-    this.role = role;
+    (this.course_id = course_id), (this.role = role);
     this.group_category_id = group_category_id;
     this.sis_group_id = sis_group_id;
     this.sis_import_id = sis_import_id;

@@ -16,7 +16,6 @@ export class QuizSubmissionQuestion implements IQuizSubmissionQuestion {
   public answers?: unknown | null;
   public matches?: unknown | null;
 
-
   constructor(
     id: number,
     flagged: boolean,
@@ -24,7 +23,6 @@ export class QuizSubmissionQuestion implements IQuizSubmissionQuestion {
     answer?: unknown | null,
     answers?: unknown | null,
     matches?: unknown | null
-
   ) {
     this.id = id;
     this.flagged = flagged;

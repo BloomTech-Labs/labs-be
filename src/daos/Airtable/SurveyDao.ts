@@ -29,8 +29,9 @@ class SurveyDao {
     return surveys;
   }
 
-
-  public async getOne(lambdaId: string): Promise<Record<string, unknown> | null> {
+  public async getOne(
+    lambdaId: string
+  ): Promise<Record<string, unknown> | null> {
     const surveys = await this.airtable("Labs - TBSurveys")
       .select({
         view: "Grid view",
@@ -46,7 +47,6 @@ class SurveyDao {
       return null;
     }
   }
-
 
   public async getCohort(cohort: string): Promise<Records<FieldSet>> {
     const surveys = await this.airtable("Labs - TBSurveys")

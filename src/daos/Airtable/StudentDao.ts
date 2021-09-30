@@ -35,7 +35,9 @@ class StudentDao {
   /**
    *
    */
-  public async getOne(lambdaId: string): Promise<Record<string, unknown> | null> {
+  public async getOne(
+    lambdaId: string
+  ): Promise<Record<string, unknown> | null> {
     const students = await this.airtable("Students")
       .select({
         view: "Grid view",

@@ -11,7 +11,7 @@ import {
   processAllRequiredCoursesCompleted,
   processCourseCompleted,
   processCourseModuleCompletion,
-  processModuleCompletion
+  processModuleCompletion,
 } from "src/services/Canvas";
 
 import { paramMissingError } from "@shared/constants";
@@ -21,7 +21,6 @@ const { BAD_REQUEST, CREATED, OK } = StatusCodes;
 
 const assignmentsDao = new AssignmentsDao();
 const modulesDao = new ModulesDao();
-
 
 /**
  * Get all Canvas assignments for a given course.
@@ -86,7 +85,6 @@ export async function getAssignmentSubmissions(
   return res.status(OK).json(assignment);
 }
 
-
 /**
  * Get all modules in a given Canvas course.
  *
@@ -106,7 +104,6 @@ export async function getCourseModules(
   return res.status(OK).json(modules);
 }
 
-
 /**
  * Get completion information for all modules in a given Canvas course for a given
  * learner.
@@ -121,21 +118,22 @@ export async function getCourseModuleCompletion(
 ): Promise<Response> {
   const { courseId } = req.params;
   const { lambdaId } = req.query;
-  
+
   if (!courseId || !lambdaId) {
     return res.status(BAD_REQUEST);
   }
 
   try {
     const moduleCompletion: ModuleCompletion[] | null =
-      await processCourseModuleCompletion(parseInt(courseId), lambdaId as string);
+      await processCourseModuleCompletion(
+        parseInt(courseId),
+        lambdaId as string
+      );
     return res.status(OK).json(moduleCompletion);
-  }
-  catch (error) {
+  } catch (error) {
     return res.status(BAD_REQUEST).json(error);
   }
 }
-
 
 /**
  * Get one module in a given Canvas course.
@@ -162,7 +160,6 @@ export async function getModule(
   return res.status(OK).json(module);
 }
 
-
 /**
  * Get completion information for one module in a given Canvas course.
  *
@@ -176,13 +173,13 @@ export async function getModuleCompletion(
 ): Promise<Response> {
   const { courseId, moduleId } = req.params;
   const { lambdaId } = req.query;
-  
+
   if (!courseId || !moduleId || !lambdaId) {
     return res.status(BAD_REQUEST);
   }
 
   const moduleCompletion: ModuleCompletion | null =
-    await processModuleCompletion (
+    await processModuleCompletion(
       parseInt(courseId),
       parseInt(moduleId),
       lambdaId as string
@@ -190,7 +187,6 @@ export async function getModuleCompletion(
 
   return res.status(OK).json(moduleCompletion);
 }
-
 
 /**
  * Get whether a given Canvas course was completed by a given learner.
@@ -207,21 +203,21 @@ export async function getCourseCompleted(
 ): Promise<Response> {
   const { courseId } = req.params;
   const { lambdaId } = req.query;
-  
+
   if (!courseId || !lambdaId) {
     return res.status(BAD_REQUEST);
   }
 
   try {
-    const completed: boolean =
-      await processCourseCompleted(parseInt(courseId), lambdaId as string);
+    const completed: boolean = await processCourseCompleted(
+      parseInt(courseId),
+      lambdaId as string
+    );
     return res.status(OK).json(completed);
-  }
-  catch (error) {
+  } catch (error) {
     return res.status(BAD_REQUEST).json(error);
   }
 }
-
 
 /**
  * Get whether all required Canvas courses have been completed by a given learner.
@@ -237,17 +233,17 @@ export async function getAllRequiredCoursesCompleted(
   res: Response
 ): Promise<Response> {
   const { lambdaId } = req.query;
-  
+
   if (!lambdaId) {
     return res.status(BAD_REQUEST);
   }
 
   try {
-    const completed: boolean =
-      await processAllRequiredCoursesCompleted(lambdaId as string);
+    const completed: boolean = await processAllRequiredCoursesCompleted(
+      lambdaId as string
+    );
     return res.status(OK).json(completed);
-  }
-  catch (error) {
+  } catch (error) {
     return res.status(BAD_REQUEST).json(error);
   }
 }

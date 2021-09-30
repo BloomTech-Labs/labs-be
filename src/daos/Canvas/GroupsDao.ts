@@ -15,7 +15,6 @@ class GroupsDao implements IGroupsDao {
     this.client = new CanvasClient<Group>();
   }
 
-
   /**
    * @param courseId
    */
@@ -23,7 +22,6 @@ class GroupsDao implements IGroupsDao {
     const path = `courses/${courseId}/groups?per_page=100`;
     return this.client.get(path) as GroupArrayResponse;
   }
-  
 }
 
 export default GroupsDao;

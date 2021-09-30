@@ -31,7 +31,7 @@ export class BaseClient<T> implements IBaseClient<T> {
       this.headers.Authorization = `Bearer ${opts.token as string}`;
     }
   }
- 
+
   public async request(
     path = "/",
     method = "GET",

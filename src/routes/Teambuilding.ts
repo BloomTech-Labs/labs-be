@@ -5,8 +5,7 @@ import { processTeambuilding } from "src/services/Teambuilding";
 
 const { BAD_REQUEST, CREATED, OK } = StatusCodes;
 
-
-/** 
+/**
  * Build new teams for a given cohort. See /docs/teambuilding.md
  * Post a set of new project teams to the "Labs - Projects" table in SMT.
  *

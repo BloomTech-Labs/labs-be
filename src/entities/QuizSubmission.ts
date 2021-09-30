@@ -3,7 +3,7 @@ export enum QuizSubmissionWorkflowState {
   pending_review = "pending_review",
   complete = "complete",
   settings_only = "settings_only",
-  preview = "preview"
+  preview = "preview",
 }
 
 // https://canvas.instructure.com/doc/api/quiz_submissions.html
@@ -69,7 +69,7 @@ export class QuizSubmission implements IQuizSubmission {
     extra_time?: number,
     score?: number,
     score_before_regrade?: number,
-    kept_score?: number,
+    kept_score?: number
   ) {
     this.id = id;
     this.quiz_id = quiz_id;
@@ -79,7 +79,7 @@ export class QuizSubmission implements IQuizSubmission {
     this.finished_at = finished_at ? new Date(finished_at) : new Date();
     this.end_at = end_at ? new Date(end_at) : new Date();
     this.attempt = attempt;
-    this.extra_attempts= extra_attempts;
+    this.extra_attempts = extra_attempts;
     this.extra_time = extra_time;
     this.manually_unlocked = manually_unlocked;
     this.time_spent = time_spent;

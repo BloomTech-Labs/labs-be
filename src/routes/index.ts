@@ -45,9 +45,15 @@ canvasRouter.get(
   getAssignmentSubmissions
 );
 canvasRouter.get("/courses/:courseId/modules/", getCourseModules);
-canvasRouter.get("/courses/:courseId/modules/completion", getCourseModuleCompletion);
+canvasRouter.get(
+  "/courses/:courseId/modules/completion",
+  getCourseModuleCompletion
+);
 canvasRouter.get("/courses/:courseId/modules/:moduleId", getModule);
-canvasRouter.get("/courses/:courseId/modules/:moduleId/completion", getModuleCompletion);
+canvasRouter.get(
+  "/courses/:courseId/modules/:moduleId/completion",
+  getModuleCompletion
+);
 canvasRouter.get("/courses/:courseId/completed", getCourseCompleted);
 canvasRouter.get("/courses/completed", getAllRequiredCoursesCompleted);
 
