@@ -4,7 +4,7 @@ import { intializeDB } from "@shared/Database";
 
 void intializeDB().then(() => {
   // Start the server
-  const port = Number(process.env.PORT || 3000);
+  const port = Number(process.env.PORT || 4300);
   // import app from "@server";
   void import("@server").then(({ default: app }) => {
     app.listen(port, () => {
