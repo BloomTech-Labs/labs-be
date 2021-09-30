@@ -14,6 +14,7 @@ JET_LOGGER_TIMESTAMP=TRUE
 JET_LOGGER_FORMAT=LINE
 CANVAS_ACCESS_TOKEN=<your canvas user dev access token>
 AT_API_KEY=<your Airtable API key>
+SORTING_HAT_URL=<SortingHat base URL>
 DATABASE_URL=<connection string for postgres database using the knex url format>
 ```
 
