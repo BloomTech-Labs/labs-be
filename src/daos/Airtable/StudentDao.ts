@@ -93,7 +93,7 @@ class StudentDao {
   public async getByRecordId(
     recordId: string
   ): Promise<Record<string, unknown> | null> {
-    const students = await this.airtable("Students")
+    const records = await this.airtable("Students")
       .select({
         view: "Grid view",
         maxRecords: 1,
@@ -101,9 +101,10 @@ class StudentDao {
       })
       .all();
 
-    if (students.length) {
-      const student = students[0];
-      return student as unknown as Record<string, unknown>;
+    if (records.length) {
+      const record = records[0];
+      const student = record?.fields as Record<string, unknown>;
+      return student;
     } else {
       return null;
     }

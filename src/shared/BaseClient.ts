@@ -10,11 +10,9 @@ export type ClientResponse<T> = Promise<Response<T> | null>;
 export type ClientArrayResponse<T> = Promise<Response<T[]> | null>;
 
 export interface IBaseClient<T> {
-  /* eslint-disable @typescript-eslint/no-explicit-any */
   get: (path: string) => ClientResponse<T> | ClientArrayResponse<T>;
-  put: (path: string, body: any) => ClientResponse<T>;
-  post: (path: string, body: any) => ClientResponse<T>;
-  /* eslint-enable @typescript-eslint/no-explicit-any */
+  put: (path: string, body?: Record<string, unknown>) => ClientResponse<T>;
+  post: (path: string, body?: Record<string, unknown>) => ClientResponse<T>;
 }
 
 export class BaseClient<T> implements IBaseClient<T> {
@@ -33,7 +31,7 @@ export class BaseClient<T> implements IBaseClient<T> {
       this.headers.Authorization = `Bearer ${opts.token as string}`;
     }
   }
-  /* eslint-disable @typescript-eslint/no-explicit-any */
+ 
   public async request(
     path = "/",
     method = "GET",
@@ -70,4 +68,3 @@ export class BaseClient<T> implements IBaseClient<T> {
     return this.request(path, "POST", {}, body as BodyInit);
   }
 }
-/* eslint-enable @typescript-eslint/no-explicit-any */

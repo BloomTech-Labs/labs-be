@@ -7,16 +7,20 @@ import QuizSubmissionDao from "@daos/Canvas/QuizSubmissionDao";
 import QuizSubmissionQuestionsDao from "@daos/Canvas/QuizSubmissionQuestionsDao";
 import StudentDao from "@daos/Airtable/StudentDao";
 import QuizSubmission from "@entities/QuizSubmission";
-import QuizSubmissionQuestion from "@entities/QuizSubmissionQuestion";
-import { getRoleQuizIds, getFinalApplicationQuizIds } from "@services/Airtable";
-import { getUserIdBySisId } from "@services/Canvas";
-import e, { response } from "express";
-import Submission from "@entities/Submission";
+import {
+  getRoleQuizIds,
+  getFinalApplicationQuizIds,
+  getLambdaId
+} from "@services/Airtable";
 import QuizReportDao from "@daos/Canvas/QuizReportDao";
 import { QuizReportType } from "@entities/QuizReport";
 import { mergeObjectArrays } from "@shared/functions";
 import GroupsDao from "@daos/Canvas/GroupsDao";
-import TeambuildingOutput, { RoleQuizScores, RoleRankings, Track } from "@entities/TeambuildingOutput";
+import TeambuildingOutput, {
+  RoleQuizScores,
+  RoleRankings,
+  Track
+} from "@entities/TeambuildingOutput";
 import TeambuildingPayload, {
   ILearnerRoleQuizScores,
   ILearnerRoleRankings,
@@ -68,11 +72,25 @@ function parseTrack (track: string): Track | null {
  * @param surveys
  * @returns
  */
-function parseSurveys (surveys: Records<FieldSet>): ILearnerSurvey[] {
-  return surveys.map(x => {
-    const record = x.fields;
-    const survey: ILearnerSurvey = {
-      name: (record ["Student Name"] as string[]) [0],
+async function parseSurveys (surveys: Records<FieldSet>): Promise<ILearnerSurvey[]> {
+  const learnerSurveys = await Promise.all(surveys.map(async survey => {
+    const record = survey.fields;
+
+    // The "dontWorkWith" field is an array of Airtable record IDs. We need
+    // Lambda IDs.
+    const enemies =
+      (record ["List the names of up to 5 students you do not want to work with"] ||
+      []) as
+      string [];
+    const dontWorkWith = await Promise.all(enemies
+      .map (async (enemyRecordId) => {
+        const lambdaId = await getLambdaId(enemyRecordId);
+        return lambdaId;
+      })
+      .filter (y => y)) as string[];
+
+    const learnerSurvey: ILearnerSurvey = {
+      name: (record ["Student Name"] as string[])[0],
       lambdaId: (record ["Lambda ID"] as string[])[0],
       smtId: record ["SMT ID"] as string,
       track: parseTrack (record ["Track"] as string) as Track,
@@ -86,18 +104,18 @@ function parseSurveys (surveys: Records<FieldSet>): ILearnerSurvey[] {
       diversityConsent: (record ["Consent"] || false) as boolean,
       genderIdentity: record ["Gender"] as string,
       ethnicities: record ["Ethnicities"] as string[],
-      dontWorkWith: (record
-        ["List the names of up to 5 students you do not want to work with"] ||
-        []) as string[],
+      dontWorkWith,
     };
-    return survey;
-  })
+    return learnerSurvey;
+  }));
+
+  return learnerSurveys;
 }
 
 
 /**
- * Given an array of raw teambuilding survey results, parse it into an array of
- * ILearnerSurveys.
+ * Given an array of raw project results, parse it into an array of
+ * IProjects.
  *
  * @param projects
  * @returns
@@ -123,6 +141,45 @@ function parseProjects (projects: Records<FieldSet>): IProject[] {
 
 
 /**
+ * Given an array of IProjects, get info on the continuing learners for each project
+ * from Airtable.
+ *
+ * @param projects
+ * @returns
+ */
+async function getContinuingLearners (
+  projects: IProject[]
+): Promise<Record<string, unknown>[]> {
+  const continuingLearners = [] as Record<string,unknown>[];
+  for (const project of projects) {
+    // For each team member on the project, get their relevant properties.
+    for (const smtId of project.teamMemberSmtIds || []) {
+      const student = await studentDao.getByRecordId(smtId);
+      if (!student) {
+        continue;
+      }
+      const lambdaId = (student ["Lambda ID"] as string[]) [0];
+      const name = student ["Name"] as string; 
+      const labsRoles = student ["Labs Role"] as string[] | null;
+      const labsRole = labsRoles ? labsRoles [0] : null;
+      const survey = await (surveyDao.getOne(lambdaId));
+      const surveyFields = survey?.fields as Record <string, unknown>;
+      const track = surveyFields ? surveyFields ["Student Course Text"] as Track : null;
+      const learner = {
+        lambdaId,
+        name,
+        track,
+        labsRole,
+        labsProject: project.id
+      };
+      continuingLearners.push(learner);
+    }
+  }
+  return continuingLearners;
+}
+
+
+/**
  * Build a TeambuildingPayload by merging surveys, projects, quiz scores, and rankings.
  *
  * @param surveys
@@ -140,31 +197,7 @@ async function buildTeambuildingPayload (
   const payload = {} as TeambuildingPayload;
 
   // Get necessary info on the existing projects.
-  // TODO: Clean this up and move it elsewhere...
-  const continuingLearners = [] as Record<string,unknown>[];
-  for (const project of projects) {
-    // For each team member on the project, get their relevant properties.
-    for (const smtId of project.teamMemberSmtIds) {
-      const student = await studentDao.getByRecordId(smtId);
-      const fields = student?.fields as Record<string, unknown>;
-      const lambdaId = (fields ["Lambda ID"] as string[]) [0];
-      const name = fields ["Name"] as string; 
-      const labsRoles = fields ["Labs Role"] as string[] | null;
-      const labsRole = labsRoles ? labsRoles [0] : null;
-      const survey = await (surveyDao.getOne(lambdaId));
-      const surveyFields = survey?.fields as Record <string, unknown>;
-      const track = surveyFields ? surveyFields ["Student Course Text"] as Track : null;
-      const learner = {
-        lambdaId,
-        name,
-        track,
-        labsRole,
-        labsProject: project.id
-      };
-      continuingLearners.push(learner);
-    }
-
-  }
+  const continuingLearners = await getContinuingLearners (projects);
 
   // Merge everything together.
   let learners = mergeObjectArrays (
@@ -216,7 +249,6 @@ export async function filterByCohort<T> (
   courseId: number,
   cohort: string
 ): Promise<T[]> {
-  // ---------------------------------------------
   // Get all groups in the given course.
   const groups = await groupsDao.getGroupsInCourse(courseId);
 
@@ -274,7 +306,6 @@ export async function getRoleQuizScores (
   // For each role quiz:
   for (const roleQuiz of roleQuizIds) {
     // Get all submissions for the quiz.
-    // TODO: Traverse query pages
     const role = Object.keys (roleQuiz)[0];
     const quizId = roleQuiz [role];
     const quizSubmissions: QuizSubmission[] | null =
@@ -331,12 +362,10 @@ function parseRoleRankings(answer: string): RoleRankings {
   const rankings: RoleRankings = {};
    
   for (const x of answer.split(",")) {
-    // const ranking: RoleRankings = {};
     const role: string | undefined = x.split("=>")[1];
     const rank: number = parseInt(x[0]);
     if (role) {
       rankings [role] = rank;
-      // rankings.push (ranking);
     }
   }
 
@@ -436,48 +465,38 @@ export async function getRoleRankings (
  */
 export async function processTeambuilding(
   cohort: string,
-// ): Promise<TeambuildingOutput | null> {
-): Promise<TeambuildingPayload | null> {
-
+): Promise<TeambuildingOutput | null> {
+// ): Promise<TeambuildingPayload | null> {
 
   // Get this cohort's set of projects from Airtable.
   const projects: IProject[] = parseProjects(await projectsDao.getCohort(cohort));
 
   // Get this cohort's surveys from Airtable.
-  const surveys: ILearnerSurvey[] = parseSurveys(await surveyDao.getCohort(cohort));
+  const surveys: ILearnerSurvey[] =
+    await parseSurveys(await surveyDao.getCohort(cohort));
 
   // Get the Labs Application role quiz IDs from Airtable.
-  // TODO: Why is TypeScript upset about this? Module resolution failure?
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const roleQuizIds: RoleQuizID[] = await getRoleQuizIds() as RoleQuizID[];
 
-  // Get the id of the Labs Application course from Airtable.
+  // Get the ID of the Labs Application course from Airtable.
   const courseId: number = await canvasCoursesDao.getLabsApplicationCourseId() as number;
 
   // Get the Labs Application "Final Application" quiz IDs from Airtable.
-  // TODO: Why is TypeScript upset about this? Module resolution failure?
   const finalApplicationQuizIds: Record<string, number> =
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     await getFinalApplicationQuizIds();
 
   // Get this cohort's Role Quiz scores from the Labs Application in Canvas.
-  // const roleQuizScores: RoleQuizScores = await getRoleQuizScores(cohort, roleQuizIds);
   const roleQuizScores = await getRoleQuizScores(cohort, courseId, roleQuizIds);
 
   // Get this cohort's role rankings from the Labs Application in Canvas.
   const roleRankings =
     (await getRoleRankings(cohort, courseId, finalApplicationQuizIds)) || [];
-  
-  console.log (roleRankings);
 
   // Merge the quiz scores, rankings, surveys, and projects.
   const payload =
     await buildTeambuildingPayload(surveys, roleQuizScores, roleRankings, projects);
 
-  console.log (payload);
-  return payload;
+  const output = await sortingHatDao.postBuildTeams(payload,cohort);
 
-  // const output = await sortingHatDao.postBuildTeams(payload,cohort);
-  
-  // return output;
+  return output;
 }

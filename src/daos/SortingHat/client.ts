@@ -8,14 +8,14 @@ import {
 
 export interface ISortingHatClient<T> {
   get: (path: string) => ClientResponse<T> | ClientArrayResponse<T>;
+  put: (path: string, body?: Record<string, unknown>) => ClientResponse<T>;
+  post: (path: string, body?: Record<string, unknown>) => ClientResponse<T>;
 }
 
 class SortingHatClient<T> extends BaseClient<T> implements ISortingHatClient<T> {
   constructor() {
     const opts = {
-      // token: process.env.CANVAS_ACCESS_TOKEN,
       baseUrl: process.env.SORTING_HAT_URL,
-      // authType: AuthTypes.JWT,
     };
 
     super(opts);
