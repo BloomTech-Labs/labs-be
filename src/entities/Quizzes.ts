@@ -1,7 +1,5 @@
-import { ISubmission } from "./Submission";
 // eslint-disable-next-line max-len
 // https://canvas.instructure.com/doc/api/quiz_submissions.html#method.quizzes/quiz_submissions_api.index
-// GET /api/v1/courses/:course_id/quizzes/:quiz_id/submissions
 export interface IQuizScores {
   id: number;
   quiz_id: number;

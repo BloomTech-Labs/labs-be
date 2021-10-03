@@ -1,4 +1,4 @@
-import QuizReport, { IQuizReport, IQuizReportFile } from "@entities/QuizReport";
+import QuizReport, { IQuizReport } from "@entities/QuizReport";
 import CanvasClient from "@daos/Canvas/client";
 import { parseCsvUrl } from "@shared/functions";
 

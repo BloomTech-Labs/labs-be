@@ -68,7 +68,10 @@ export class TeambuildingPayload implements ITeambuildingPayload {
   learners: ILearnerLabsApplication[];
   projects: ITeamBuildingProject[];
 
-  constructor(learners: ILearnerLabsApplication[], projects: ITeamBuildingProject[]) {
+  constructor(
+    learners: ILearnerLabsApplication[],
+    projects: ITeamBuildingProject[]
+  ) {
     this.learners = learners;
     this.projects = projects;
   }

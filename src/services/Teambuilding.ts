@@ -4,7 +4,6 @@ import SurveyDao from "@daos/Airtable/SurveyDao";
 import UsersDao from "@daos/Canvas/UsersDao";
 import CanvasCoursesDao from "@daos/Airtable/CanvasCoursesDao";
 import QuizSubmissionDao from "@daos/Canvas/QuizSubmissionDao";
-import QuizSubmissionQuestionsDao from "@daos/Canvas/QuizSubmissionQuestionsDao";
 import StudentDao from "@daos/Airtable/StudentDao";
 import QuizSubmission from "@entities/QuizSubmission";
 import {
@@ -39,7 +38,6 @@ const studentDao = new StudentDao();
 const usersDao = new UsersDao();
 const quizReportDao = new QuizReportDao();
 const quizSubmissionDao = new QuizSubmissionDao();
-const quizSubmissionQuestionsDao = new QuizSubmissionQuestionsDao();
 
 type RoleQuizID = Record<string, number>;
 
@@ -141,8 +139,8 @@ function parseProjects(projects: Records<FieldSet>): ITeamBuildingProject[] {
 }
 
 /**
- * Given an array of ITeamBuildingProjects, get info on the continuing learners for each project
- * from Airtable.
+ * Given an array of ITeamBuildingProjects, get info on the continuing learners for
+ * each project from Airtable.
  *
  * @param projects
  * @returns

@@ -1,7 +1,5 @@
-import { Request, Response } from "express";
 import {
   BaseClient,
-  AuthTypes,
   ClientResponse,
   ClientArrayResponse,
 } from "@shared/BaseClient";
