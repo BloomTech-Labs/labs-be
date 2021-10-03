@@ -25,7 +25,8 @@
     "@daos": "dist/daos",
     "@entities": "dist/entities",
     "@shared": "dist/shared",
-    "@server": "dist/Server"
+    "@server": "dist/Server",
+    "@services": "dist/Services"
   },
   "dependencies": {
     "airtable": "^0.11.1",

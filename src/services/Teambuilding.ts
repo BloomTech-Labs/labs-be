@@ -26,7 +26,7 @@ import TeambuildingPayload, {
   ILearnerRoleRankings,
   ILearnerSurvey,
   ILearnerLabsApplication,
-  IProject,
+  ITeamBuildingProject,
 } from "@entities/TeambuildingPayload";
 import SortingHatDao from "@daos/SortingHat/SortingHatDao";
 
@@ -117,15 +117,15 @@ async function parseSurveys(
 
 /**
  * Given an array of raw project results, parse it into an array of
- * IProjects.
+ * ITeamBuildingProjects.
  *
  * @param projects
  * @returns
  */
-function parseProjects(projects: Records<FieldSet>): IProject[] {
+function parseProjects(projects: Records<FieldSet>): ITeamBuildingProject[] {
   return projects.map((x) => {
     const record = x.fields;
-    const project: IProject = {
+    const project: ITeamBuildingProject = {
       id: record["Name"] as string,
       product: (record["Product Name"] as string[])[0],
       teamCode: record["Team Code"] as string,
@@ -141,14 +141,14 @@ function parseProjects(projects: Records<FieldSet>): IProject[] {
 }
 
 /**
- * Given an array of IProjects, get info on the continuing learners for each project
+ * Given an array of ITeamBuildingProjects, get info on the continuing learners for each project
  * from Airtable.
  *
  * @param projects
  * @returns
  */
 async function getContinuingLearners(
-  projects: IProject[]
+  projects: ITeamBuildingProject[]
 ): Promise<Record<string, unknown>[]> {
   const continuingLearners = [] as Record<string, unknown>[];
   for (const project of projects) {
@@ -193,7 +193,7 @@ async function buildTeambuildingPayload(
   surveys: ILearnerSurvey[],
   quizScores: ILearnerRoleQuizScores[],
   rankings: ILearnerRoleRankings[],
-  projects: IProject[]
+  projects: ITeamBuildingProject[]
 ): Promise<TeambuildingPayload> {
   const payload = {} as TeambuildingPayload;
 
@@ -468,7 +468,7 @@ export async function processTeambuilding(
   // ): Promise<TeambuildingPayload | null> {
 
   // Get this cohort's set of projects from Airtable.
-  const projects: IProject[] = parseProjects(
+  const projects: ITeamBuildingProject[] = parseProjects(
     await projectsDao.getCohort(cohort)
   );
 

@@ -1,6 +1,6 @@
 import { RoleQuizScores, RoleRankings, Track } from "./TeambuildingOutput";
 
-export interface IProject {
+export interface ITeamBuildingProject {
   id: string;
   product: string;
   teamCode: string;
@@ -61,14 +61,14 @@ export interface ILearnerLabsApplication extends ILearnerSurvey {
 
 export interface ITeambuildingPayload {
   learners: ILearnerLabsApplication[];
-  projects: IProject[];
+  projects: ITeamBuildingProject[];
 }
 
 export class TeambuildingPayload implements ITeambuildingPayload {
   learners: ILearnerLabsApplication[];
-  projects: IProject[];
+  projects: ITeamBuildingProject[];
 
-  constructor(learners: ILearnerLabsApplication[], projects: IProject[]) {
+  constructor(learners: ILearnerLabsApplication[], projects: ITeamBuildingProject[]) {
     this.learners = learners;
     this.projects = projects;
   }
