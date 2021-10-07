@@ -1,5 +1,5 @@
 import { getRepository, Repository, EntityTarget } from "typeorm";
-
+import logger from "@shared/Logger";
 export interface HasId {
   id: number | string;
 }
@@ -42,13 +42,14 @@ export class BaseDatabaseDao<T extends HasId> {
   }
 
   /**
+   * Update an item in the database. If the item doesn't exist, it will be created.
    *
-   * @param user
+   * @param item
    */
   public async update(item: T): Promise<void> {
-    const i = await this.repo.findOne(item.id);
-    const newItem: T = Object.assign(i, item);
-    await this.repo.save(newItem as any);
+    // const i = await this.repo.findOne(item.id);
+    // const newItem: T = Object.assign(i, item);
+    await this.repo.save(item as any);
     return Promise.resolve(undefined);
   }
 

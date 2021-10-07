@@ -1,6 +1,7 @@
-import fetch from "node-fetch";
 import { Response } from "express";
-import { RequestInit, HeadersInit, BodyInit } from "node-fetch";
+import fetch from "node-fetch";
+import * as Fetch from "node-fetch";
+import logger from "@shared/Logger";
 
 export enum AuthTypes {
   JWT = "JWT",
@@ -24,7 +25,7 @@ export class BaseClient<T> implements IBaseClient<T> {
     Accept: "application/vnd.api+json",
   };
 
-  constructor(opts: Record<string, unknown> = {}) {
+  constructor(opts: Record<string, unknown> = { debug: false }) {
     if (opts.auth_type == AuthTypes.JWT && !opts.token) {
       throw new Error("missing api JWT token option");
     }
@@ -38,20 +39,35 @@ export class BaseClient<T> implements IBaseClient<T> {
     path = "/",
     method = "GET",
     headers = {},
-    body: BodyInit = ""
+    body: Fetch.BodyInit = ""
   ): ClientResponse<T> {
     const url = `${this.options.baseUrl as string}${path}`;
-    const myHeaders: HeadersInit = Object.assign(
+    const myHeaders: Fetch.HeadersInit = Object.assign(
       this.headers,
       headers
-    ) as HeadersInit;
-    const config: RequestInit = {
+    ) as Fetch.HeadersInit;
+    const config: Fetch.RequestInit = {
       headers: myHeaders,
       method,
       body: body ? JSON.stringify(body) : undefined,
     };
+    logger.info(`fetching ${url}`);
+    logger.imp(myHeaders, true);
+    // myHeaders.forEach((value: string, key: string) => {
+    //   logger.imp(`  [header] ${key}: ${value}`);
+    // });
+    const res: Fetch.Response = await fetch(url, config);
+    try {
+      this.checkStatus(res);
+    } catch (e) {
+      const json = (await res.json()) as {
+        errors: [{ message: string }];
+      };
+      const message = json["errors"][0]["message"];
+      throw new Error(message);
+    }
 
-    const res = await fetch(url, config);
+    logger.info(`fetched status (${res.status})`);
     return res.json() as ClientResponse<T>;
   }
 
@@ -60,14 +76,22 @@ export class BaseClient<T> implements IBaseClient<T> {
   }
 
   public put(path: string, body = {}): ClientResponse<T> {
-    return this.request(path, "PUT", {}, body as BodyInit);
+    return this.request(path, "PUT", {}, body as Fetch.BodyInit);
   }
 
   public post(path: string, body = {}): ClientResponse<T> {
     if (body == {}) {
       throw new Error("Body is missing for POST method.");
     }
-    return this.request(path, "POST", {}, body as BodyInit);
+    return this.request(path, "POST", {}, body as Fetch.BodyInit);
+  }
+
+  private checkStatus(res: Fetch.Response): Fetch.Response {
+    if (res.status >= 200 && res.status < 300) {
+      return res;
+    } else {
+      throw new Error(res.statusText);
+    }
   }
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */

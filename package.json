@@ -10,7 +10,8 @@
     "start:dev": "npx nodemon",
     "test": "npx nodemon --config ./spec/nodemon.json",
     "test:no-reloading": "./node_modules/.bin/ts-node -r tsconfig-paths/register ./spec",
-    "orm": "npx typeorm"
+    "orm": "npx typeorm",
+    "jobs:hourly": "npx ts-node -r tsconfig-paths/register src/jobs/hourly.ts"
   },
   "nodemonConfig": {
     "watch": [
