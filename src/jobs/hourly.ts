@@ -5,9 +5,9 @@ import logger from "@shared/Logger";
 
 void run()
   .then(() => {
-    // import app from "@server";
+    logger.info("Running hourly jobs");
     void import("./etl/canvasCourses").then(({ default: app }) => {
-      logger.info("Running hourly jobs");
+      logger.info("loading canvas courses");
 
       void app.run();
     });

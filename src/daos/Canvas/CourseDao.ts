@@ -2,7 +2,9 @@ import CanvasClient from "./client";
 import { ICompleteCanvasCourse } from "@entities/Canvas/CanvasCourse";
 import logger from "@shared/Logger";
 
-export type CourseResponse = Promise<ICompleteCanvasCourse | null>;
+export type CourseResponse = Promise<
+  ICompleteCanvasCourse | ICompleteCanvasCourse[] | null
+>;
 
 class CourseDao {
   private client: CanvasClient<ICompleteCanvasCourse>;
@@ -14,11 +16,14 @@ class CourseDao {
   /**
    * @param courseId
    */
-  public getOne(courseId: number): CourseResponse {
+  public async getOne(courseId: number): CourseResponse {
     // <canvasURL>/api/v1/courses/:courseId
     const path = `courses/${courseId}`;
     logger.info(`Getting path ${path}`);
-    return this.client.get(path) as CourseResponse;
+    const response = await this.client.get(path);
+    const data = response.data;
+    logger.imp(data, true);
+    return new Promise((resolve) => resolve(data));
   }
 }
 

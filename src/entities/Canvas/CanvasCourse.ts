@@ -13,6 +13,18 @@ export class CanvasCalendar {
   ics: string;
 }
 
+export interface ICanvasCourseUser {
+  id: number;
+  name: string;
+  created_at: string;
+  sortable_name: string;
+  short_name: string;
+  sis_user_id: string;
+  integration_id: string | null;
+  login_id: string;
+  email: string;
+}
+
 export interface ICompleteCanvasCourse {
   id: number;
   name: string;
@@ -118,12 +130,12 @@ export function convertCompleteCourseToCourse(
         homeroom_course: course.homeroom_course,
         hide_final_grades: course.hide_final_grades,
         apply_assignment_group_weights: course.apply_assignment_group_weights,
-        calendar: course.calendar,
+        calendar: JSON.stringify(course.calendar),
         time_zone: course.time_zone,
         blueprint: course.blueprint,
         template: course.template,
         integration_id: course.integration_id,
-        enrollments: course.enrollments,
+        enrollments: JSON.stringify(course.enrollments),
         restrict_enrollments_to_course_dates:
           course.restrict_enrollments_to_course_dates,
         override_course_visibility: course.override_course_visibility,
