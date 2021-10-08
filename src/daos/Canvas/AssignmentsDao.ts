@@ -25,29 +25,35 @@ class AssignmentsDao implements IAssignmentsDao {
    * @param courseId
    * @param assignmentId
    */
-  public getOne(courseId: number, assignmentId: number): AssignmentResponse {
+  public async getOne(
+    courseId: number,
+    assignmentId: number
+  ): AssignmentResponse {
     const path = `courses/${courseId}/assignments/${assignmentId}?include=submission`;
-    return this.client.get(path) as AssignmentResponse;
+    const data = (await this.client.get(path)).data as Assignment;
+    return new Promise(() => data);
   }
 
   /**
    * @param courseId
    */
-  public getAll(courseId: number): AssignmentArrayResponse {
+  public async getAll(courseId: number): AssignmentArrayResponse {
     const path = `courses/${courseId}/assignments/`;
-    return this.client.get(path) as AssignmentArrayResponse;
+    const data = (await this.client.get(path)).data as Assignment[];
+    return new Promise(() => data);
   }
 
   /**
    * @param courseId
    * @param assignmentId
    */
-  public getSubmissions(
+  public async getSubmissions(
     courseId: number,
     assignmentId: number
   ): SubmissionArrayResponse {
     const path = `courses/${courseId}/assignments/${assignmentId}/submissions?include=user`;
-    return this.client.get(path) as SubmissionArrayResponse;
+    const data = (await this.client.get(path)).data as Assignment;
+    return new Promise(() => data);
   }
 }
 
