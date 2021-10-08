@@ -16,14 +16,13 @@ export default class CanvasCourses {
       const studentDbDao = new StudentsDbDao();
 
       for (const courseId of this.courseIds) {
-        // const p = coursesDao.getOne(courseId);
-        // const course = (await p) as ICompleteCanvasCourse;
-        // logger.info(course, true);
-        // if (course != undefined) {
-        //   logger.info(`Course ${course.id} found`);
-        //   await courseDbDao.save(course);
-        //   logger.info(`Course '${course.name}' saved`);
-        // }
+        const p = coursesDao.getOne(courseId);
+        const course = (await p) as ICompleteCanvasCourse;
+        if (course != undefined) {
+          logger.info(`Course ${course.id} found`);
+          await courseDbDao.save(course);
+          logger.info(`Course '${course.name}' saved`);
+        }
         // get students for course
         const students = await studentDao.getAllForCourse(courseId);
         logger.info(`${students.length} students found`);
