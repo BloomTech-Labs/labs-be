@@ -80,6 +80,9 @@
       "@shared/*": [
         "src/shared/*"
       ],
+      "@services/*": [
+        "src/services/*"
+      ],
       "@middleware": [
         "src/middleware/*"
       ],
