@@ -1,13 +1,18 @@
-import Assignment from "@entities/Assignment";
 import CanvasClient from "@daos/Canvas/client";
-import { SubmissionArrayResponse } from "./SubmissionDao";
+import Assignment from "@entities/Assignment";
+import { ICompleteCanvasAssignment } from "@entities/Canvas/Assignment";
+import SubmissionDao, { SubmissionArrayResponse } from "./SubmissionDao";
 
-export type AssignmentResponse = Promise<Assignment | null>;
-export type AssignmentArrayResponse = Promise<Assignment[] | null>;
+export type AssignmentResponse = Promise<
+  ICompleteCanvasAssignment | ICompleteCanvasAssignment[] | null
+>;
+export type AssignmentArrayResponse = Promise<
+  Assignment[] | ICompleteCanvasAssignment[] | null
+>;
 
 export interface IAssignmentsDao {
   getOne: (courseId: number, assignmentId: number) => AssignmentResponse;
-  getAll: (courseId: number) => AssignmentArrayResponse;
+  getAll: (courseId: number) => AssignmentResponse;
   getSubmissions: (
     courseId: number,
     assignmentId: number
@@ -15,10 +20,10 @@ export interface IAssignmentsDao {
 }
 
 class AssignmentsDao implements IAssignmentsDao {
-  private client: CanvasClient<Assignment>;
+  private client: CanvasClient<ICompleteCanvasAssignment>;
 
   constructor() {
-    this.client = new CanvasClient<Assignment>();
+    this.client = new CanvasClient<ICompleteCanvasAssignment>();
   }
 
   /**
@@ -30,17 +35,30 @@ class AssignmentsDao implements IAssignmentsDao {
     assignmentId: number
   ): AssignmentResponse {
     const path = `courses/${courseId}/assignments/${assignmentId}?include=submission`;
-    const data = (await this.client.get(path)).data as Assignment;
-    return new Promise(() => data);
+    const data = (await this.client.get(path))
+      .data as ICompleteCanvasAssignment;
+    return new Promise((resolve, reject) => {
+      if (data) {
+        resolve(data);
+      } else {
+        reject(new Error(`Assignment ${assignmentId} not found`));
+      }
+    });
   }
 
   /**
    * @param courseId
    */
-  public async getAll(courseId: number): AssignmentArrayResponse {
+  public async getAll(courseId: number): AssignmentResponse {
     const path = `courses/${courseId}/assignments/`;
-    const data = (await this.client.get(path)).data as Assignment[];
-    return new Promise(() => data);
+    const data = await this.client.getAllResources(path);
+    return new Promise((resolve, reject) => {
+      if (data) {
+        resolve(data);
+      } else {
+        reject(new Error(`Assignments for course ${courseId} not found`));
+      }
+    });
   }
 
   /**
@@ -51,9 +69,9 @@ class AssignmentsDao implements IAssignmentsDao {
     courseId: number,
     assignmentId: number
   ): SubmissionArrayResponse {
-    const path = `courses/${courseId}/assignments/${assignmentId}/submissions?include=user`;
-    const data = (await this.client.get(path)).data as Assignment;
-    return new Promise(() => data);
+    const subDao = new SubmissionDao();
+    const response = subDao.getAll(courseId, assignmentId);
+    return response;
   }
 }
 
