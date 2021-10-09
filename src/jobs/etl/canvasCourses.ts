@@ -2,12 +2,15 @@ import CoursesDao from "@daos/Canvas/CourseDao";
 import CourseDbDao from "@daos/Canvas/CourseDbDao";
 import StudentsDao from "@daos/Canvas/StudentDao";
 import StudentsDbDao from "@daos/Canvas/StudentDbDao";
-import { ICompleteCanvasCourse } from "@entities/Canvas/CanvasCourse";
+import AssignmentsDao from "@daos/Canvas/AssignmentsDao";
+import AssignmentsDbDao from "@daos/Canvas/AssignmentsDbDao";
+import { ICompleteCanvasCourse } from "@entities/Canvas/Course";
 import logger from "@shared/Logger";
+import { ICompleteCanvasAssignment } from "@entities/Canvas/Assignment";
 
 export default class CanvasCourses {
   static Courses: Record<string, number> = {
-    Labs: 1152,
+    Labs: 1552,
     Application: 1482,
     CarrersReadiness: 1492,
     BeJava: 1546,
@@ -23,25 +26,36 @@ export default class CanvasCourses {
 
   static async run(): Promise<void> {
     try {
-      const coursesDao = new CoursesDao();
+      const courseDao = new CoursesDao();
       const courseDbDao = new CourseDbDao();
       const studentDao = new StudentsDao();
       const studentDbDao = new StudentsDbDao();
+      const assDao = new AssignmentsDao();
+      const assDbDao = new AssignmentsDbDao();
 
       for (const label in this.Courses) {
         const courseId = this.Courses[label];
         logger.info(`Fetching course ${label} - ${courseId}`);
-        const p = coursesDao.getOne(courseId);
-        const course = (await p) as ICompleteCanvasCourse;
+        const course = (await courseDao.getOne(
+          courseId
+        )) as ICompleteCanvasCourse;
         if (course != undefined) {
           logger.info(`Course ${course.id} found`);
           await courseDbDao.save(course);
           logger.info(`Course '${course.name}' saved`);
           if (course.name === "Labs") {
-            // get students for course
+            // get students for Labs course
             const students = await studentDao.getAllForCourse(courseId);
             logger.info(`${students.length} students found`);
             await studentDbDao.saveMany(students);
+          }
+          //get assignments
+          const assignments = (await assDao.getAll(
+            courseId
+          )) as ICompleteCanvasAssignment[];
+          if (assignments && assignments.length > 0) {
+            logger.info(`${assignments.length} assignments found`);
+            await assDbDao.saveMany(assignments);
           }
         }
       }

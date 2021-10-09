@@ -17,7 +17,7 @@ export class BaseResponse<T> {
   public statusText: string;
   public headers: Fetch.Headers;
 
-  static async build<T>(
+  public static async build<T>(
     response: Fetch.Response,
     getErrorMsg: ResponseErrorFn
   ): ClientResponse<T> {

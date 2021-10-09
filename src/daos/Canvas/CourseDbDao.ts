@@ -2,7 +2,7 @@ import { BaseDatabaseDao } from "@daos/BaseDatabaseDao";
 import CanvasCourse, {
   ICompleteCanvasCourse,
   convertCompleteCourseToCourse,
-} from "@entities/Canvas/CanvasCourse";
+} from "@entities/Canvas/Course";
 
 class CourseDbDao extends BaseDatabaseDao<CanvasCourse> {
   constructor() {

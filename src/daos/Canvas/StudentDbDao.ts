@@ -1,5 +1,5 @@
 import { BaseDatabaseDao } from "@daos/BaseDatabaseDao";
-import CanvasStudent, { ICanvasUser } from "@entities/Canvas/CanvasUser";
+import CanvasStudent, { ICanvasUser } from "@entities/Canvas/User";
 
 class StudentDbDao extends BaseDatabaseDao<CanvasStudent> {
   constructor() {

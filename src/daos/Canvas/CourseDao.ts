@@ -1,5 +1,5 @@
 import CanvasClient from "./client";
-import { ICompleteCanvasCourse } from "@entities/Canvas/CanvasCourse";
+import { ICompleteCanvasCourse } from "@entities/Canvas/Course";
 import logger from "@shared/Logger";
 
 export type CourseResponse = Promise<
@@ -22,8 +22,13 @@ class CourseDao {
     logger.info(`Getting path ${path}`);
     const response = await this.client.get(path);
     const data = response.data;
-    logger.imp(data, true);
-    return new Promise((resolve) => resolve(data));
+    return new Promise((resolve, reject) => {
+      if (data) {
+        resolve(data);
+      } else {
+        reject(new Error(`Course ${courseId} not found`));
+      }
+    });
   }
 }
 
