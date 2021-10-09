@@ -42,7 +42,9 @@ class SubmissionDao implements ISubmissionDao {
     lambdaId: string
   ): SubmissionResponse {
     const path = `courses/${courseId}/assignments/${assignmentId}/submissions/sis_user_id:${lambdaId}`;
-    return this.client.get(path) as SubmissionResponse;
+    return this.client
+      .get(path)
+      .then((response) => response.data) as SubmissionResponse;
   }
 
   /**
@@ -54,7 +56,9 @@ class SubmissionDao implements ISubmissionDao {
     assignmentId: number
   ): SubmissionArrayResponse {
     const path = `courses/${courseId}/assignments/${assignmentId}/submissions`;
-    return this.client.get(path) as SubmissionArrayResponse;
+    return this.client
+      .get(path)
+      .then((response) => response.data) as SubmissionArrayResponse;
   }
 
   /**
@@ -68,7 +72,9 @@ class SubmissionDao implements ISubmissionDao {
     lambdaId: string
   ): SubmissionResponse {
     const path = `courses/${courseId}/assignments/${assignmentId}/submissions/sis_user_id:${lambdaId}`;
-    return this.client.get(path) as SubmissionResponse;
+    return this.client
+      .get(path)
+      .then((response) => response.data) as SubmissionResponse;
   }
 
   /**
@@ -83,7 +89,9 @@ class SubmissionDao implements ISubmissionDao {
     points: number
   ): SubmissionResponse {
     const path = `courses/${courseId}/assignments/${assignmentId}/submissions/sis_user_id:${lambdaId}?submission[posted_grade]=${points}`;
-    return this.client.get(path) as SubmissionResponse;
+    return this.client
+      .get(path)
+      .then((response) => response.data) as SubmissionResponse;
   }
 }
 
