@@ -22,9 +22,10 @@ import {
   getStudentByEmail,
 } from "./Airtable";
 import { putEventAttendance } from "./Attendance";
+import authRequired from "../middleware/authRequired";
 
 const userRouter = Router();
-userRouter.get("/all", getAllUsers);
+userRouter.get("/", authRequired, getAllUsers);
 userRouter.post("/add", addOneUser);
 userRouter.put("/update", updateOneUser);
 userRouter.delete("/delete/:id", deleteOneUser);
@@ -40,9 +41,15 @@ canvasRouter.get(
   getAssignmentSubmissions
 );
 canvasRouter.get("/courses/:courseId/modules/", getCourseModules);
-canvasRouter.get("/courses/:courseId/modules/completion", getCourseModuleCompletion);
+canvasRouter.get(
+  "/courses/:courseId/modules/completion",
+  getCourseModuleCompletion
+);
 canvasRouter.get("/courses/:courseId/modules/:moduleId", getModule);
-canvasRouter.get("/courses/:courseId/modules/:moduleId/completion", getModuleCompletion);
+canvasRouter.get(
+  "/courses/:courseId/modules/:moduleId/completion",
+  getModuleCompletion
+);
 canvasRouter.get("/courses/:courseId/completed", getCourseCompleted);
 canvasRouter.get("/courses/completed", getAllRequiredCoursesCompleted);
 

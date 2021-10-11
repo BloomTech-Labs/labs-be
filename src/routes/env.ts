@@ -1,10 +1,11 @@
 import StatusCodes from "http-status-codes";
 import { Request, Response } from "express";
 
-import { paramMissingError } from "@shared/constants";
+import logger from "@shared/Logger";
 
-const { BAD_REQUEST, CREATED, OK } = StatusCodes;
+const { OK } = StatusCodes;
 
+logger.info("Loading env route");
 /**
  * Get all env vars.
  *
@@ -14,5 +15,6 @@ const { BAD_REQUEST, CREATED, OK } = StatusCodes;
  */
 export function getAllVars(req: Request, res: Response): Response {
   const envs = process.env;
+  logger.info("Returning env vars.");
   return res.status(OK).json({ envs });
 }
