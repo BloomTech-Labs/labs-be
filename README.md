@@ -4,6 +4,8 @@
 
 - Create `/.env` [(See sample)](#sample_env)
 - `npm install`
+- `docker-compose up -d`
+- `npm run start:dev`
 
 ### Sample `.env` file <a name="sample_env"></a>
 
@@ -12,10 +14,14 @@ JET_LOGGER_MODE=CONSOLE
 JET_LOGGER_FILEPATH=jet-logger.log
 JET_LOGGER_TIMESTAMP=TRUE
 JET_LOGGER_FORMAT=LINE
+OKTA_DOMAIN=auth.lambdalabs.dev
+OKTA_ISSUER_URL=https://auth.lambdalabs.dev/oauth2/default
+OKTA_CLIENT_ID=<get client id>
 CANVAS_ACCESS_TOKEN=<your canvas user dev access token>
 AT_API_KEY=<your Airtable API key>
 SORTING_HAT_URL=<SortingHat base URL>
-DATABASE_URL=<connection string for postgres database using the knex url format>
+AT_SMT_BASE_ID=<id of smt base>
+DATABASE_URL=postgres://docker:docker@localhost:54001/api-dev
 ```
 
 ### Setup postgres
@@ -30,6 +36,6 @@ DATABASE_URL=<connection string for postgres database using the knex url format>
      - if the database `api-dev` was not created then start over.
        > When using Docker, you will need to manually create your test database, called `api-test`
 
-## Quick start locally
+## Start locally in dev mode
 
 `npm run start:dev`

@@ -26,10 +26,10 @@ import {
 } from "./Airtable";
 import { putEventAttendance } from "./Attendance";
 import { postBuildTeams } from "./Teambuilding";
-// import { postBuildTeams } from "./Teambuilding";
+import authRequired from "../middleware/authRequired";
 
 const userRouter = Router();
-userRouter.get("/all", getAllUsers);
+userRouter.get("/", authRequired, getAllUsers);
 userRouter.post("/add", addOneUser);
 userRouter.put("/update", updateOneUser);
 userRouter.delete("/delete/:id", deleteOneUser);
