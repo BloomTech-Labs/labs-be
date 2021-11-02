@@ -32,7 +32,6 @@ class CanvasCoursesDao {
     return courses;
   }
 
-
   /**
    *  @param role
    */
@@ -42,19 +41,21 @@ class CanvasCoursesDao {
         view: "Curriculum Courses",
         filterByFormula: "{Type} = 'All'",
       })
-      .all()
+      .all();
 
-    const courses: number[] =
-      records.map(record => record.fields ["Course ID"] as number);
+    const courses: number[] = records.map(
+      (record) => record.fields["Course ID"] as number
+    );
 
     return courses;
   }
 
-
   /**
    *  @param role
    */
-  public async getObjectiveCourseIdByRole(role: string): Promise<number | null> {
+  public async getObjectiveCourseIdByRole(
+    role: string
+  ): Promise<number | null> {
     const courses = await this.airtable("Labs - Courses")
       .select({
         view: "Objective Courses",
@@ -72,31 +73,105 @@ class CanvasCoursesDao {
     return null;
   }
 
-
   /**
    *  @param role
    */
-  public async getCompletionModules(courseId: number): Promise<number[] | null> {
+  public async getCompletionModules(
+    courseId: number
+  ): Promise<number[] | null> {
     const courses = await this.airtable("Labs - Courses")
-      .select ({
+      .select({
         view: "Curriculum Courses",
         maxRecords: 1,
         filterByFormula: `{Course Id} = ${courseId}`,
       })
-      .all ();
-    
+      .all();
+
     if (courses.length) {
       if (courses[0].fields) {
         // The "Completion Modules" field contains a comma-separated list of Canvas
         // module IDs
-        return JSON.parse(`[${courses[0].fields["Completion Modules"] as string}]`) as number[];
+        return JSON.parse(
+          `[${courses[0].fields["Completion Modules"] as string}]`
+        ) as number[];
       }
     }
 
     return null;
   }
 
-}
+  /**
+   *  @param role
+   */
+  public async getRoleQuizIds(): Promise<Record<string, number>[]> {
+    const records = await this.airtable("Labs - Courses")
+      .select({
+        view: "Grid view",
+        filterByFormula: "{Type} = 'Role Course'",
+      })
+      .all();
 
+    const roleQuizzes: Record<string, number>[] = records.map((record) => {
+      // Build and return an array of the form:
+      // [
+      //   { "Technical Project Manager": 48123 },
+      //   ...
+      //   { "UX Engineer": 42345 }
+      // ]
+      const roleQuiz = {} as Record<string, number>;
+      const role = record.fields["Role"] as string;
+      roleQuiz[role] = record.fields["Role Quiz ID"] as number;
+      return roleQuiz;
+    });
+
+    return roleQuizzes;
+  }
+
+  /**
+   *  @param role
+   */
+  public async getFinalApplicationQuizIds(): Promise<Record<
+    string,
+    number
+  > | null> {
+    const records = await this.airtable("Labs - Courses")
+      .select({
+        view: "Grid view",
+        maxRecords: 1,
+        filterByFormula: "{Name} = 'Labs Application'",
+      })
+      .all();
+
+    if (records.length) {
+      // Expects JSON of the form: { "web": 3245, "ds": 2345 }
+      return JSON.parse(
+        records[0].fields["Final Application Quizzes"] as string
+      ) as Record<string, number>;
+    }
+
+    return null;
+  }
+
+  /**
+   *  @param role
+   */
+  public async getLabsApplicationCourseId(): Promise<number | null> {
+    const courses = await this.airtable("Labs - Courses")
+      .select({
+        view: "Grid view",
+        maxRecords: 1,
+        filterByFormula: "{Name} = 'Labs Application'",
+      })
+      .all();
+
+    if (courses.length) {
+      if (courses[0].fields) {
+        return courses[0].fields["Course ID"] as number;
+      }
+    }
+
+    return null;
+  }
+}
 
 export default CanvasCoursesDao;

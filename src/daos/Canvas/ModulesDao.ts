@@ -38,7 +38,7 @@ class ModulesDao implements IModulesDao {
   /**
    * @param courseId
    */
-  public getCompletion (
+  public getCompletion(
     courseId: number,
     moduleId: number,
     userId: number
@@ -66,7 +66,7 @@ class ModulesDao implements IModulesDao {
   /**
    * @param courseId
    */
-  public getAllCompletionInCourse (
+  public getAllCompletionInCourse(
     courseId: number,
     userId: number
   ): ModuleArrayResponse {

@@ -11,7 +11,7 @@ class ModuleCompletion implements IModuleCompletion {
   public completed: boolean;
   public completed_at?: Date;
 
-  constructor (
+  constructor(
     id: number,
     name: string,
     completed: boolean,

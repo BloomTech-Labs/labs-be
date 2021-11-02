@@ -19,6 +19,7 @@ OKTA_ISSUER_URL=https://auth.lambdalabs.dev/oauth2/default
 OKTA_CLIENT_ID=<get client id>
 CANVAS_ACCESS_TOKEN=<your canvas user dev access token>
 AT_API_KEY=<your Airtable API key>
+SORTING_HAT_URL=<SortingHat base URL>
 AT_SMT_BASE_ID=<id of smt base>
 DATABASE_URL=postgres://docker:docker@localhost:54001/api-dev
 ```

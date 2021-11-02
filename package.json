@@ -28,8 +28,9 @@
     "@daos": "dist/daos",
     "@entities": "dist/entities",
     "@shared": "dist/shared",
+    "@server": "dist/Server",
+    "@services": "dist/Services"
     "@middleware": "dist/middleware",
-    "@server": "dist/Server"
   },
   "dependencies": {
     "@okta/jwt-verifier": "^2.3.0",
@@ -44,6 +45,11 @@
     "jet-logger": "^1.0.6",
     "jsonfile": "^6.1.0",
     "ltijs": "^5.8.1",
+    "module-alias": "^2.2.2",
+    "morgan": "^1.10.0",
+    "node-fetch": "^2.6.1",
+    "papaparse": "^5.3.1",
+    "request": "^2.88.2"
     "papaparse": "^5.3.1",
     "pg": "^8.7.1",
     "reflect-metadata": "^0.1.13",
@@ -63,6 +69,7 @@
     "@types/node": "^16.4.13",
     "@types/node-fetch": "^2.5.12",
     "@types/papaparse": "^5.2.6",
+    "@types/request": "^2.48.7",
     "@types/supertest": "^2.0.11",
     "@typescript-eslint/eslint-plugin": "^4.29.1",
     "@typescript-eslint/parser": "^4.29.1",

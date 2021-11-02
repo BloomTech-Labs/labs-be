@@ -47,7 +47,7 @@
   "projects": [
     {
       "id": string, // e.g. "Human Rights First Asylum Analysis - A" - needs to correspond to learner.labsProject
-      "product": string, 
+      "product": string,
       "teamCode": string, // e.g. A
       "tracks": [
         "Web"

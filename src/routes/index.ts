@@ -20,8 +20,12 @@ import {
   getAllStudents,
   getCohortStudents,
   getStudentByEmail,
+  getAllProjects,
+  getCohortProjects,
+  // putCohortProjects,
 } from "./Airtable";
 import { putEventAttendance } from "./Attendance";
+import { postBuildTeams } from "./Teambuilding";
 import authRequired from "../middleware/authRequired";
 
 const userRouter = Router();
@@ -59,9 +63,15 @@ airtableRouter.get("/surveys/:cohort", getCohortSurveys);
 airtableRouter.get("/students", getAllStudents);
 airtableRouter.get("/students/cohort/:cohort", getCohortStudents);
 airtableRouter.get("/students/email/:email", getStudentByEmail);
+airtableRouter.get("/projects", getAllProjects);
+airtableRouter.get("/projects/cohort/:cohort", getCohortProjects);
+// airtableRouter.put("/projects/cohort/:cohort", putCohortProjects);
 
 const attendanceRouter = Router();
 attendanceRouter.put("/event/:eventType/date/:eventDate", putEventAttendance);
+
+const teambuildingRouter = Router();
+teambuildingRouter.post("/:cohort", postBuildTeams);
 
 const baseRouter = Router();
 baseRouter.use("/users", userRouter);
@@ -69,5 +79,6 @@ baseRouter.use("/vars", envRouter);
 baseRouter.use("/canvas", canvasRouter);
 baseRouter.use("/airtable", airtableRouter);
 baseRouter.use("/attendance", attendanceRouter);
+baseRouter.use("/teambuilding", teambuildingRouter);
 
 export default baseRouter;

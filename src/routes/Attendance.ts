@@ -5,7 +5,6 @@ import { processAttendance } from "src/services/Attendance";
 
 const { BAD_REQUEST, CREATED, OK } = StatusCodes;
 
-
 /**
  * Put attendance scores in the Canvas gradebook for the given event for
  * the given learners by their email addresses.
