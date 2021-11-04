@@ -27,6 +27,7 @@ export async function getUserIdBySisId(
   return user?.id || null;
 }
 
+
 /**
  * Get the required courses for a given learner.
  *
@@ -39,15 +40,10 @@ export async function getRequiredCourses(
   const courses: number[] = [];
 
   // Get the learner's role
-  const record: Record<string, unknown> | null = await studentDao.getOne(
-    lambdaId
-  );
-  if (!record) {
-    return null;
+  const labsRole = await studentDao.getRole (lambdaId);
+  if (!labsRole) {
+    throw new Error (`Labs Role not found for learner ID: ${lambdaId}`);
   }
-  const learner = record.fields as Record<string, string[]>;
-
-  const labsRole: string = learner["Labs Role"][0];
 
   // Get general courses
   const generalCourses: number[] | null = await getGeneralCourseIds();
