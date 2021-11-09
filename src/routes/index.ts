@@ -73,6 +73,10 @@ attendanceRouter.put("/event/:eventType/date/:eventDate", putEventAttendance);
 const teambuildingRouter = Router();
 teambuildingRouter.post("/:cohort", postBuildTeams);
 
+const objectivesRouter = Router();
+objectivesRouter.get("/role/:role", getRoleObjectives);
+objectivesRouter.put("/learner/:id", putProgress);
+
 const baseRouter = Router();
 baseRouter.use("/users", userRouter);
 baseRouter.use("/vars", envRouter);
@@ -80,5 +84,6 @@ baseRouter.use("/canvas", canvasRouter);
 baseRouter.use("/airtable", airtableRouter);
 baseRouter.use("/attendance", attendanceRouter);
 baseRouter.use("/teambuilding", teambuildingRouter);
+baseRouter.use("/objectives", objectivesRouter);
 
 export default baseRouter;
