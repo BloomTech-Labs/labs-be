@@ -6,8 +6,8 @@
     "src/**/*.ts",
     "spec/**/*.ts",
 
-      // these are the eslint-only inclusions
-      "./.eslintrc.js",
-      "./ormconfig.ts"
+    // these are the eslint-only inclusions
+    "./.eslintrc.js",
+    "./ormconfig.ts"
   ]
 }

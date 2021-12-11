@@ -29,8 +29,8 @@
     "@entities": "dist/entities",
     "@shared": "dist/shared",
     "@server": "dist/Server",
-    "@services": "dist/Services"
-    "@middleware": "dist/middleware",
+    "@services": "dist/Services",
+    "@middleware": "dist/middleware"
   },
   "dependencies": {
     "@okta/jwt-verifier": "^2.3.0",
@@ -48,8 +48,7 @@
     "module-alias": "^2.2.2",
     "morgan": "^1.10.0",
     "node-fetch": "^2.6.1",
-    "papaparse": "^5.3.1",
-    "request": "^2.88.2"
+    "request": "^2.88.2",
     "papaparse": "^5.3.1",
     "pg": "^8.7.1",
     "reflect-metadata": "^0.1.13",
