@@ -27,6 +27,13 @@ import {
 import { putEventAttendance } from "./Attendance";
 import { postBuildTeams } from "./Teambuilding";
 import authRequired from "../middleware/authRequired";
+import {
+  getAllObjectives,
+  getCohortProgress,
+  getProgress,
+  putCohortProgress,
+  putProgress,
+} from "./Objectives";
 
 const userRouter = Router();
 userRouter.get("/", authRequired, getAllUsers);
@@ -74,8 +81,11 @@ const teambuildingRouter = Router();
 teambuildingRouter.post("/:cohort", postBuildTeams);
 
 const objectivesRouter = Router();
-objectivesRouter.get("/role/:role", getRoleObjectives);
+objectivesRouter.get("/", getAllObjectives);
+objectivesRouter.get("/learner/:id", getProgress);
 objectivesRouter.put("/learner/:id", putProgress);
+objectivesRouter.get("/cohort/:id", getCohortProgress);
+objectivesRouter.put("/cohort/:id", putCohortProgress);
 
 const baseRouter = Router();
 baseRouter.use("/users", userRouter);

@@ -83,7 +83,7 @@ class SubmissionDao implements ISubmissionDao {
     points: number
   ): SubmissionResponse {
     const path = `courses/${courseId}/assignments/${assignmentId}/submissions/sis_user_id:${lambdaId}?submission[posted_grade]=${points}`;
-    return this.client.get(path) as SubmissionResponse;
+    return this.client.put(path) as SubmissionResponse;
   }
 }
 

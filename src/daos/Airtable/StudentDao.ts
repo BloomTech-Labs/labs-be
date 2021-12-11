@@ -1,4 +1,3 @@
-import { getRoleRankings } from "@services/Teambuilding";
 import Airtable, { FieldSet, Records } from "airtable";
 import { AirtableBase } from "airtable/lib/airtable_base";
 
@@ -146,9 +145,7 @@ class StudentDao {
    * @returns
    */
   public async getRole(lambdaId: string): Promise<string | null> {
-    const record: Record<string, unknown> | null = await this.getOne(
-      lambdaId
-    );
+    const record: Record<string, unknown> | null = await this.getOne(lambdaId);
     if (!record) {
       return null;
     }
@@ -158,6 +155,5 @@ class StudentDao {
     return labsRole;
   }
 }
-
 
 export default StudentDao;
