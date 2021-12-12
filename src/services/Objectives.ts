@@ -313,7 +313,7 @@ export async function getCohortProgress(
     if (!role) {
       continue;
     }
-    let learnerObjectives = objectives.filter((x) => x.role[0] === role);
+    let learnerObjectives = objectives.filter((x) => x.role === role);
 
     // Evaluate completion for their objectives and sprint milestones.
     learnerObjectives = await evaluateCompletion(
@@ -342,16 +342,13 @@ export async function putCohortProgress(
   cohortId: string,
   _progress?: Record<string, Objective[]>
 ): Promise<Record<string, Objective[]>> {
-  const cohortProgress = getCohortProgress(cohortId, _progress);
+  const cohortProgress = await getCohortProgress(cohortId, _progress);
 
   // Memoize Canvas data locally to avoid duplicating API calls
   const objectivesMemo: Record<number, Module[]> = {}; // { objectivesCourse, modules }
 
   // For each learner:
-  for (const [lambdaId, objectives] of Object.entries(cohortProgress) as [
-    string,
-    Objective[]
-  ][]) {
+  for (const [lambdaId, objectives] of Object.entries(cohortProgress)) {
     // Get the modules from this learner's Objectives course.
     const objectivesCourse = objectives[0].objectivesCourse;
     const modules =

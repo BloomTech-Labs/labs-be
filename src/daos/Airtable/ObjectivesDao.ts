@@ -32,16 +32,25 @@ class ObjectivesDao {
    *  @param record
    */
   public formatObjective(record: Airtable.Record<FieldSet>): Objective {
+    const id = record.get("ID") as string;
+    const role = (record.get("Role") as string[])[0];
+    const name = record.get("Name") as string;
+    const type = record.get("Type") as ObjectiveType;
+    const course = record.get("Course") as string | undefined;
+    const points = record.get("Points") as number;
+    const objectivesCourse = (record.get("Objectives Course") as string[])[0];
+
     const objective = new Objective(
-      record.get("ID") as string,
-      record.get("Role") as string,
-      record.get("Name") as string,
-      record.get("Type") as ObjectiveType,
-      record.get("Course") as number,
-      record.get("Points") as number,
+      id,
+      role,
+      name,
+      type,
+      course ? parseInt(course) : null,
+      points,
       [], // Add Sprint Milestones later
-      record.get("Objectives Course") as number
+      parseInt(objectivesCourse)
     );
+    
     return objective;
   }
 
@@ -52,19 +61,32 @@ class ObjectivesDao {
    *  @param record
    */
   public formatMilestone(record: Airtable.Record<FieldSet>): SprintMilestone {
+    const id = record.get("ID") as string;
+    const name = record.get("Name") as string;
+    const objectiveId = (record.get("Objective ID") as string[])[0];
+    const type = record.get("Type") as SprintMilestoneType
+    const course = record.get("Course") as string[] | undefined;
+    const module = record.get("Module") as number | null;
+    const assignments = record.get("Assignments") as number[] | [] | null;
+    const moduleItemId = record.get("Module Item ID") as number | null;
+    const points = record.get("Points") as number;
+    const sprint = record.get("Sprint") as number;
+    const objectivesCourse = (record.get("Objectives Course") as string[])[0];
+
     const milestone = new SprintMilestone(
-      record.get("ID") as string,
-      record.get("Name") as string,
-      record.get("Objective ID") as string,
-      record.get("Type") as SprintMilestoneType,
-      record.get("Course") as number | null,
-      record.get("Module") as number | null,
-      record.get("Assignments") as number[] | [] | null,
-      record.get("Module Item ID") as number | null,
-      record.get("Points") as number,
-      record.get("Sprint") as number,
-      record.get("Objectives Course") as number
+      id,
+      name,
+      objectiveId,
+      type,
+      course ? parseInt(course[0]) : null,
+      module,
+      assignments,
+      moduleItemId,
+      points,
+      sprint,
+      parseInt(objectivesCourse),
     );
+
     return milestone;
   }
 
@@ -120,7 +142,7 @@ class ObjectivesDao {
         }
       }
     }
-
+    
     return objectives;
   }
 }
