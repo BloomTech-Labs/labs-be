@@ -34,7 +34,6 @@ export class Objective {
   public sprintMilestones: SprintMilestone[];
   public completed: boolean | null;
   public objectivesCourse: number;
-  // public objectiveAssignment: number | null;
 
   constructor(
     id: string,
@@ -45,7 +44,6 @@ export class Objective {
     points: number,
     sprintMilestones: SprintMilestone[] | [],
     objectivesCourse: number
-    // objectiveAssignment?: number
   ) {
     this.id = id;
     this.role = role;
@@ -56,7 +54,6 @@ export class Objective {
     this.sprintMilestones = sprintMilestones;
     this.completed = null;
     this.objectivesCourse = objectivesCourse;
-    // this.objectiveAssignment = objectiveAssignment || null;
   }
 
   /**
@@ -66,36 +63,48 @@ export class Objective {
    * @returns
    */
   public async getCompleted(lambdaId: string): Promise<boolean | null> {
-    // Course
-    if (this.type === ObjectiveType.Course) {
-      if (!this.course) {
-        throw new Error(`No defined Course ID for objective ${this.id}`);
+
+    switch (this.type) {
+
+      // Course
+      case ObjectiveType.Course: {
+        if (!this.course) {
+          throw new Error(`No defined Course ID for objective ${this.id}`);
+        }
+        this.completed = await processCourseCompleted(this.course, lambdaId);
+        return this.completed;
       }
-      this.completed = await processCourseCompleted(this.course, lambdaId);
-      return this.completed;
 
       // Meetings
-    } else if (this.type === ObjectiveType.Meetings) {
-      // TODO
-      this.completed = null;
+      case ObjectiveType.Meetings: {
+        this.completed = null;
+        return this.completed;
+      }
 
       // Pull Requests
-    } else if (this.type === ObjectiveType.PullRequests) {
-      // TODO
-      this.completed = null;
+      case ObjectiveType.PullRequests: {
+        this.completed = null;
+        return this.completed;
+      }
 
       // Searchlight
-    } else if (this.type === ObjectiveType.Searchlight) {
-      // TODO
-      this.completed = null;
+      case ObjectiveType.Searchlight: {
+        this.completed = null;
+        return this.completed;
+      }
 
       // Other
-    } else if (this.type === ObjectiveType.Other) {
-      // TODO
-      this.completed = null;
-    }
+      case ObjectiveType.Other: {
+        this.completed = null;
+        return this.completed;
+      }
 
-    return this.completed;
+      default: {
+        this.completed = null;
+        return this.completed;
+      }
+
+    }
   }
 }
 
@@ -116,7 +125,6 @@ export class SprintMilestone {
   public points: number;
   public sprint: number;
   public objectivesCourse: number;
-  // public milestoneAssignment: number | null;
   public completed: boolean | null;
 
   constructor(
@@ -159,93 +167,108 @@ export class SprintMilestone {
    * @returns
    */
   public async getCompleted(lambdaId: string): Promise<boolean | null> {
-    // Assignments
-    if (this.type === SprintMilestoneType.Assignments) {
-      if (!this.course) {
-        throw new Error(`No defined Course ID for milestone ${this.id}`);
-      }
-      if (!this.module) {
-        throw new Error(`No defined Module ID for milestone ${this.id}`);
-      }
-      if (!this.assignments) {
-        throw new Error(`No defined Course ID for milestone ${this.id}`);
-      }
-      for (const assignment of this.assignments) {
-        const complete = await assignmentCompleted(
-          this.course,
-          this.module,
-          assignment,
-          lambdaId
-        );
-        if (!complete) {
-          this.completed = false;
-          return this.completed;
+    
+    switch (this.type) {
+
+      // Assignments
+      case SprintMilestoneType.Assignments: {
+        if (!this.course) {
+          throw new Error(`No defined Course ID for milestone ${this.id}`);
         }
+        if (!this.module) {
+          throw new Error(`No defined Module ID for milestone ${this.id}`);
+        }
+        if (!this.assignments) {
+          throw new Error(`No defined Course ID for milestone ${this.id}`);
+        }
+        for (const assignment of this.assignments) {
+          const complete = await assignmentCompleted(
+            this.course,
+            this.module,
+            assignment,
+            lambdaId
+          );
+          if (!complete) {
+            this.completed = false;
+            return this.completed;
+          }
+        }
+        this.completed = true;
+        return this.completed;
       }
-      this.completed = true;
-      return this.completed;
 
       // Meetings
-    } else if (this.type === SprintMilestoneType.Meetings) {
-      // TODO
-      this.completed = null;
+      case SprintMilestoneType.Meetings: {
+        this.completed = null;
+        return this.completed;
+      }
 
       // Module
-    } else if (this.type === SprintMilestoneType.Module) {
-      if (!this.course) {
-        throw new Error(`No defined Course ID for milestone ${this.id}`);
-      }
-      if (!this.module) {
-        throw new Error(`No defined Module ID for milestone ${this.id}`);
-      }
-      const moduleCompletion = await processModuleCompletion(
-        this.course,
-        this.module,
-        lambdaId
-      );
-      if (!moduleCompletion) {
-        throw new Error(
-          `No completion information found for module ${this.module} for milestone ${this.id}`
+      case SprintMilestoneType.Module: {
+        if (!this.course) {
+            throw new Error(`No defined Course ID for milestone ${this.id}`);
+        }
+        if (!this.module) {
+          throw new Error(`No defined Module ID for milestone ${this.id}`);
+        }
+        const moduleCompletion = await processModuleCompletion(
+          this.course,
+          this.module,
+          lambdaId
         );
+        if (!moduleCompletion) {
+          throw new Error(
+            `No completion information found for module ${this.module} for milestone ${this.id}`
+          );
+        }
+        this.completed = moduleCompletion.completed;
+        return this.completed;
       }
-      this.completed = moduleCompletion.completed;
-      return this.completed;
 
       // Page
-    } else if (this.type === SprintMilestoneType.Page) {
-      if (!this.course) {
-        throw new Error(`No defined Course ID for milestone ${this.id}`);
+      case SprintMilestoneType.Page: {
+        if (!this.course) {
+          throw new Error(`No defined Course ID for milestone ${this.id}`);
+        }
+        if (!this.module) {
+          throw new Error(`No defined Module ID for milestone ${this.id}`);
+        }
+        if (!this.moduleItemId) {
+          throw new Error(`No defined Module Item ID for milestone ${this.id}`);
+        }
+        this.completed = await moduleItemCompleted(
+          this.course,
+          this.module,
+          this.moduleItemId,
+          lambdaId
+        );
+        return this.completed;
       }
-      if (!this.module) {
-        throw new Error(`No defined Module ID for milestone ${this.id}`);
-      }
-      if (!this.moduleItemId) {
-        throw new Error(`No defined Module Item ID for milestone ${this.id}`);
-      }
-      this.completed = await moduleItemCompleted(
-        this.course,
-        this.module,
-        this.moduleItemId,
-        lambdaId
-      );
-      return this.completed;
 
       // Pull Requests
-    } else if (this.type === SprintMilestoneType.PullRequests) {
-      // TODO
-      this.completed = null;
+      case SprintMilestoneType.PullRequests: {
+        this.completed = null;
+        return this.completed;
+      }
 
       // Searchlight
-    } else if (this.type === SprintMilestoneType.Searchlight) {
-      // TODO
-      this.completed = null;
+      case SprintMilestoneType.Searchlight: {
+        this.completed = null;
+        return this.completed;
+      }
 
       // Other
-    } else if (this.type === SprintMilestoneType.Other) {
-      // TODO
-      this.completed = null;
+      case SprintMilestoneType.Other: {
+        this.completed = null;
+        return this.completed;
+      }
+
+      default: {
+        this.completed = null;
+        return this.completed;
+      }
+
     }
 
-    return this.completed;
   }
 }
