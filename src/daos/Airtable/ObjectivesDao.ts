@@ -50,7 +50,7 @@ class ObjectivesDao {
       [], // Add Sprint Milestones later
       parseInt(objectivesCourse)
     );
-    
+
     return objective;
   }
 
@@ -64,7 +64,7 @@ class ObjectivesDao {
     const id = record.get("ID") as string;
     const name = record.get("Name") as string;
     const objectiveId = (record.get("Objective ID") as string[])[0];
-    const type = record.get("Type") as SprintMilestoneType
+    const type = record.get("Type") as SprintMilestoneType;
     const course = record.get("Course") as string[] | undefined;
     const module = record.get("Module") as number | null;
     const assignments = record.get("Assignments") as number[] | [] | null;
@@ -84,7 +84,7 @@ class ObjectivesDao {
       moduleItemId,
       points,
       sprint,
-      parseInt(objectivesCourse),
+      parseInt(objectivesCourse)
     );
 
     return milestone;
@@ -142,7 +142,7 @@ class ObjectivesDao {
         }
       }
     }
-    
+
     return objectives;
   }
 }

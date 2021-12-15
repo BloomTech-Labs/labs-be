@@ -63,9 +63,7 @@ export class Objective {
    * @returns
    */
   public async getCompleted(lambdaId: string): Promise<boolean | null> {
-
     switch (this.type) {
-
       // Course
       case ObjectiveType.Course: {
         if (!this.course) {
@@ -103,7 +101,6 @@ export class Objective {
         this.completed = null;
         return this.completed;
       }
-
     }
   }
 }
@@ -167,9 +164,7 @@ export class SprintMilestone {
    * @returns
    */
   public async getCompleted(lambdaId: string): Promise<boolean | null> {
-    
     switch (this.type) {
-
       // Assignments
       case SprintMilestoneType.Assignments: {
         if (!this.course) {
@@ -206,7 +201,7 @@ export class SprintMilestone {
       // Module
       case SprintMilestoneType.Module: {
         if (!this.course) {
-            throw new Error(`No defined Course ID for milestone ${this.id}`);
+          throw new Error(`No defined Course ID for milestone ${this.id}`);
         }
         if (!this.module) {
           throw new Error(`No defined Module ID for milestone ${this.id}`);
@@ -267,8 +262,6 @@ export class SprintMilestone {
         this.completed = null;
         return this.completed;
       }
-
     }
-
   }
 }

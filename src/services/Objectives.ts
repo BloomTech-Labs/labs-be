@@ -342,7 +342,10 @@ export async function putCohortProgress(
   cohortId: string,
   incomingObjectiveData?: Record<string, Objective[]>
 ): Promise<Record<string, Objective[]>> {
-  const cohortProgress = await getCohortProgress(cohortId, incomingObjectiveData);
+  const cohortProgress = await getCohortProgress(
+    cohortId,
+    incomingObjectiveData
+  );
 
   // Memoize Canvas data locally to avoid duplicating API calls
   const objectivesMemo: Record<number, Module[]> = {}; // { objectivesCourse, modules }
