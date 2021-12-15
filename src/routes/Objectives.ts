@@ -81,8 +81,8 @@ export async function getCohortProgress(
 ): Promise<Response> {
   const { id } = req.params; // Cohort ID
   // Any progress retrieved by FE
-  const _progress = req.body as Record<string, Objective[]>;
-  const progress = await getCohortObjectiveProgress(id, _progress);
+  const incomingObjectiveData = req.body as Record<string, Objective[]>;
+  const progress = await getCohortObjectiveProgress(id, incomingObjectiveData);
 
   return res.status(OK).json(progress);
 }
@@ -101,8 +101,8 @@ export async function putCohortProgress(
 ): Promise<Response> {
   const { id } = req.params; // Cohort ID
   // Any progress retrieved by FE
-  const _progress = req.body as Record<string, Objective[]>;
-  const progress = await putCohortObjectiveProgress(id, _progress);
+  const incomingObjectiveData = req.body as Record<string, Objective[]>;
+  const progress = await putCohortObjectiveProgress(id, incomingObjectiveData);
 
   return res.status(OK).json(progress);
 }

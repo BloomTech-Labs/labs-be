@@ -196,17 +196,17 @@ export function getObjectivesCourseModuleIds(
  *
  *  @param lambdaId
  *  @param objectives
- *  @param _progress?
+ *  @param incomingObjectiveData?
  *  @returns
  */
 export async function evaluateCompletion(
   lambdaId: string,
   objectives: Objective[],
-  _progress?: Objective[]
+  incomingObjectiveData?: Objective[]
 ): Promise<Objective[]> {
   // Add any existing progress to the objectives array.
-  if (_progress) {
-    for (const _objective of _progress) {
+  if (incomingObjectiveData) {
+    for (const _objective of incomingObjectiveData) {
       const index = objectives.findIndex((x) => x.id === _objective.id);
       objectives[index] = _objective;
     }
@@ -214,7 +214,7 @@ export async function evaluateCompletion(
 
   // Evaluate completion, skipping any that were already evaluated.
   for (const objective of objectives) {
-    if (_progress?.find((x) => x.id === objective.id)) {
+    if (incomingObjectiveData?.find((x) => x.id === objective.id)) {
       continue;
     }
     await objective.getCompleted(lambdaId);
@@ -292,7 +292,7 @@ export async function putProgress(lambdaId: string): Promise<Objective[]> {
  */
 export async function getCohortProgress(
   cohortId: string,
-  _progress?: Record<string, Objective[]>
+  incomingObjectiveData?: Record<string, Objective[]>
 ): Promise<Record<string, Objective[]>> {
   const cohortProgress: Record<string, Objective[]> = {};
 
@@ -319,7 +319,7 @@ export async function getCohortProgress(
     learnerObjectives = await evaluateCompletion(
       lambdaId,
       learnerObjectives,
-      (_progress || {})[lambdaId]
+      (incomingObjectiveData || {})[lambdaId]
     );
 
     // Add a record to the 'cohortProgress' object with their Lambda ID as the key
@@ -340,9 +340,9 @@ export async function getCohortProgress(
  */
 export async function putCohortProgress(
   cohortId: string,
-  _progress?: Record<string, Objective[]>
+  incomingObjectiveData?: Record<string, Objective[]>
 ): Promise<Record<string, Objective[]>> {
-  const cohortProgress = await getCohortProgress(cohortId, _progress);
+  const cohortProgress = await getCohortProgress(cohortId, incomingObjectiveData);
 
   // Memoize Canvas data locally to avoid duplicating API calls
   const objectivesMemo: Record<number, Module[]> = {}; // { objectivesCourse, modules }
