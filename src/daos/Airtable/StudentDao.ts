@@ -137,6 +137,23 @@ class StudentDao {
 
     return students;
   }
+
+  /**
+   * Get the given learner's role.
+   *
+   * @param lambdaId
+   * @returns
+   */
+  public async getRole(lambdaId: string): Promise<string | null> {
+    const record: Record<string, unknown> | null = await this.getOne(lambdaId);
+    if (!record) {
+      return null;
+    }
+    const learner = record.fields as Record<string, string[]>;
+
+    const labsRole: string = learner["Labs Role"][0];
+    return labsRole;
+  }
 }
 
 export default StudentDao;

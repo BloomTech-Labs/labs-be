@@ -7,8 +7,10 @@ import Module from "@entities/Module";
 import ModuleCompletion from "@entities/ModuleCompletion";
 import StudentDao from "@daos/Airtable/StudentDao";
 import { getGeneralCourseIds, getObjectivesCourseId } from "./Airtable";
+import SubmissionDao from "@daos/Canvas/SubmissionDao";
 
 const assignmentsDao = new AssignmentsDao();
+const submissionDao = new SubmissionDao();
 const studentDao = new StudentDao();
 const modulesDao = new ModulesDao();
 const usersDao = new UsersDao();
@@ -39,15 +41,10 @@ export async function getRequiredCourses(
   const courses: number[] = [];
 
   // Get the learner's role
-  const record: Record<string, unknown> | null = await studentDao.getOne(
-    lambdaId
-  );
-  if (!record) {
-    return null;
+  const labsRole = (await studentDao.getRole(lambdaId)) as string;
+  if (!labsRole) {
+    throw new Error(`Labs Role not found for learner ID: ${lambdaId}`);
   }
-  const learner = record.fields as Record<string, string[]>;
-
-  const labsRole: string = learner["Labs Role"][0];
 
   // Get general courses
   const generalCourses: number[] | null = await getGeneralCourseIds();
@@ -80,7 +77,7 @@ export async function processModuleCompletion(
   const userId: number | null = await getUserIdBySisId(lambdaId);
 
   if (!userId) {
-    return Promise.reject("Canvas user ID not found for that SIS ID.");
+    return Promise.reject(`Canvas user ID not found for SIS ID: ${lambdaId}`);
   }
 
   const module: Module | null = await modulesDao.getCompletion(
@@ -115,7 +112,7 @@ export async function processCourseModuleCompletion(
   const userId: number | null = await getUserIdBySisId(lambdaId);
 
   if (!userId) {
-    return Promise.reject("Canvas user ID not found for that SIS ID.");
+    return Promise.reject(`Canvas user ID not found for SIS ID: ${lambdaId}`);
   }
 
   const modules: Module[] | null = await modulesDao.getAllCompletionInCourse(
@@ -133,6 +130,76 @@ export async function processCourseModuleCompletion(
   });
 
   return moduleCompletion || null;
+}
+
+/**
+ * Process whether a given Canvas assignment was completed by a given learner.
+ * Returns true if the learner met the completion criteria for the assignment.
+ *
+ * @param courseId
+ * @param assignmentId
+ * @param lambdaId
+ * @returns
+ */
+export async function assignmentCompleted(
+  courseId: number,
+  moduleId: number,
+  assignmentId: number,
+  lambdaId: string
+): Promise<boolean> {
+  try {
+    // List the module items for this assignment's module and find the module item ID
+    // for this assignment along with completion criteria.
+    const moduleItems = await modulesDao.getItems(courseId, moduleId, lambdaId);
+    if (!moduleItems) {
+      throw new Error("No module items found for the given module ID.");
+    }
+    const moduleItem = moduleItems.find((x) => x.content_id === assignmentId);
+    if (!moduleItem) {
+      throw new Error(
+        `No module item found for the given assignment ID ${assignmentId}`
+      );
+    }
+
+    // Check whether the item was completed.
+    return moduleItem.completion_requirement?.completed;
+  } catch (error) {
+    return Promise.reject(error);
+  }
+}
+
+/**
+ * Process whether a given Canvas module item was completed by a given learner.
+ * Returns true if the learner met the completion criteria for the module item.
+ *
+ * @param courseId
+ * @param assignmentId
+ * @param lambdaId
+ * @returns
+ */
+export async function moduleItemCompleted(
+  courseId: number,
+  moduleId: number,
+  moduleItemId: number,
+  lambdaId: string
+): Promise<boolean> {
+  try {
+    // Get the module item from Canvas along with completion criteria.
+    const moduleItem = await modulesDao.getItem(
+      courseId,
+      moduleId,
+      moduleItemId,
+      lambdaId
+    );
+    if (!moduleItem) {
+      throw new Error("No module item found for the given module item ID.");
+    }
+
+    // Check whether the module item was completed.
+    return moduleItem.completion_requirement.completed;
+  } catch (error) {
+    return Promise.reject(error);
+  }
 }
 
 /**

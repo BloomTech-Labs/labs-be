@@ -20,7 +20,7 @@ class CanvasCoursesDao {
   }
 
   /**
-   *
+   *  Get all courses from the "Labs - Courses" table.
    */
   public async getAll(): Promise<Records<FieldSet>> {
     const courses = await this.airtable("Labs - Courses")
@@ -33,7 +33,7 @@ class CanvasCoursesDao {
   }
 
   /**
-   *  @param role
+   *  Get course IDs for all general courses.
    */
   public async getGeneralCourseIds(): Promise<number[] | null> {
     const records = await this.airtable("Labs - Courses")
@@ -51,6 +51,8 @@ class CanvasCoursesDao {
   }
 
   /**
+   *  Get the objective course ID for the given role.
+   *
    *  @param role
    */
   public async getObjectiveCourseIdByRole(
@@ -74,7 +76,10 @@ class CanvasCoursesDao {
   }
 
   /**
-   *  @param role
+   *  Get all modules from the given course that must be completed to complete the
+   *  course.
+   *
+   *  @param courseId
    */
   public async getCompletionModules(
     courseId: number
@@ -101,6 +106,8 @@ class CanvasCoursesDao {
   }
 
   /**
+   *  Get the Canvas quiz IDs for the Labs Application role quizzes from Airtable.
+   *
    *  @param role
    */
   public async getRoleQuizIds(): Promise<Record<string, number>[]> {
@@ -128,6 +135,8 @@ class CanvasCoursesDao {
   }
 
   /**
+   *  Get the Canvas quiz IDs for the Final Labs Application quizzes from Airtable.
+   *
    *  @param role
    */
   public async getFinalApplicationQuizIds(): Promise<Record<
@@ -153,6 +162,8 @@ class CanvasCoursesDao {
   }
 
   /**
+   *  Get the Canvas course ID of the Labs Application course from Airtable.
+   *
    *  @param role
    */
   public async getLabsApplicationCourseId(): Promise<number | null> {

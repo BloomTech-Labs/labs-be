@@ -13,7 +13,17 @@ export interface IModulesDao {
     courseId: number,
     userId: number
   ) => ModuleArrayResponse;
-  getItems: (courseId: number, moduleId: number) => ModuleItemArrayResponse;
+  getItems: (
+    courseId: number,
+    moduleId: number,
+    lambdaId?: string
+  ) => ModuleItemArrayResponse;
+  getItem: (
+    courseId: number,
+    moduleId: number,
+    moduleItemId: number,
+    lambdaId?: string
+  ) => ModuleItemResponse;
 }
 
 class ModulesDao implements IModulesDao {
@@ -71,24 +81,60 @@ class ModulesDao implements IModulesDao {
     userId: number
   ): ModuleArrayResponse {
     // <canvasURL>/api/v1/courses/:courseId/modules
-    const path = `courses/${courseId}/modules?per_page=50&student_id=${userId}`;
+    const path = `courses/${courseId}/modules?per_page=50&as_user_id=${userId}`;
     // TODO: Canvas paginates query responses at 10 per page—in these requests,
     // we should loop through the Link headers to retrieve all results.
     // https://canvas.instructure.com/doc/api/file.pagination.html
-
     return this.client.get(path) as ModuleArrayResponse;
   }
 
   /**
+   * List the module items for the given module in the given course. Optionally
+   * supply a Lambda ID to also get completion information for each module item.
+   *
    * @param courseId
+   * @param moduleId
+   * @param lambdaId?
    */
-  public getItems(courseId: number, moduleId: number): ModuleItemArrayResponse {
+  public getItems(
+    courseId: number,
+    moduleId: number,
+    lambdaId?: string
+  ): ModuleItemArrayResponse {
     // <canvasURL>/api/v1/courses/:courseId/modules/:moduleId>/items
-    const path = `courses/${courseId}/modules/${moduleId}/items?include[content_details]&per_page=50`;
+    const path = lambdaId
+      ? `courses/${courseId}/modules/${moduleId}/items?include[]=content_details&as_user_id=sis_user_id:${lambdaId}&per_page=50`
+      : `courses/${courseId}/modules/${moduleId}/items?include[]=content_details&per_page=50`;
     // TODO: Canvas paginates query responses at 10 per page—in these requests,
     // we should loop through the Link headers to retrieve all results.
     // https://canvas.instructure.com/doc/api/file.pagination.html
     return this.client.get(path) as ModuleItemArrayResponse;
+  }
+
+  /**
+   * Get the module item with the given module item ID from the given module in the
+   * given course. Optionally supply a Lambda ID to also get completion information
+   * for the module item.
+   *
+   * @param courseId
+   * @param moduleId
+   * @param moduleItemId
+   * @param lambdaId?
+   */
+  public getItem(
+    courseId: number,
+    moduleId: number,
+    moduleItemId: number,
+    lambdaId?: string
+  ): ModuleItemResponse {
+    // <canvasURL>/api/v1/courses/:courseId/modules/:moduleId>/items
+    const path = lambdaId
+      ? `courses/${courseId}/modules/${moduleId}/items/${moduleItemId}?include[]=content_details&&as_user_id=sis_user_id:${lambdaId}&per_page=50`
+      : `courses/${courseId}/modules/${moduleId}/items/${moduleItemId}?include[]=content_details&per_page=50`;
+    // TODO: Canvas paginates query responses at 10 per page—in these requests,
+    // we should loop through the Link headers to retrieve all results.
+    // https://canvas.instructure.com/doc/api/file.pagination.html
+    return this.client.get(path) as ModuleItemResponse;
   }
 }
 
