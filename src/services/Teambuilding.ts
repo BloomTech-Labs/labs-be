@@ -463,8 +463,6 @@ export async function getRoleRankings(
 export async function processTeambuilding(
   cohort: string
 ): Promise<TeambuildingOutput | null> {
-  // ): Promise<TeambuildingPayload | null> {
-
   // Get this cohort's set of projects from Airtable.
   const projects: ITeamBuildingProject[] = parseProjects(
     await projectsDao.getCohort(cohort)
@@ -501,7 +499,20 @@ export async function processTeambuilding(
     projects
   );
 
+  // Post the teambuilding payload to the SortingHat DS API.
   const output = await sortingHatDao.postBuildTeams(payload, cohort);
+  if (!output) {
+    return null;
+  }
+
+  // Patch the role and team assignments to Airtable.
+  const success = await studentDao.patchCohortLabsAssignments(
+    cohort,
+    output.Developers
+  );
+  if (!success) {
+    console.error("Failed to write Labs assignments to SMT.");
+  }
 
   return output;
 }
