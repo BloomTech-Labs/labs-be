@@ -171,6 +171,39 @@ class StudentDao {
   }
 
   /**
+   * Send a put (update) request in chunks of the specified size to avoid request limits.
+   *
+   * @param payload
+   * @param chunkSize
+   * @returns
+   */
+  public async putChunked(
+    payload: RecordData<Partial<FieldSet>>[],
+    chunkSize: number
+  ): Promise<boolean> {
+    // Stage an array of payload chunks of the specified size.
+    const chunks: RecordData<Partial<FieldSet>>[][] = [];
+    let i = 0;
+    chunks[0] = [];
+    for (const record of payload) {
+      if (chunks[i].length === chunkSize) {
+        i++;
+        chunks[i] = [];
+      }
+      chunks[i].push(record);
+    }
+
+    // Make one update request per payload chunk.
+    for (const chunk of chunks) {
+      const success = await this.airtable("Students").update(chunk);
+      if (!success) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
    * Get the given learner's role.
    *
    * @param lambdaId
@@ -236,7 +269,7 @@ class StudentDao {
     }) as RecordData<Partial<FieldSet>>[];
 
     // Patch the Airtable records to update the Labs assignments.
-    const success = await this.airtable("Students").update(payload);
+    const success = await this.putChunked(payload, 10);
 
     return success ? true : false;
   }
