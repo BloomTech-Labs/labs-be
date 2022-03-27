@@ -1,5 +1,9 @@
-import Airtable, { FieldSet, Records } from "airtable";
+import { Developer } from "@entities/TeambuildingOutput";
+import Airtable, { FieldSet, RecordData, Records } from "airtable";
 import { AirtableBase } from "airtable/lib/airtable_base";
+import ProjectsDao from "./ProjectsDao";
+
+const projectsDao = new ProjectsDao();
 
 class StudentDao {
   private api_key: string;
@@ -139,6 +143,34 @@ class StudentDao {
   }
 
   /**
+   *  @param lambdaIds
+   */
+  public async getByLambdaIds(
+    lambdaIds: Array<string>
+  ): Promise<Records<FieldSet>> {
+    // Generate a list of Airtable formula conditions of the form:
+    //  OR(
+    //    {Lambda ID} != "lambdaId1",
+    //    {Lambda ID} != "lambdaId2",
+    //    {Lambda ID} != "lambdaId3",
+    //    {Lambda ID} != "lambdaId4"
+    //  )
+    const lambdaIdConditions = lambdaIds
+      .map((lambdaId) => `{Lambda ID} = "${lambdaId}"`)
+      .toString();
+    const formula = `OR(${lambdaIdConditions})`;
+
+    const students = await this.airtable("Students")
+      .select({
+        view: "Grid view",
+        filterByFormula: formula,
+      })
+      .all();
+
+    return students;
+  }
+
+  /**
    * Get the given learner's role.
    *
    * @param lambdaId
@@ -153,6 +185,60 @@ class StudentDao {
 
     const labsRole: string = learner["Labs Role"][0];
     return labsRole;
+  }
+
+  /**
+   * Patch the Labs role and team assignments for a set of learners.
+   *
+   * This writes updates directly to the Student object.
+   *
+   * @param cohort
+   * @param learners
+   * @returns
+   */
+  public async patchCohortLabsAssignments(
+    cohort: string,
+    learners: Developer[]
+  ): Promise<boolean> {
+    // Get Airtable record IDs for each learner.
+    const students = await this.getByLambdaIds(
+      learners.map((learner) => learner.lambdaId)
+    );
+
+    // Get Airtable record IDs for each project.
+    const projects = await projectsDao.getCohort(cohort);
+
+    // Combine the record IDs and learner info into a payload.
+    const payload = learners.map((learner) => {
+      const student = students.find(
+        (_student) =>
+          ((_student.fields["Lambda ID"] || []) as string[])[0] ===
+          learner.lambdaId
+      );
+
+      const id = student?.id;
+      const prevProjects =
+        (student?.fields["Labs - Assigned Projects"] as string[]) || [];
+
+      const projectId = projects.find(
+        (project) => project.fields["Name"] === learner.labsProject
+      )?.id;
+
+      const assignedProjects = [...prevProjects, projectId];
+
+      return {
+        id,
+        fields: {
+          "Labs Role": [learner.labsRole],
+          "Labs - Assigned Projects": assignedProjects,
+        },
+      };
+    }) as RecordData<Partial<FieldSet>>[];
+
+    // Patch the Airtable records to update the Labs assignments.
+    const success = await this.airtable("Students").update(payload);
+
+    return success ? true : false;
   }
 }
 
