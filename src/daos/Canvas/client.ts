@@ -14,7 +14,7 @@ class CanvasClient<T> extends BaseClient<T> implements ICanvasClient<T> {
   constructor() {
     const opts = {
       token: process.env.CANVAS_ACCESS_TOKEN,
-      baseUrl: "https://lambdaschool.instructure.com/api/v1/",
+      baseUrl: "https://bloomtech.instructure.com/api/v1/",
       authType: AuthTypes.JWT,
     };
 
