@@ -3,26 +3,14 @@ import ProjectsDao from "@daos/Airtable/ProjectsDao";
 import SurveyDao from "@daos/Airtable/SurveyDao";
 import UsersDao from "@daos/Canvas/UsersDao";
 import CanvasCoursesDao from "@daos/Airtable/CanvasCoursesDao";
-import QuizSubmissionDao from "@daos/Canvas/QuizSubmissionDao";
 import StudentDao from "@daos/Airtable/StudentDao";
-import QuizSubmission from "@entities/QuizSubmission";
-import {
-  getRoleQuizIds,
-  getFinalApplicationQuizIds,
-  getLambdaId,
-} from "@services/Airtable";
-import QuizReportDao from "@daos/Canvas/QuizReportDao";
-import { QuizReportType } from "@entities/QuizReport";
+import { getLambdaId } from "@services/Airtable";
 import { mergeObjectArrays } from "@shared/functions";
 import GroupsDao from "@daos/Canvas/GroupsDao";
 import TeambuildingOutput, {
-  RoleQuizScores,
-  RoleRankings,
   Track,
 } from "@entities/TeambuildingOutput";
 import TeambuildingPayload, {
-  ILearnerRoleQuizScores,
-  ILearnerRoleRankings,
   ILearnerSurvey,
   ILearnerLabsApplication,
   ITeamBuildingProject,
@@ -31,15 +19,10 @@ import SortingHatDao from "@daos/SortingHat/SortingHatDao";
 
 const projectsDao = new ProjectsDao();
 const surveyDao = new SurveyDao();
-const canvasCoursesDao = new CanvasCoursesDao();
 const groupsDao = new GroupsDao();
 const sortingHatDao = new SortingHatDao();
 const studentDao = new StudentDao();
 const usersDao = new UsersDao();
-const quizReportDao = new QuizReportDao();
-const quizSubmissionDao = new QuizSubmissionDao();
-
-type RoleQuizID = Record<string, number>;
 
 /**
  * Attempt to parse a Track from a string. Airtable formats tracks as e.g.
@@ -70,23 +53,8 @@ async function parseSurveys(
   surveys: Records<FieldSet>
 ): Promise<ILearnerSurvey[]> {
   const learnerSurveys = await Promise.all(
-    surveys.map(async (survey) => {
+    surveys.map((survey) => {
       const record = survey.fields;
-
-      // The "dontWorkWith" field is an array of Airtable record IDs. We need
-      // Lambda IDs.
-      const enemies = (record[
-        "List the names of up to 5 students you do not want to work with"
-      ] || []) as string[];
-      const dontWorkWith = (await Promise.all(
-        enemies
-          .map(async (enemyRecordId) => {
-            const lambdaId = await getLambdaId(enemyRecordId);
-            return lambdaId;
-          })
-          .filter((y) => y)
-      )) as string[];
-
       const learnerSurvey: ILearnerSurvey = {
         name: (record["Student Name"] as string[])[0],
         lambdaId: (record["Lambda ID"] as string[])[0],
@@ -101,10 +69,32 @@ async function parseSurveys(
         speakUpInDiscussions: record[
           "How often do you speak up during group discussions?"
         ] as number,
-        diversityConsent: (record["Consent"] || false) as boolean,
-        genderIdentity: record["Gender"] as string,
-        ethnicities: record["Ethnicities"] as string[],
-        dontWorkWith,
+        soloOrSocial: record["What activities do you prefer?"] as string,
+        meaningOrValue: record["Which do you prefer to seek?"] as string,
+        feelsRightOrMakesSense: record["Choices are easier when..."] as string,
+        favoriteOrCollect: record["Which method do you prefer?"] as string,
+        tpmSkill1: record["TPM Skill 1"] as string,
+        tpmSkill2: record["TPM Skill 2"] as string,
+        tpmSkill3: record["TPM Skill 3"] as string,
+        tpmInterest1: record["TPM Interest 1"] as boolean,
+        tpmInterest2: record["TPM Interest 2"] as boolean,
+        tpmInterest3: record["TPM Interest 3"] as boolean,
+        tpmInterest4: record["TPM Interest 4"] as boolean,
+        uxInterest1: record["UX Interest 1"] as boolean,
+        uxInterest2: record["UX Interest 2"] as boolean,
+        frontendInterest1: record["Frontend Interest 1"] as boolean,
+        frontendInterest2: record["Frontend Interest 2"] as boolean,
+        backendInterest1: record["Backend Interest 1"] as boolean,
+        backendInterest2: record["Backend Interest 2"] as boolean,
+        dataEngInterest1: record["Data Engineer Interest 1"] as boolean,
+        dataEngInterest2: record["Data Engineer Interest 2"] as boolean,
+        dataEngInterest3: record["Data Engineer Interest 3"] as boolean,
+        mlEngInterest1: record["Machine Learning Engineer Interest 1"] as boolean,
+        mlEngInterest2: record["Machine Learning Engineer Interest 2"] as boolean,
+        mlEngInterest3: record["Machine Learning Engineer Interest 3"] as boolean,
+        mlOpsInterest1: record["ML Ops Interest 1"] as boolean,
+        mlOpsInterest2: record["ML Ops Interest 2"] as boolean,
+        mlOpsInterest3: record["ML Ops Interest 3"] as boolean,
       };
       return learnerSurvey;
     })
@@ -182,15 +172,11 @@ async function getContinuingLearners(
  * Build a TeambuildingPayload by merging surveys, projects, quiz scores, and rankings.
  *
  * @param surveys
- * @param quizScores
- * @param rankings
  * @param projects
  * @returns
  */
 async function buildTeambuildingPayload(
   surveys: ILearnerSurvey[],
-  quizScores: ILearnerRoleQuizScores[],
-  rankings: ILearnerRoleRankings[],
   projects: ITeamBuildingProject[]
 ): Promise<TeambuildingPayload> {
   const payload = {} as TeambuildingPayload;
@@ -201,8 +187,6 @@ async function buildTeambuildingPayload(
   // Merge everything together.
   let learners = mergeObjectArrays("lambdaId", [
     surveys,
-    quizScores,
-    rankings,
     continuingLearners,
   ]) as Record<string, unknown>[];
 
@@ -218,227 +202,43 @@ async function buildTeambuildingPayload(
     track: x.track || null,
     labsRole: x.labsRole || null,
     labsProject: x.labsProject || null,
-    roleQuizScores: x.roleQuizScores || {},
-    roleRankings: x.roleRankings || {},
     gitExpertise: x.gitExpertise || null,
     dockerExpertise: x.dockerExpertise || null,
     playByEar: x.playByEar || null,
     detailOriented: x.detailOriented || null,
     speakUpInDiscussions: x.speakUpInDiscussions || null,
-    diversityConsent: x.bodiversityConsentolean || null,
-    genderIdentity: x.genderIdentity || null,
-    ethnicities: x.ethnicities || null,
-    dontWorkWith: x.dontWorkWith || null,
+    soloOrSocial: x.soloOrSocial,
+    meaningOrValue: x.meaningOrValue || null,
+    feelsRightOrMakesSense: x.feelsRightOrMakesSense || null,
+    favoriteOrCollect: x.favoriteOrCollect || null,
+    tpmSkill1: x.tpmSkill1 || null,
+    tpmSkill2: x.tpmSkill2 || null,
+    tpmSkill3: x.tpmSkill3 || null,
+    tpmInterest1: x.tpmInterest1 || null,
+    tpmInterest2: x.tpmInterest2 || null,
+    tpmInterest3: x.tpmInterest3 || null,
+    tpmInterest4: x.tpmInterest4 || null,
+    uxInterest1: x.uxInterest1 || null,
+    uxInterest2: x.uxInterest2 || null,
+    frontendInterest1: x.frontendInterest1 || null,
+    frontendInterest2: x.frontendInterest2 || null,
+    backendInterest1: x.backendInterest1 || null,
+    backendInterest2: x.backendInterest2 || null,
+    dataEngInterest1: x.dataEngInterest1 || null,
+    dataEngInterest2: x.dataEngInterest2 || null,
+    dataEngInterest3: x.dataEngInterest3 || null,
+    mlEngInterest1: x.mlEngInterest1 || null,
+    mlEngInterest2: x.mlEngInterest2 || null,
+    mlEngInterest3: x.mlEngInterest3 || null,
+    mlOpsInterest1: x.mlOpsInterest1 || null,
+    mlOpsInterest2: x.mlOpsInterest2 || null,
+    mlOpsInterest3: x.mlOpsInterest3 || null,  
   }));
 
   payload.learners = learners as unknown as ILearnerLabsApplication[];
   payload.projects = projects;
 
   return payload;
-}
-
-/**
- * Filter Canvas results by the specified cohort group in the given course.
- *
- * @param answer
- * @param answers
- * @param matches
- */
-export async function filterByCohort<T>(
-  learners: T[],
-  courseId: number,
-  cohort: string
-): Promise<T[]> {
-  // Get all groups in the given course.
-  const groups = await groupsDao.getGroupsInCourse(courseId);
-
-  // Get all users in this cohort's group.
-  const groupId = (groups?.find((x) => x.name === cohort) || {}).id;
-  if (!groupId) {
-    throw new Error("Group ID not found.");
-  }
-  const users = await usersDao.getUsersInGroup(groupId);
-
-  // Filter learners
-  return learners.filter((quiz) =>
-    users?.find(
-      (user) => user.sis_user_id === (quiz as Record<string, unknown>).lambdaId
-    )
-  );
-}
-
-/**
- * Get the given cohort's Role Quiz scores from the Labs Application in Canvas.
- * 
- * roleQuizIds is an object of the form:
- * [
- *   { "Technical Project Manager": number },
- *   ...
- *   { "UX Engineer": number }
- * ]
-
- * Returns an object of the form:
- * [
- *   {
- *     canvasUserId: number,
- *     roleQuizScores: {
- *         "Technical Project Manager": number,
- *         "Data Engineer": number,
- *          ...
- *         "UX Engineer": number
- *       },
- *   }
- * ]
- *
- * @param courseId
- * @param lambdaId
- * @returns
- */
-export async function getRoleQuizScores(
-  cohort: string,
-  courseId: number,
-  roleQuizIds: Record<string, number>[]
-): Promise<ILearnerRoleQuizScores[]> {
-  let learnerQuizzes: ILearnerRoleQuizScores[] = [] as ILearnerRoleQuizScores[];
-
-  // For each role quiz:
-  for (const roleQuiz of roleQuizIds) {
-    // Get all submissions for the quiz.
-    const role = Object.keys(roleQuiz)[0];
-    const quizId = roleQuiz[role];
-    const quizSubmissions: QuizSubmission[] | null =
-      await quizSubmissionDao.getAll(courseId, quizId);
-    if (!quizSubmissions) {
-      continue;
-    }
-
-    // Collect role quiz scores in learnerQuizzes array
-    for (const quizSubmission of quizSubmissions) {
-      const existing = learnerQuizzes.find(
-        (x) => x.canvasUserId === quizSubmission.user_id
-      );
-      if (existing) {
-        existing.roleQuizScores[role] = quizSubmission.kept_score;
-      } else {
-        const canvasUser = await usersDao.getOne(quizSubmission.user_id);
-        const lambdaId = canvasUser?.sis_user_id;
-        const entry = {
-          canvasUserId: quizSubmission.user_id,
-          lambdaId,
-          roleQuizScores: {} as RoleQuizScores,
-        };
-        entry.roleQuizScores[role] = quizSubmission.kept_score;
-        learnerQuizzes.push(entry);
-      }
-    }
-  }
-
-  learnerQuizzes = await filterByCohort(learnerQuizzes, courseId, cohort);
-
-  return learnerQuizzes;
-}
-
-/**
- * Parse role rankings from a Quiz Report field string.
- *
- * @param answer
- * @param answers
- * @param matches
- */
-function parseRoleRankings(answer: string): RoleRankings {
-  // Empty:
-  //   "1 (Highest Priority)=>,
-  //    2=>,
-  //    3=>,
-  //    4 ( Lowest Priority)=>"
-  // With ranks:
-  //   "1 (Highest Priority)=>Data Engineer,
-  //    2=>Technical Project Manager,
-  //    3=>Data Scientist: ML Ops,
-  //    4 ( Lowest Priority)=>Machine Learning Engineer"
-
-  const rankings: RoleRankings = {};
-
-  for (const x of answer.split(",")) {
-    const role: string | undefined = x.split("=>")[1];
-    const rank: number = parseInt(x[0]);
-    if (role) {
-      rankings[role] = rank;
-    }
-  }
-
-  return rankings;
-}
-
-/**
- * Get the given cohort's Role rankings from the Labs Application in Canvas.
- * 
- * roleQuizIds is an object of the form:
- * [
- *   { "Technical Project Manager": number },
- *   ...
- *   { "UX Engineer": number }
- * ]
-
- * Returns an object of the form:
- * [
- *   {
- *     canvasUserId: number,
- *     roleRankings: {
- *         "Technical Project Manager": number,
- *         "Data Engineer": number,
- *          ...
- *         "UX Engineer": number
- *       },
- *   }
- * ]
- *
- * @param courseId
- * @param lambdaId
- * @returns
- */
-export async function getRoleRankings(
-  cohort: string,
-  courseId: number,
-  finalQuizIds: Record<string, number>
-): Promise<ILearnerRoleRankings[] | undefined> {
-  let learnerRankings: ILearnerRoleRankings[] = [] as ILearnerRoleRankings[];
-
-  // For each Final Application quiz:
-  for (const quizId of Object.values(finalQuizIds)) {
-    const report: Record<string, unknown>[] | null =
-      (await quizReportDao.getFile(
-        courseId,
-        quizId,
-        QuizReportType.student_analysis
-      )) as Record<string, unknown>[] | null;
-
-    const roleRankings: ILearnerRoleRankings[] | undefined = report?.map(
-      (x) => {
-        let rankingsString = "";
-        for (const key of Object.keys(x)) {
-          if (key.includes("Please rank your priorities for a role in Labs")) {
-            rankingsString = x[key] as string;
-          }
-        }
-
-        return {
-          name: x.name as string,
-          lambdaId: x.sis_id as string,
-          canvasUserId: parseInt(x.id as string),
-          roleRankings: parseRoleRankings(rankingsString),
-        };
-      }
-    ) as ILearnerRoleRankings[] | undefined;
-
-    if (roleRankings) {
-      learnerRankings.push(...roleRankings);
-    }
-  }
-
-  learnerRankings = await filterByCohort(learnerRankings, courseId, cohort);
-
-  return learnerRankings;
 }
 
 /**
@@ -449,15 +249,10 @@ export async function getRoleRankings(
  *
  *   - Get existing teams from Airtable
  *   - Get surveys from Airtable
- *   - Get new Labs Applications from Canvas
- *     - Role Quiz Scores
- *     - Role Rankings from Final Application quiz (Web + DS)
  *   - POST one JSON body to DS SortingHat in "tidy" format
  *   - TODO: Write teams to "Labs - Projects" table in SMT
  *
- * @param eventType
- * @param eventDate
- * @param learners
+ * @param cohort
  * @returns
  */
 export async function processTeambuilding(
@@ -473,29 +268,9 @@ export async function processTeambuilding(
     await surveyDao.getCohort(cohort)
   );
 
-  // Get the Labs Application role quiz IDs from Airtable.
-  const roleQuizIds: RoleQuizID[] = (await getRoleQuizIds()) as RoleQuizID[];
-
-  // Get the ID of the Labs Application course from Airtable.
-  const courseId: number =
-    (await canvasCoursesDao.getLabsApplicationCourseId()) as number;
-
-  // Get the Labs Application "Final Application" quiz IDs from Airtable.
-  const finalApplicationQuizIds: Record<string, number> =
-    await getFinalApplicationQuizIds();
-
-  // Get this cohort's Role Quiz scores from the Labs Application in Canvas.
-  const roleQuizScores = await getRoleQuizScores(cohort, courseId, roleQuizIds);
-
-  // Get this cohort's role rankings from the Labs Application in Canvas.
-  const roleRankings =
-    (await getRoleRankings(cohort, courseId, finalApplicationQuizIds)) || [];
-
-  // Merge the quiz scores, rankings, surveys, and projects.
+  // Merge the surveys and projects.
   const payload = await buildTeambuildingPayload(
     surveys,
-    roleQuizScores,
-    roleRankings,
     projects
   );
 
