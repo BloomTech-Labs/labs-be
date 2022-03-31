@@ -35,6 +35,7 @@
   "dependencies": {
     "@okta/jwt-verifier": "^2.3.0",
     "airtable": "^0.11.1",
+    "bottleneck": "^2.19.5",
     "command-line-args": "^5.2.0",
     "cookie-parser": "^1.4.5",
     "dotenv": "^10.0.0",
@@ -48,10 +49,10 @@
     "module-alias": "^2.2.2",
     "morgan": "^1.10.0",
     "node-fetch": "^2.6.1",
-    "request": "^2.88.2",
     "papaparse": "^5.3.1",
     "pg": "^8.7.1",
     "reflect-metadata": "^0.1.13",
+    "request": "^2.88.2",
     "tslint": "^6.1.3",
     "typeorm": "^0.2.37"
   },
