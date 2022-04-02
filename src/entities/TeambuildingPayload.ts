@@ -30,21 +30,21 @@ export interface ILearnerSurvey {
   tpmInterest2: number;
   tpmInterest3: number;
   tpmInterest4: number;
-  uxInterest1: number;
-  uxInterest2: number;
-  frontendInterest1: number;
-  frontendInterest2: number;
-  backendInterest1: number;
-  backendInterest2: number;
-  dataEngInterest1: number;
-  dataEngInterest2: number;
-  dataEngInterest3: number;
-  mlEngInterest1: number;
-  mlEngInterest2: number;
-  mlEngInterest3: number;
-  mlOpsInterest1: number;
-  mlOpsInterest2: number;
-  mlOpsInterest3: number;
+  uxInterest1?: number;
+  uxInterest2?: number;
+  frontendInterest1?: number;
+  frontendInterest2?: number;
+  backendInterest1?: number;
+  backendInterest2?: number;
+  dataEngInterest1?: number;
+  dataEngInterest2?: number;
+  dataEngInterest3?: number;
+  mlEngInterest1?: number;
+  mlEngInterest2?: number;
+  mlEngInterest3?: number;
+  mlOpsInterest1?: number;
+  mlOpsInterest2?: number;
+  mlOpsInterest3?: number;
 }
 
 export interface ILearnerLabsApplication extends ILearnerSurvey {
@@ -52,7 +52,6 @@ export interface ILearnerLabsApplication extends ILearnerSurvey {
   canvasUserId?: number;
   name: string;
   track: Track;
-  labsRole: string | null;
   labsProject: string | null;
   gitExpertise: number;
   dockerExpertise: number;
@@ -70,21 +69,21 @@ export interface ILearnerLabsApplication extends ILearnerSurvey {
   tpmInterest2: number;
   tpmInterest3: number;
   tpmInterest4: number;
-  uxInterest1: number;
-  uxInterest2: number;
-  frontendInterest1: number;
-  frontendInterest2: number;
-  backendInterest1: number;
-  backendInterest2: number;
-  dataEngInterest1: number;
-  dataEngInterest2: number;
-  dataEngInterest3: number;
-  mlEngInterest1: number;
-  mlEngInterest2: number;
-  mlEngInterest3: number;
-  mlOpsInterest1: number;
-  mlOpsInterest2: number;
-  mlOpsInterest3: number;
+  uxInterest1?: number;
+  uxInterest2?: number;
+  frontendInterest1?: number;
+  frontendInterest2?: number;
+  backendInterest1?: number;
+  backendInterest2?: number;
+  dataEngInterest1?: number;
+  dataEngInterest2?: number;
+  dataEngInterest3?: number;
+  mlEngInterest1?: number;
+  mlEngInterest2?: number;
+  mlEngInterest3?: number;
+  mlOpsInterest1?: number;
+  mlOpsInterest2?: number;
+  mlOpsInterest3?: number;
 }
 
 export interface ITeambuildingPayload {

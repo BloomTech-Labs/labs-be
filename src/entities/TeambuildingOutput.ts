@@ -2,6 +2,7 @@ export type RoleQuizScores = Record<string, number | undefined>;
 export type RoleRankings = Record<string, number>;
 
 export enum Track {
+  BD = "BD",
   DS = "DS",
   WEB = "WEB",
 }
@@ -10,13 +11,13 @@ export interface Recruit {
   lambdaId: string;
   name: string;
   track: Track;
-  roleRankings: RoleRankings;
+  roleRankings?: RoleRankings;
 }
 
 export interface Developer {
   lambdaId: string;
   name: string;
-  labsRole: string;
+  labsRole?: string;
   labsProject: string;
 }
 
