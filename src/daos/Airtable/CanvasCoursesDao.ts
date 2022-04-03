@@ -33,43 +33,23 @@ class CanvasCoursesDao {
   }
 
   /**
-   *  Get course IDs for all general courses.
-   */
-  public async getGeneralCourseIds(): Promise<number[] | null> {
-    const records = await this.airtable("Labs - Courses")
-      .select({
-        view: "Curriculum Courses",
-        filterByFormula: "{Type} = 'All'",
-      })
-      .all();
-
-    const courses: number[] = records.map(
-      (record) => record.fields["Course ID"] as number
-    );
-
-    return courses;
-  }
-
-  /**
-   *  Get the objective course ID for the given role.
+   *  Get the course IDs for a learner with the given track.
    *
    *  @param role
    */
-  public async getObjectiveCourseIdByRole(
-    role: string
-  ): Promise<number | null> {
+  public async getCoursesByTrack(
+    track: string
+  ): Promise<number[] | null> {
     const courses = await this.airtable("Labs - Courses")
       .select({
-        view: "Objective Courses",
-        maxRecords: 1,
-        filterByFormula: `{Role} = "${role}"`,
+        view: "Grid view",
+        filterByFormula: `SEARCH("${track}",{Track})`,
+
       })
       .all();
 
     if (courses.length) {
-      if (courses[0].fields) {
-        return courses[0].fields["Course ID"] as number;
-      }
+      return courses.map(course => course.fields["Course ID"] as number);
     }
 
     return null;
@@ -86,9 +66,9 @@ class CanvasCoursesDao {
   ): Promise<number[] | null> {
     const courses = await this.airtable("Labs - Courses")
       .select({
-        view: "Curriculum Courses",
+        view: "Grid view",
         maxRecords: 1,
-        filterByFormula: `{Course Id} = ${courseId}`,
+        filterByFormula: `{Course ID} = ${courseId}`,
       })
       .all();
 

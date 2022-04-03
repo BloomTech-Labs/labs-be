@@ -193,6 +193,23 @@ class StudentDao {
   }
 
   /**
+   * Get the given learner's track.
+   *
+   * @param lambdaId
+   * @returns
+   */
+  public async getTrack(lambdaId: string): Promise<string | null> {
+    const record: Record<string, unknown> | null = await this.getOne(lambdaId);
+    if (!record) {
+      return null;
+    }
+    const learner = record.fields as Record<string, string[]>;
+
+    const track: string = learner["Course"][0];
+    return track;
+  }
+
+  /**
    * Airtable has a patch payload limit of 10 records and an overall
    * rate limit of 5 requests/second. Patch records in a queue with
    * standoffs to accommodate the limits.

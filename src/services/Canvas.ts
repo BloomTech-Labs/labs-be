@@ -6,7 +6,6 @@ import CanvasUser from "@entities/CanvasUser";
 import Module from "@entities/Module";
 import ModuleCompletion from "@entities/ModuleCompletion";
 import StudentDao from "@daos/Airtable/StudentDao";
-import { getGeneralCourseIds, getObjectivesCourseId } from "./Airtable";
 import SubmissionDao from "@daos/Canvas/SubmissionDao";
 
 const assignmentsDao = new AssignmentsDao();
@@ -38,26 +37,15 @@ export async function getUserIdBySisId(
 export async function getRequiredCourses(
   lambdaId: string
 ): Promise<number[] | null> {
-  const courses: number[] = [];
-
-  // Get the learner's role
-  const labsRole = (await studentDao.getRole(lambdaId)) as string;
-  if (!labsRole) {
-    throw new Error(`Labs Role not found for learner ID: ${lambdaId}`);
+  // Get the learner's track
+  const track = await studentDao.getTrack(lambdaId);
+  if (!track) {
+    throw new Error(`Track not found for learner ID: ${lambdaId}`);
   }
 
-  // Get general courses
-  const generalCourses: number[] | null = await getGeneralCourseIds();
-  if (generalCourses) {
-    courses.push(...generalCourses);
-  }
-
-  // Get the learner's objectives course
-  const objectivesCourseId = await getObjectivesCourseId(labsRole);
-  if (objectivesCourseId) {
-    courses.push(objectivesCourseId);
-  }
-
+  // Get the learner's courses
+  const courses = await canvasCoursesDao.getCoursesByTrack(track);
+  
   return courses;
 }
 
@@ -74,16 +62,10 @@ export async function processModuleCompletion(
   moduleId: number,
   lambdaId: string
 ): Promise<ModuleCompletion | null> {
-  const userId: number | null = await getUserIdBySisId(lambdaId);
-
-  if (!userId) {
-    return Promise.reject(`Canvas user ID not found for SIS ID: ${lambdaId}`);
-  }
-
   const module: Module | null = await modulesDao.getCompletion(
     courseId,
     moduleId,
-    userId
+    lambdaId
   );
 
   const moduleCompletion = module
@@ -109,15 +91,9 @@ export async function processCourseModuleCompletion(
   courseId: number,
   lambdaId: string
 ): Promise<ModuleCompletion[] | null> {
-  const userId: number | null = await getUserIdBySisId(lambdaId);
-
-  if (!userId) {
-    return Promise.reject(`Canvas user ID not found for SIS ID: ${lambdaId}`);
-  }
-
   const modules: Module[] | null = await modulesDao.getAllCompletionInCourse(
     courseId,
-    userId
+    lambdaId
   );
 
   const moduleCompletion = modules?.map((module) => {
@@ -137,6 +113,7 @@ export async function processCourseModuleCompletion(
  * Returns true if the learner met the completion criteria for the assignment.
  *
  * @param courseId
+ * @param moduleId
  * @param assignmentId
  * @param lambdaId
  * @returns
@@ -173,7 +150,8 @@ export async function assignmentCompleted(
  * Returns true if the learner met the completion criteria for the module item.
  *
  * @param courseId
- * @param assignmentId
+ * @param moduleId
+ * @param moduleItemId
  * @param lambdaId
  * @returns
  */
@@ -242,7 +220,6 @@ export async function processCourseCompleted(
 /**
  * Process whether all required Canvas courses have been completed by a given learner.
  *
- * @param courseId
  * @param lambdaId
  * @returns
  */
@@ -279,14 +256,3 @@ export async function processAllRequiredCoursesCompleted(
     return Promise.reject(error);
   }
 }
-
-/**
- * Get the given cohort's Role Quiz scores from the Labs Application in Canvas.
- *
- * @param courseId
- * @param lambdaId
- * @returns
- */
-// export async function getQuizScores(cohort: string) {
-
-// }

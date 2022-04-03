@@ -11,7 +11,7 @@ export interface IModulesDao {
   getAllInCourse: (courseId: number) => ModuleArrayResponse;
   getAllCompletionInCourse: (
     courseId: number,
-    userId: number
+    lambdaId: string
   ) => ModuleArrayResponse;
   getItems: (
     courseId: number,
@@ -51,10 +51,10 @@ class ModulesDao implements IModulesDao {
   public getCompletion(
     courseId: number,
     moduleId: number,
-    userId: number
+    lambdaId: string
   ): ModuleResponse {
     // <canvasURL>/api/v1/courses/:courseId/modules/:moduleId
-    const path = `courses/${courseId}/modules/${moduleId}?student_id=${userId}`;
+    const path = `courses/${courseId}/modules/${moduleId}?as_user_id=sis_user_id:${lambdaId}&per_page=50`;
     // TODO: Canvas paginates query responses at 10 per page—in these requests,
     // we should loop through the Link headers to retrieve all results.
     // https://canvas.instructure.com/doc/api/file.pagination.html
@@ -78,10 +78,10 @@ class ModulesDao implements IModulesDao {
    */
   public getAllCompletionInCourse(
     courseId: number,
-    userId: number
+    lambdaId: string
   ): ModuleArrayResponse {
     // <canvasURL>/api/v1/courses/:courseId/modules
-    const path = `courses/${courseId}/modules?per_page=50&as_user_id=${userId}`;
+    const path = `courses/${courseId}/modules?as_user_id=sis_user_id:${lambdaId}&per_page=50`;
     // TODO: Canvas paginates query responses at 10 per page—in these requests,
     // we should loop through the Link headers to retrieve all results.
     // https://canvas.instructure.com/doc/api/file.pagination.html
