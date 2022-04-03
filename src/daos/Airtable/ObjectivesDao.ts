@@ -6,6 +6,7 @@ import {
   ObjectiveType,
   SprintMilestoneType,
 } from "@entities/Objective";
+import { Track } from "@entities/TeambuildingOutput";
 
 class ObjectivesDao {
   private api_key: string;
@@ -33,8 +34,8 @@ class ObjectivesDao {
    */
   public formatObjective(record: Airtable.Record<FieldSet>): Objective {
     const id = record.get("ID") as string;
-    const role = (record.get("Role") as string[])[0];
     const name = record.get("Name") as string;
+    const tracks = record.get("Track") as Track[];
     const type = record.get("Type") as ObjectiveType;
     const course = record.get("Course") as string | undefined;
     const points = record.get("Points") as number;
@@ -42,9 +43,9 @@ class ObjectivesDao {
 
     const objective = new Objective(
       id,
-      role,
       name,
       type,
+      tracks,
       course ? parseInt(course) : null,
       points,
       [], // Add Sprint Milestones later
@@ -65,6 +66,7 @@ class ObjectivesDao {
     const name = record.get("Name") as string;
     const objectiveId = (record.get("Objective ID") as string[])[0];
     const type = record.get("Type") as SprintMilestoneType;
+    const tracks = record.get("Track") as Track[];
     const course = record.get("Course") as string[] | undefined;
     const module = record.get("Module") as number | null;
     const assignments = record.get("Assignments") as number[] | [] | null;
@@ -78,6 +80,7 @@ class ObjectivesDao {
       name,
       objectiveId,
       type,
+      tracks,
       course ? parseInt(course[0]) : null,
       module,
       assignments,
@@ -92,16 +95,17 @@ class ObjectivesDao {
 
   /**
    *  Get all objectives, including all sprint milestones for each, from the
-   *  "Labs - Objectives" and "Labs - Sprint Milestones" tables.
+   *  "Labs - Objectives" and "Labs - Sprint Milestones" tables. Optionally filter by
+   *  track.
    */
-  public async getAll(): Promise<Objective[]> {
+  public async getAll(track?: Track): Promise<Objective[]> {
     const objectives: Objective[] = [];
     const sprintMilestones: SprintMilestone[] = [];
 
     // Get Objectives
     const objectiveRecords = await this.airtable("Labs - Objectives")
       .select({
-        view: "Grid view",
+        view: track || "Grid view",
       })
       .all();
     for (const record of objectiveRecords) {
@@ -113,7 +117,7 @@ class ObjectivesDao {
     // Get Sprint Milestones
     const milestoneRecords = await this.airtable("Labs - Sprint Milestones")
       .select({
-        view: "Grid view",
+        view: track || "Grid view",
       })
       .all();
     for (const record of milestoneRecords) {

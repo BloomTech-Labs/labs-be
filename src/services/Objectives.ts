@@ -5,6 +5,7 @@ import SubmissionDao from "@daos/Canvas/SubmissionDao";
 import ModulesDao from "@daos/Canvas/ModulesDao";
 import Airtable, { FieldSet } from "airtable";
 import Module from "@entities/Module";
+import { Track } from "@entities/TeambuildingOutput";
 
 const modulesDao = new ModulesDao();
 const objectivesDao = new ObjectivesDao();
@@ -233,16 +234,13 @@ export async function evaluateCompletion(
  *  @returns
  */
 export async function getProgress(lambdaId: string): Promise<Objective[]> {
-  let objectives = await objectivesDao.getAll();
-
-  // Get the learner's role
-  const labsRole = (await studentDao.getRole(lambdaId)) as string;
-  if (!labsRole) {
-    throw new Error(`Labs Role not found for learner ID: ${lambdaId}`);
+  // Get the learner's track
+  const track = (await studentDao.getTrack(lambdaId)) as Track;
+  if (!track) {
+    throw new Error(`Track not found for learner ID: ${lambdaId}`);
   }
 
-  // Filter objectives list by this learer's role.
-  objectives = objectives.filter((x) => x.role[0] === labsRole);
+  let objectives = await objectivesDao.getAll(track);
 
   // Evaluate completion for this learner's objectives and sprint milestones.
   objectives = await evaluateCompletion(lambdaId, objectives);
@@ -308,12 +306,12 @@ export async function getCohortProgress(
     const lambdaId = lambdaIds[0] || "";
 
     // Get their objectives.
-    const roleList = learner.fields["Labs Role"] as string[];
-    const role = roleList && roleList.length ? roleList[0] : null;
-    if (!role) {
+    const trackList = learner.fields["Course"] as Track[];
+    const track = trackList && trackList.length ? trackList [0] : null;
+    if (!track) {
       continue;
     }
-    let learnerObjectives = objectives.filter((x) => x.role === role);
+    let learnerObjectives = objectives.filter((x) => x.tracks.includes(track));
 
     // Evaluate completion for their objectives and sprint milestones.
     learnerObjectives = await evaluateCompletion(
