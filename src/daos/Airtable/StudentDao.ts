@@ -1,4 +1,4 @@
-import { Developer } from "@entities/TeambuildingOutput";
+import { Developer, parseTrack, Track } from "@entities/TeambuildingOutput";
 import Airtable, { FieldSet, RecordData, Records } from "airtable";
 import { AirtableBase } from "airtable/lib/airtable_base";
 import ProjectsDao from "./ProjectsDao";
@@ -193,19 +193,38 @@ class StudentDao {
   }
 
   /**
+   * Get a track by its SMT record ID in the `Courses` table.
+   *
+   * @param recordId
+   * @returns
+   */
+  public async getTrackByTrackRecordId(recordId: string): Promise<Track | null> {
+    const result = await this.airtable("Courses")
+      .select({
+        view: "Grid view",
+        filterByFormula: `{Record ID} = "${recordId}"`,
+      })
+      .all();
+    const track = result [0].fields ["Name"] as string;
+    return parseTrack(track);
+  }
+
+  /**
    * Get the given learner's track.
    *
    * @param lambdaId
    * @returns
    */
-  public async getTrack(lambdaId: string): Promise<string | null> {
+  public async getTrack(lambdaId: string): Promise<Track | null> {
     const record: Record<string, unknown> | null = await this.getOne(lambdaId);
     if (!record) {
       return null;
     }
     const learner = record.fields as Record<string, string[]>;
 
-    const track: string = learner["Course"][0];
+    const trackRecordId: string = learner["Course"][0];
+    const track = await this.getTrackByTrackRecordId(trackRecordId);
+
     return track;
   }
 

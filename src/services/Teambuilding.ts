@@ -4,7 +4,7 @@ import SurveyDao from "@daos/Airtable/SurveyDao";
 import UsersDao from "@daos/Canvas/UsersDao";
 import CanvasCoursesDao from "@daos/Airtable/CanvasCoursesDao";
 import StudentDao from "@daos/Airtable/StudentDao";
-import { getLambdaId } from "@services/Airtable";
+import { parseTrack } from "@entities/TeambuildingOutput";
 import { mergeObjectArrays } from "@shared/functions";
 import GroupsDao from "@daos/Canvas/GroupsDao";
 import TeambuildingOutput, {
@@ -23,24 +23,6 @@ const groupsDao = new GroupsDao();
 const sortingHatDao = new SortingHatDao();
 const studentDao = new StudentDao();
 const usersDao = new UsersDao();
-
-/**
- * Attempt to parse a Track from a string. Airtable formats tracks as e.g.
- * "Web (Node)".
- *
- * @param surveys
- * @returns
- */
-function parseTrack(track: string): Track | null {
-  switch (track) {
-    case "Web (Node)" || "Web":
-      return Track.WEB;
-    case "DS":
-      return Track.DS;
-    default:
-      return null;
-  }
-}
 
 /**
  * Given an array of raw teambuilding survey results, parse it into an array of
