@@ -140,7 +140,7 @@ class ObjectivesDao {
           const index = objectives.findIndex(
             (x) => x.id === milestone.objective
           );
-          if (index) {
+          if (index > -1) {
             objectives[index].sprintMilestones.push(milestone);
           }
         }
