@@ -24,7 +24,6 @@ import {
   getCohortProjects,
   // putCohortProjects,
 } from "./Airtable";
-import { putEventAttendance } from "./Attendance";
 import { postBuildTeams } from "./Teambuilding";
 import authRequired from "../middleware/authRequired";
 import {
@@ -74,9 +73,6 @@ airtableRouter.get("/projects", getAllProjects);
 airtableRouter.get("/projects/cohort/:cohort", getCohortProjects);
 // airtableRouter.put("/projects/cohort/:cohort", putCohortProjects);
 
-const attendanceRouter = Router();
-attendanceRouter.put("/event/:eventType/date/:eventDate", putEventAttendance);
-
 const teambuildingRouter = Router();
 teambuildingRouter.post("/:cohort", postBuildTeams);
 
@@ -92,7 +88,6 @@ baseRouter.use("/users", userRouter);
 baseRouter.use("/vars", envRouter);
 baseRouter.use("/canvas", canvasRouter);
 baseRouter.use("/airtable", airtableRouter);
-baseRouter.use("/attendance", attendanceRouter);
 baseRouter.use("/teambuilding", teambuildingRouter);
 baseRouter.use("/objectives", objectivesRouter);
 
