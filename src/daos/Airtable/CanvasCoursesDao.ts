@@ -37,19 +37,16 @@ class CanvasCoursesDao {
    *
    *  @param role
    */
-  public async getCoursesByTrack(
-    track: string
-  ): Promise<number[] | null> {
+  public async getCoursesByTrack(track: string): Promise<number[] | null> {
     const courses = await this.airtable("Labs - Courses")
       .select({
         view: "Grid view",
         filterByFormula: `SEARCH("${track}",{Track})`,
-
       })
       .all();
 
     if (courses.length) {
-      return courses.map(course => course.fields["Course ID"] as number);
+      return courses.map((course) => course.fields["Course ID"] as number);
     }
 
     return null;

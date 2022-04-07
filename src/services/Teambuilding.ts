@@ -1,15 +1,10 @@
 import { FieldSet, Records } from "airtable";
 import ProjectsDao from "@daos/Airtable/ProjectsDao";
 import SurveyDao from "@daos/Airtable/SurveyDao";
-import UsersDao from "@daos/Canvas/UsersDao";
-import CanvasCoursesDao from "@daos/Airtable/CanvasCoursesDao";
 import StudentDao from "@daos/Airtable/StudentDao";
 import { parseTrack } from "@entities/TeambuildingOutput";
 import { mergeObjectArrays } from "@shared/functions";
-import GroupsDao from "@daos/Canvas/GroupsDao";
-import TeambuildingOutput, {
-  Track,
-} from "@entities/TeambuildingOutput";
+import TeambuildingOutput, { Track } from "@entities/TeambuildingOutput";
 import TeambuildingPayload, {
   ILearnerSurvey,
   ILearnerLabsApplication,
@@ -19,10 +14,8 @@ import SortingHatDao from "@daos/SortingHat/SortingHatDao";
 
 const projectsDao = new ProjectsDao();
 const surveyDao = new SurveyDao();
-const groupsDao = new GroupsDao();
 const sortingHatDao = new SortingHatDao();
 const studentDao = new StudentDao();
-const usersDao = new UsersDao();
 
 /**
  * Given an array of raw teambuilding survey results, parse it into an array of
@@ -71,9 +64,15 @@ async function parseSurveys(
         dataEngInterest1: record["Data Engineer Interest 1"] as number,
         dataEngInterest2: record["Data Engineer Interest 2"] as number,
         dataEngInterest3: record["Data Engineer Interest 3"] as number,
-        mlEngInterest1: record["Machine Learning Engineer Interest 1"] as number,
-        mlEngInterest2: record["Machine Learning Engineer Interest 2"] as number,
-        mlEngInterest3: record["Machine Learning Engineer Interest 3"] as number,
+        mlEngInterest1: record[
+          "Machine Learning Engineer Interest 1"
+        ] as number,
+        mlEngInterest2: record[
+          "Machine Learning Engineer Interest 2"
+        ] as number,
+        mlEngInterest3: record[
+          "Machine Learning Engineer Interest 3"
+        ] as number,
         mlOpsInterest1: record["ML Ops Interest 1"] as number,
         mlOpsInterest2: record["ML Ops Interest 2"] as number,
         mlOpsInterest3: record["ML Ops Interest 3"] as number,
@@ -101,10 +100,12 @@ function parseProjects(projects: Records<FieldSet>): ITeamBuildingProject[] {
       teamCode: record["Team Code"] as string,
       tracks: (() => {
         const tracks = record["Tracks"] as string[];
-        return tracks.map((track) => parseTrack(track));
+        return tracks.map((track) =>
+          parseTrack(track) === Track.WEB ? "Web" : parseTrack(track)
+        );
       })(),
       releaseManager: (record["Release Manager"] as string[])[0],
-      teamMemberSmtIds: record["Team Members"] as string[],
+      teamMemberSmtIds: (record["Team Members"] || []) as string[],
     };
     return project;
   });
@@ -179,42 +180,47 @@ async function buildTeambuildingPayload(
   // Make sure all desired ILearnerLabsApplication fields are present for each learner.
   learners = learners.map((x) => ({
     lambdaId: x.lambdaId,
-    canvasUserId: x.canvasUserId || null,
+    // canvasUserId: x.canvasUserId || null,
     name: x.name || null,
-    track: x.track || null,
-    labsRole: x.labsRole || null,
-    labsProject: x.labsProject || null,
+    // track: x.track || null,
+    track: (x.track === "WEB" ? "Web" : x.track) || null,
+    // labsProject: x.labsProject || null,
+    labsProject: x.labsProject || "",
     gitExpertise: x.gitExpertise || null,
     dockerExpertise: x.dockerExpertise || null,
     playByEar: x.playByEar || null,
     detailOriented: x.detailOriented || null,
     speakUpInDiscussions: x.speakUpInDiscussions || null,
-    soloOrSocial: x.soloOrSocial,
-    meaningOrValue: x.meaningOrValue || null,
-    feelsRightOrMakesSense: x.feelsRightOrMakesSense || null,
-    favoriteOrCollect: x.favoriteOrCollect || null,
-    tpmSkill1: x.tpmSkill1 || null,
-    tpmSkill2: x.tpmSkill2 || null,
-    tpmSkill3: x.tpmSkill3 || null,
-    tpmInterest1: x.tpmInterest1 || null,
-    tpmInterest2: x.tpmInterest2 || null,
-    tpmInterest3: x.tpmInterest3 || null,
-    tpmInterest4: x.tpmInterest4 || null,
-    uxInterest1: x.uxInterest1 || null,
-    uxInterest2: x.uxInterest2 || null,
-    frontendInterest1: x.frontendInterest1 || null,
-    frontendInterest2: x.frontendInterest2 || null,
-    backendInterest1: x.backendInterest1 || null,
-    backendInterest2: x.backendInterest2 || null,
-    dataEngInterest1: x.dataEngInterest1 || null,
-    dataEngInterest2: x.dataEngInterest2 || null,
-    dataEngInterest3: x.dataEngInterest3 || null,
-    mlEngInterest1: x.mlEngInterest1 || null,
-    mlEngInterest2: x.mlEngInterest2 || null,
-    mlEngInterest3: x.mlEngInterest3 || null,
-    mlOpsInterest1: x.mlOpsInterest1 || null,
-    mlOpsInterest2: x.mlOpsInterest2 || null,
-    mlOpsInterest3: x.mlOpsInterest3 || null,  
+    soloOrSocial: x.soloOrSocial ? (x.soloOrSocial as string)[0] : null,
+    meaningOrValue: x.meaningOrValue ? (x.meaningOrValue as string)[0] : null,
+    feelsRightOrMakesSense: x.feelsRightOrMakesSense
+      ? (x.feelsRightOrMakesSense as string)[0]
+      : null,
+    favoriteOrCollect: x.favoriteOrCollect
+      ? (x.favoriteOrCollect as string)[0]
+      : null,
+    tpmSkill1: x.tpmSkill1 ? (x.tpmSkill1 as string)[0] : null,
+    tpmSkill2: x.tpmSkill2 ? (x.tpmSkill2 as string)[0] : null,
+    tpmSkill3: x.tpmSkill3 ? (x.tpmSkill3 as string)[0] : null,
+    tpmInterest1: x.tpmInterest1 || 0,
+    tpmInterest2: x.tpmInterest2 || 0,
+    tpmInterest3: x.tpmInterest3 || 0,
+    tpmInterest4: x.tpmInterest4 || 0,
+    uxInterest1: x.uxInterest1 || 0,
+    uxInterest2: x.uxInterest2 || 0,
+    frontendInterest1: x.frontendInterest1 || 0,
+    frontendInterest2: x.frontendInterest2 || 0,
+    backendInterest1: x.backendInterest1 || 0,
+    backendInterest2: x.backendInterest2 || 0,
+    dataEngInterest1: x.dataEngInterest1 || 0,
+    dataEngInterest2: x.dataEngInterest2 || 0,
+    dataEngInterest3: x.dataEngInterest3 || 0,
+    mlEngInterest1: x.mlEngInterest1 || 0,
+    mlEngInterest2: x.mlEngInterest2 || 0,
+    mlEngInterest3: x.mlEngInterest3 || 0,
+    mlOpsInterest1: x.mlOpsInterest1 || 0,
+    mlOpsInterest2: x.mlOpsInterest2 || 0,
+    mlOpsInterest3: x.mlOpsInterest3 || 0,
   }));
 
   payload.learners = learners as unknown as ILearnerLabsApplication[];
@@ -251,10 +257,7 @@ export async function processTeambuilding(
   );
 
   // Merge the surveys and projects.
-  const payload = await buildTeambuildingPayload(
-    surveys,
-    projects
-  );
+  const payload = await buildTeambuildingPayload(surveys, projects);
 
   // Post the teambuilding payload to the SortingHat DS API.
   const output = await sortingHatDao.postBuildTeams(payload, cohort);
@@ -265,7 +268,7 @@ export async function processTeambuilding(
   // Patch the role and team assignments to Airtable.
   const success = await studentDao.patchCohortLabsAssignments(
     cohort,
-    output.Developers
+    output.learners
   );
   if (!success) {
     console.error("Failed to write Labs assignments to SMT.");

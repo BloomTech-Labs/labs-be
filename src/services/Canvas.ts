@@ -45,7 +45,7 @@ export async function getRequiredCourses(
 
   // Get the learner's courses
   const courses = await canvasCoursesDao.getCoursesByTrack(track);
-  
+
   return courses;
 }
 

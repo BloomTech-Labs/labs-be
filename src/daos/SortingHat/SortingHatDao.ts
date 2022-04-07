@@ -28,7 +28,9 @@ class SortingHatDao implements ISortingHatDao {
     payload: TeambuildingPayload,
     cohort: string
   ): TeambuildingOutputResponse {
-    const path = `build/teams/?cohort_name=${cohort}`;
+    // const path = `build/teams/?cohort_name=${cohort}`;
+    const path = "sortinghat";
+
     const body = payload;
     return (await this.client.post(
       path,

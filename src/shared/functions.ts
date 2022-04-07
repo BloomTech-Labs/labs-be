@@ -15,7 +15,7 @@ export const chunkArray = (array: unknown[], chunkSize: number): unknown[] => {
     chunkedArray.push(array.slice(i, i + chunkSize));
   }
   return chunkedArray;
-}
+};
 
 export const getRandomInt = (): number => {
   return Math.floor(Math.random() * 1_000_000_000_000);

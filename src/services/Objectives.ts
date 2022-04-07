@@ -307,7 +307,7 @@ export async function getCohortProgress(
 
     // Get their objectives.
     const trackList = learner.fields["Course"] as Track[];
-    const trackRecordId = trackList && trackList.length ? trackList [0] : null;
+    const trackRecordId = trackList && trackList.length ? trackList[0] : null;
     if (!trackRecordId) {
       continue;
     }

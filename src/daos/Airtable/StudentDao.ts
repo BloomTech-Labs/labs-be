@@ -1,4 +1,4 @@
-import { Developer, parseTrack, Track } from "@entities/TeambuildingOutput";
+import { Learner, parseTrack, Track } from "@entities/TeambuildingOutput";
 import Airtable, { FieldSet, RecordData, Records } from "airtable";
 import { AirtableBase } from "airtable/lib/airtable_base";
 import ProjectsDao from "./ProjectsDao";
@@ -198,14 +198,16 @@ class StudentDao {
    * @param recordId
    * @returns
    */
-  public async getTrackByTrackRecordId(recordId: string): Promise<Track | null> {
+  public async getTrackByTrackRecordId(
+    recordId: string
+  ): Promise<Track | null> {
     const result = await this.airtable("Courses")
       .select({
         view: "Grid view",
         filterByFormula: `{Record ID} = "${recordId}"`,
       })
       .all();
-    const track = result [0].fields ["Name"] as string;
+    const track = result[0].fields["Name"] as string;
     return parseTrack(track);
   }
 
@@ -237,33 +239,39 @@ class StudentDao {
    * @param payload
    * @returns
    */
-  private async patchLimited (
+  private async patchLimited(
     table: string,
     payload: RecordData<Partial<FieldSet>>[]
   ): Promise<boolean> {
     // Break the payload into chunks of 10 records each.
-    const chunkedPayload = chunkArray(payload, PATCH_PAYLOAD_LIMIT) as RecordData<Partial<FieldSet>>[][];
+    const chunkedPayload = chunkArray(
+      payload,
+      PATCH_PAYLOAD_LIMIT
+    ) as RecordData<Partial<FieldSet>>[][];
 
     // Send rate-limited patch queries.
     const limiter = new Bottleneck({
       maxConcurrent: 1,
       minTime: 1 / AT_RATE_LIMIT,
-    })
+    });
     limiter.on("error", (error) => {
       console.error(error);
       return false;
     });
     for (const chunk of chunkedPayload) {
-      const success = await limiter.schedule(() => this.airtable(table).update(chunk));
+      // console.table(chunk.map(x =>x.fields));
+      const success = await limiter.schedule(() =>
+        this.airtable(table).update(chunk)
+      );
       if (!success) {
         return false;
       }
     }
     return true;
   }
-  
+
   /**
-   * Patch the Labs role and team assignments for a set of learners.
+   * Patch the team assignments for a set of learners.
    *
    * This writes updates directly to the Student object.
    *
@@ -273,7 +281,7 @@ class StudentDao {
    */
   public async patchCohortLabsAssignments(
     cohort: string,
-    learners: Developer[]
+    learners: Learner[]
   ): Promise<boolean> {
     // Get Airtable record IDs for each learner.
     const students = await this.getByLambdaIds(
@@ -304,11 +312,13 @@ class StudentDao {
       return {
         id,
         fields: {
-          "Labs Role": [learner.labsRole],
           "Labs - Assigned Projects": assignedProjects,
         },
       };
     }) as RecordData<Partial<FieldSet>>[];
+
+    // Filter out learners who for some reason were already assigned this project.
+    payload.filter((learner) => learner !== null);
 
     // Patch the Airtable records to update the Labs assignments.
     const success = await this.patchLimited("Students", payload);

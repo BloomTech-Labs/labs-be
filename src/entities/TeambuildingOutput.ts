@@ -24,7 +24,7 @@ export function parseTrack(track: string): Track | null {
     case "DS":
       return Track.DS;
     case "BD":
-      return Track.BD;  
+      return Track.BD;
     case "iOS":
     case "IOS":
       return Track.IOS;
@@ -33,32 +33,34 @@ export function parseTrack(track: string): Track | null {
   }
 }
 
-export interface Recruit {
+export interface Learner {
   lambdaId: string;
   name: string;
   track: Track;
-  roleRankings?: RoleRankings;
+  labsProject?: string;
 }
 
-export interface Developer {
-  lambdaId: string;
-  name: string;
-  labsRole?: string;
-  labsProject: string;
+export interface Project {
+  id: string;
+  product: string;
+  teamCode: string;
+  tracks: Track[];
+  releaseManager: string;
+  teamMemberSmtIds: string[];
 }
 
 export interface ITeambuildingOutput {
-  Recruits: Recruit[];
-  Developers: Developer[];
+  learners: Learner[];
+  projects: Project[];
 }
 
 export class TeambuildingOutput implements ITeambuildingOutput {
-  Recruits: Recruit[];
-  Developers: Developer[];
+  learners: Learner[];
+  projects: Project[];
 
-  constructor(Recruits: Recruit[], Developers: Developer[]) {
-    this.Recruits = Recruits;
-    this.Developers = Developers;
+  constructor(learners: Learner[], projects: Project[]) {
+    this.learners = learners;
+    this.projects = projects;
   }
 }
 

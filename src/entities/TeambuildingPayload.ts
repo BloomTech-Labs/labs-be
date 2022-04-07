@@ -4,7 +4,7 @@ export interface ITeamBuildingProject {
   id: string;
   product: string;
   teamCode: string;
-  tracks: (Track | null)[];
+  tracks: (Track | string | null)[];
   releaseManager: string;
   teamMemberSmtIds: string[];
 }
@@ -13,7 +13,7 @@ export interface ILearnerSurvey {
   name: string;
   lambdaId: string;
   smtId: string;
-  track: Track;
+  track: Track | string;
   gitExpertise: number;
   dockerExpertise: number;
   playByEar: number;
@@ -51,7 +51,7 @@ export interface ILearnerLabsApplication extends ILearnerSurvey {
   lambdaId: string;
   canvasUserId?: number;
   name: string;
-  track: Track;
+  track: Track | string;
   labsProject: string | null;
   gitExpertise: number;
   dockerExpertise: number;
