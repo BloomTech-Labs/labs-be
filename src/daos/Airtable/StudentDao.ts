@@ -307,8 +307,8 @@ class StudentDao {
         (project) => project.fields["Name"] === learner.labsProject
       )?.id;
 
-      const assignedProjects = [...prevProjects, projectId];
-
+      const assignedProjects = [...new Set([...prevProjects, projectId])];
+      
       return {
         id,
         fields: {
@@ -316,9 +316,6 @@ class StudentDao {
         },
       };
     }) as RecordData<Partial<FieldSet>>[];
-
-    // Filter out learners who for some reason were already assigned this project.
-    payload.filter((learner) => learner !== null);
 
     // Patch the Airtable records to update the Labs assignments.
     const success = await this.patchLimited("Students", payload);
