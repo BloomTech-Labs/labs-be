@@ -207,6 +207,9 @@ class StudentDao {
         filterByFormula: `{Record ID} = "${recordId}"`,
       })
       .all();
+    if (!result || !result.length) {
+      return null;
+    }
     const track = result[0].fields["Name"] as string;
     return parseTrack(track);
   }

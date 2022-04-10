@@ -51,7 +51,7 @@ export interface ILearnerLabsApplication extends ILearnerSurvey {
   lambdaId: string;
   canvasUserId?: number;
   name: string;
-  track: Track | string;
+  track: Track;
   labsProject: string | null;
   gitExpertise: number;
   dockerExpertise: number;

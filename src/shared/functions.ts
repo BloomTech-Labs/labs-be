@@ -92,3 +92,9 @@ export const mergeObjectArrays = (
 
   return combined;
 };
+
+export const getRandomValue = (
+  values: unknown[]
+): unknown => {
+  return values[Math.floor(Math.random() * values.length)];
+};

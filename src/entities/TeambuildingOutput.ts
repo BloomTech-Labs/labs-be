@@ -44,7 +44,7 @@ export interface Project {
   id: string;
   product: string;
   teamCode: string;
-  tracks: Track[];
+  tracks: (Track | string | null)[];
   releaseManager: string;
   teamMemberSmtIds: string[];
 }

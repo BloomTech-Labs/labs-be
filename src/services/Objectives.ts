@@ -285,7 +285,7 @@ export async function putProgress(lambdaId: string): Promise<Objective[]> {
  *  and sprint milestones. Optionally pass in any progress already retrieved.
  *
  *  @param cohortId
- *  @param progress?
+ *  @param incomingObjectiveData?
  *  @returns
  */
 export async function getCohortProgress(
@@ -302,6 +302,14 @@ export async function getCohortProgress(
 
   // For each learner:
   for (const learner of learners) {
+    // If they're a legacy learner (pre-Flexible Labs Release 3 curriculum, before
+    // April 11, 2022), filter them out. Release Managers will handle these manually.
+    const labsRoles = learner.fields["Labs Role"] as string[];
+    if (labsRoles && labsRoles.length) {
+      continue;
+    }
+
+    // Get their Lambda ID.
     const lambdaIds = learner.fields["Lambda ID"] as string[];
     const lambdaId = lambdaIds[0] || "";
 

@@ -3,7 +3,7 @@ import ProjectsDao from "@daos/Airtable/ProjectsDao";
 import SurveyDao from "@daos/Airtable/SurveyDao";
 import StudentDao from "@daos/Airtable/StudentDao";
 import { parseTrack } from "@entities/TeambuildingOutput";
-import { mergeObjectArrays } from "@shared/functions";
+import { getRandomValue, mergeObjectArrays } from "@shared/functions";
 import TeambuildingOutput, { Track } from "@entities/TeambuildingOutput";
 import TeambuildingPayload, {
   ILearnerSurvey,
@@ -122,7 +122,11 @@ async function getContinuingLearners(
   projects: ITeamBuildingProject[]
 ): Promise<Record<string, unknown>[]> {
   const continuingLearners = [] as Record<string, unknown>[];
+  console.log("CONTINUING LEARNERS:")
   for (const project of projects) {
+    console.log("");
+    console.log(project.id);
+    console.log("----------------");
     // For each team member on the project, get their relevant properties.
     for (const smtId of project.teamMemberSmtIds || []) {
       const student = await studentDao.getByRecordId(smtId);
@@ -131,46 +135,47 @@ async function getContinuingLearners(
       }
       const lambdaId = (student["Lambda ID"] as string[])[0];
       const name = student["Name"] as string;
-      const labsRoles = student["Labs Role"] as string[] | null;
-      const labsRole = labsRoles ? labsRoles[0] : null;
       const survey = await surveyDao.getOne(lambdaId);
-      const surveyFields = survey?.fields as Record<string, unknown>;
-      const track = surveyFields
-        ? (surveyFields["Student Course Text"] as Track)
-        : null;
+      const trackRecordId = student["Course"] as string;
+      console.log(name, trackRecordId);
+      if (!trackRecordId) {
+        continue;
+      }
+      const track = await studentDao.getTrackByTrackRecordId(trackRecordId);
+
       const learner = {
         lambdaId,
         name,
         track,
-        labsRole,
         labsProject: project.id,
+        survey,
       };
       continuingLearners.push(learner);
     }
   }
+  console.log("");
   return continuingLearners;
 }
 
 /**
- * Build a TeambuildingPayload by merging surveys, projects, quiz scores, and rankings.
+ * Build a TeambuildingPayload by merging surveys and projects.
  *
  * @param surveys
  * @param projects
  * @returns
  */
-async function buildTeambuildingPayload(
+function buildTeambuildingPayload(
+  continuingLearners: Record<string, unknown>[],
   surveys: ILearnerSurvey[],
   projects: ITeamBuildingProject[]
-): Promise<TeambuildingPayload> {
+): TeambuildingPayload {
   const payload = {} as TeambuildingPayload;
-
-  // Get necessary info on the existing projects.
-  const continuingLearners = await getContinuingLearners(projects);
 
   // Merge everything together.
   let learners = mergeObjectArrays("lambdaId", [
-    surveys,
     continuingLearners,
+    surveys,
+    projects,
   ]) as Record<string, unknown>[];
 
   // Filter out incoming learners who didn't fill out the survey (no existing
@@ -178,55 +183,114 @@ async function buildTeambuildingPayload(
   learners = learners.filter((x) => x.gitExpertise || x.labsProject);
 
   // Make sure all desired ILearnerLabsApplication fields are present for each learner.
+  // NOTE: This currently balances or randomizes any missing survey values!
   learners = learners.map((x) => ({
     lambdaId: x.lambdaId,
     // canvasUserId: x.canvasUserId || null,
     name: x.name || null,
-    // track: x.track || null,
     track: (x.track === "WEB" ? "Web" : x.track) || null,
-    // labsProject: x.labsProject || null,
     labsProject: x.labsProject || "",
-    gitExpertise: x.gitExpertise || null,
-    dockerExpertise: x.dockerExpertise || null,
-    playByEar: x.playByEar || null,
-    detailOriented: x.detailOriented || null,
-    speakUpInDiscussions: x.speakUpInDiscussions || null,
-    soloOrSocial: x.soloOrSocial ? (x.soloOrSocial as string)[0] : null,
-    meaningOrValue: x.meaningOrValue ? (x.meaningOrValue as string)[0] : null,
+    gitExpertise: x.gitExpertise || 3,
+    dockerExpertise: x.dockerExpertise || 3,
+    playByEar: x.playByEar || 3,
+    detailOriented: x.detailOriented || 3,
+    speakUpInDiscussions: x.speakUpInDiscussions || 3,
+    soloOrSocial: x.soloOrSocial ? (x.soloOrSocial as string)[0] : getRandomValue(
+      ["A. Solo", "B. Social"]
+    ),
+    meaningOrValue: x.meaningOrValue ? (x.meaningOrValue as string)[0] : getRandomValue(
+      ["A. Deeper Meaning", "B. Higher Value"]
+    ),
     feelsRightOrMakesSense: x.feelsRightOrMakesSense
       ? (x.feelsRightOrMakesSense as string)[0]
-      : null,
+      : getRandomValue(
+          ["A. It feels right", "B. It makes sense"]
+        ),
     favoriteOrCollect: x.favoriteOrCollect
       ? (x.favoriteOrCollect as string)[0]
-      : null,
-    tpmSkill1: x.tpmSkill1 ? (x.tpmSkill1 as string)[0] : null,
-    tpmSkill2: x.tpmSkill2 ? (x.tpmSkill2 as string)[0] : null,
-    tpmSkill3: x.tpmSkill3 ? (x.tpmSkill3 as string)[0] : null,
-    tpmInterest1: x.tpmInterest1 || 0,
-    tpmInterest2: x.tpmInterest2 || 0,
-    tpmInterest3: x.tpmInterest3 || 0,
-    tpmInterest4: x.tpmInterest4 || 0,
-    uxInterest1: x.uxInterest1 || 0,
-    uxInterest2: x.uxInterest2 || 0,
-    frontendInterest1: x.frontendInterest1 || 0,
-    frontendInterest2: x.frontendInterest2 || 0,
-    backendInterest1: x.backendInterest1 || 0,
-    backendInterest2: x.backendInterest2 || 0,
-    dataEngInterest1: x.dataEngInterest1 || 0,
-    dataEngInterest2: x.dataEngInterest2 || 0,
-    dataEngInterest3: x.dataEngInterest3 || 0,
-    mlEngInterest1: x.mlEngInterest1 || 0,
-    mlEngInterest2: x.mlEngInterest2 || 0,
-    mlEngInterest3: x.mlEngInterest3 || 0,
-    mlOpsInterest1: x.mlOpsInterest1 || 0,
-    mlOpsInterest2: x.mlOpsInterest2 || 0,
-    mlOpsInterest3: x.mlOpsInterest3 || 0,
+      : getRandomValue(
+          ["A. Find your favorite", "B. Collect them all"]
+        ),
+    tpmSkill1: x.tpmSkill1 ? (x.tpmSkill1 as string)[0] : getRandomValue(
+      ["A", "B", "C", "D"]
+    ),
+    tpmSkill2: x.tpmSkill2 ? (x.tpmSkill2 as string)[0] : getRandomValue(
+      ["A", "B"]
+    ),
+    tpmSkill3: x.tpmSkill3 ? (x.tpmSkill3 as string)[0] : getRandomValue(
+      ["A", "B", "C", "D"]
+    ),
+    tpmInterest1: x.tpmInterest1 || getRandomValue([2,3]),
+    tpmInterest2: x.tpmInterest2 || getRandomValue([2,3]),
+    tpmInterest3: x.tpmInterest3 || getRandomValue([2,3]),
+    tpmInterest4: x.tpmInterest4 || getRandomValue([2,3]),
+    uxInterest1: x.uxInterest1 || getRandomValue([2,3]),
+    uxInterest2: x.uxInterest2 || getRandomValue([2,3]),
+    frontendInterest1: x.frontendInterest1 || getRandomValue([2,3]),
+    frontendInterest2: x.frontendInterest2 || getRandomValue([2,3]),
+    backendInterest1: x.backendInterest1 || getRandomValue([2,3]),
+    backendInterest2: x.backendInterest2 || getRandomValue([2,3]),
+    dataEngInterest1: x.dataEngInterest1 || getRandomValue([2,3]),
+    dataEngInterest2: x.dataEngInterest2 || getRandomValue([2,3]),
+    dataEngInterest3: x.dataEngInterest3 || getRandomValue([2,3]),
+    mlEngInterest1: x.mlEngInterest1 || getRandomValue([2,3]),
+    mlEngInterest2: x.mlEngInterest2 || getRandomValue([2,3]),
+    mlEngInterest3: x.mlEngInterest3 || getRandomValue([2,3]),
+    mlOpsInterest1: x.mlOpsInterest1 || getRandomValue([2,3]),
+    mlOpsInterest2: x.mlOpsInterest2 || getRandomValue([2,3]),
+    mlOpsInterest3: x.mlOpsInterest3 || getRandomValue([2,3]),
   }));
 
   payload.learners = learners as unknown as ILearnerLabsApplication[];
   payload.projects = projects;
 
   return payload;
+}
+
+
+
+
+function buildTeamsLocal(
+  payload: TeambuildingPayload,
+  cohort: string,
+): TeambuildingOutput {
+
+  const output: TeambuildingOutput = {
+    learners: [],
+    projects: [...payload.projects],
+  };
+  
+  // Place each incoming learner on the eligible team with the lowest learner count.
+  for (const learner of payload.learners) {
+
+    const track = (parseTrack(learner.track) || "") as Track;
+    let labsProject = learner.labsProject;
+
+    if (!labsProject) {
+      const eligibleProjects = output.projects.filter(
+        project => project.tracks.includes(learner.track)
+      );
+      labsProject = eligibleProjects.reduce(
+        (acc, cur) => cur.teamMemberSmtIds.length < acc.teamMemberSmtIds.length
+          ? cur
+          : acc
+      ).id;
+    }
+
+    output.learners.push({
+      lambdaId: learner.lambdaId,
+      name: learner.name,
+      track,
+      labsProject
+    });
+    // output.projects = output.projects.map(project =>
+    //   project.id === labsProject
+    //     ? {...project, teamMemberSmtIds: [...project.teamMemberSmtIds, learner.lambdaId]}
+    //     : project
+    // );
+  }
+
+  return output;
 }
 
 /**
@@ -236,9 +300,11 @@ async function buildTeambuildingPayload(
  * including each project row with any continuing learners already added.
  *
  *   - Get existing teams from Airtable
- *   - Get surveys from Airtable
+ *   - Get incoming cohort surveys from Airtable
+ *   - For continuing learners, check if we have valid values from an old survey.
+ *     If not, fill in random valid values for any missing items.
  *   - POST one JSON body to DS SortingHat in "tidy" format
- *   - TODO: Write teams to "Labs - Projects" table in SMT
+ *   - Write teams to "Labs - Projects" table in SMT
  *
  * @param cohort
  * @returns
@@ -256,14 +322,44 @@ export async function processTeambuilding(
     await surveyDao.getCohort(cohort)
   );
 
+  // Get any continuing learners and their surveys, if any.
+  const continuingLearners = await getContinuingLearners(projects);
+  const continuingSurveys: ILearnerSurvey[] = await parseSurveys(
+    (continuingLearners
+      .filter(learner => learner.survey)
+      .map(learner => learner.survey)
+    ) as Records<FieldSet>
+  );
+  
   // Merge the surveys and projects.
-  const payload = await buildTeambuildingPayload(surveys, projects);
+  const payload = buildTeambuildingPayload (
+    continuingLearners,
+    [...continuingSurveys, ...surveys],
+    projects
+  );
 
   // Post the teambuilding payload to the SortingHat DS API.
-  const output = await sortingHatDao.postBuildTeams(payload, cohort);
-  if (!output) {
-    return null;
+  // const output = await sortingHatDao.postBuildTeams(payload, cohort);
+  // if (!output) {
+  //   return null;
+  // }
+
+  // TEMP: Build teams locally.
+  const output = buildTeamsLocal(payload, cohort);
+
+  console.log("BUILT TEAMS:");
+  for (const project of output.projects) {
+    console.log("");
+    console.log(project.id);
+    console.log("--------------");
+    for (const learner of output.learners) {
+      if (learner.labsProject === project.id) {
+        console.log(learner.name, ", ", learner.track);
+      }
+    }
   }
+  console.log("");
+  console.log(`Total learner count: ${output.learners.length}`);
 
   // Patch the role and team assignments to Airtable.
   const success = await studentDao.patchCohortLabsAssignments(
