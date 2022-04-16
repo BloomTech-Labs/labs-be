@@ -247,52 +247,6 @@ function buildTeambuildingPayload(
   return payload;
 }
 
-
-
-
-function buildTeamsLocal(
-  payload: TeambuildingPayload,
-  cohort: string,
-): TeambuildingOutput {
-
-  const output: TeambuildingOutput = {
-    learners: [],
-    projects: [...payload.projects],
-  };
-  
-  // Place each incoming learner on the eligible team with the lowest learner count.
-  for (const learner of payload.learners) {
-
-    const track = (parseTrack(learner.track) || "") as Track;
-    let labsProject = learner.labsProject;
-
-    if (!labsProject) {
-      const eligibleProjects = output.projects.filter(
-        project => project.tracks.includes(learner.track)
-      );
-      labsProject = eligibleProjects.reduce(
-        (acc, cur) => cur.teamMemberSmtIds.length < acc.teamMemberSmtIds.length
-          ? cur
-          : acc
-      ).id;
-    }
-
-    output.learners.push({
-      lambdaId: learner.lambdaId,
-      name: learner.name,
-      track,
-      labsProject
-    });
-    // output.projects = output.projects.map(project =>
-    //   project.id === labsProject
-    //     ? {...project, teamMemberSmtIds: [...project.teamMemberSmtIds, learner.lambdaId]}
-    //     : project
-    // );
-  }
-
-  return output;
-}
-
 /**
  * Process teambuilding for a given cohort. See /docs/teambuilding.md
  *
@@ -339,13 +293,10 @@ export async function processTeambuilding(
   );
 
   // Post the teambuilding payload to the SortingHat DS API.
-  // const output = await sortingHatDao.postBuildTeams(payload, cohort);
-  // if (!output) {
-  //   return null;
-  // }
-
-  // TEMP: Build teams locally.
-  const output = buildTeamsLocal(payload, cohort);
+  const output = await sortingHatDao.postBuildTeams(payload, cohort);
+  if (!output) {
+    return null;
+  }
 
   console.log("BUILT TEAMS:");
   for (const project of output.projects) {
