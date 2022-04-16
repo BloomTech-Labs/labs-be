@@ -6,6 +6,7 @@ import ModulesDao from "@daos/Canvas/ModulesDao";
 import Airtable, { FieldSet } from "airtable";
 import Module from "@entities/Module";
 import { Track } from "@entities/TeambuildingOutput";
+import * as _ from "lodash";
 
 const modulesDao = new ModulesDao();
 const objectivesDao = new ObjectivesDao();
@@ -309,6 +310,12 @@ export async function getCohortProgress(
       continue;
     }
 
+    // If they don't have an assigned Labs project, filter them out.
+    const assignedProjects = learner.fields["Labs - Assigned Projects"] as string[];
+    if (!assignedProjects) {
+      continue;
+    }
+
     // Get their Lambda ID.
     const lambdaIds = learner.fields["Lambda ID"] as string[];
     const lambdaId = lambdaIds[0] || "";
@@ -324,6 +331,7 @@ export async function getCohortProgress(
       continue;
     }
     let learnerObjectives = objectives.filter((x) => x.tracks.includes(track));
+    learnerObjectives = _.cloneDeep(learnerObjectives);
 
     // Evaluate completion for their objectives and sprint milestones.
     learnerObjectives = await evaluateCompletion(

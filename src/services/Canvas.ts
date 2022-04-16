@@ -91,10 +91,14 @@ export async function processCourseModuleCompletion(
   courseId: number,
   lambdaId: string
 ): Promise<ModuleCompletion[] | null> {
-  const modules: Module[] | null = await modulesDao.getAllCompletionInCourse(
-    courseId,
-    lambdaId
-  );
+  console.log(courseId, lambdaId);
+  const modules: Module[] | null =
+    await modulesDao.getAllCompletionInCourse(
+      courseId,
+      lambdaId
+    );
+
+  // console.log(modules);
 
   const moduleCompletion = modules?.map((module) => {
     return new ModuleCompletion(

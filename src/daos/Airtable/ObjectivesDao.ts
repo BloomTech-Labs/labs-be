@@ -39,7 +39,9 @@ class ObjectivesDao {
     const type = record.get("Type") as ObjectiveType;
     const course = record.get("Course") as string | undefined;
     const points = record.get("Points") as number;
-    const objectivesCourse = (record.get("Objectives Course") as string[])[0];
+    const objectivesCourse = record.get("Objectives Course")
+      ? ((record.get("Objectives Course") as string[]))[0]
+      : "";
 
     const objective = new Objective(
       id,
@@ -73,7 +75,9 @@ class ObjectivesDao {
     const moduleItemId = record.get("Module Item ID") as number | null;
     const points = record.get("Points") as number;
     const sprint = record.get("Sprint") as number;
-    const objectivesCourse = (record.get("Objectives Course") as string[])[0];
+    const objectivesCourse = record.get("Objectives Course")
+      ? ((record.get("Objectives Course") as string[]))[0]
+      : "";
 
     const milestone = new SprintMilestone(
       id,
@@ -105,7 +109,7 @@ class ObjectivesDao {
     // Get Objectives
     const objectiveRecords = await this.airtable("Labs - Objectives")
       .select({
-        view: track || "Grid view",
+        view: track || "Flexible Labs",
       })
       .all();
     for (const record of objectiveRecords) {
@@ -117,7 +121,7 @@ class ObjectivesDao {
     // Get Sprint Milestones
     const milestoneRecords = await this.airtable("Labs - Sprint Milestones")
       .select({
-        view: track || "Grid view",
+        view: track || "Flexible Labs",
       })
       .all();
     for (const record of milestoneRecords) {

@@ -199,6 +199,7 @@ export class SprintMilestone {
           );
         }
         this.completed = moduleCompletion.completed;
+        console.log(this.name, this.completed);
         return this.completed;
       }
 
