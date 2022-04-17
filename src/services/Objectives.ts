@@ -7,6 +7,7 @@ import Airtable, { FieldSet } from "airtable";
 import Module from "@entities/Module";
 import { Track } from "@entities/TeambuildingOutput";
 import * as _ from "lodash";
+import { isCanvasError } from "@entities/CanvasError";
 
 const modulesDao = new ModulesDao();
 const objectivesDao = new ObjectivesDao();
@@ -32,7 +33,7 @@ export async function putObjectiveScore(
     moduleId,
     lambdaId
   );
-  if (!moduleItems) {
+  if (!moduleItems || isCanvasError(moduleItems)) {
     throw new Error(
       `No module items found for module ${moduleId} in course ${objective.objectivesCourse}`
     );
@@ -84,7 +85,7 @@ export async function putSprintMilestoneScore(
     moduleId,
     lambdaId
   );
-  if (!moduleItems || !moduleItems.find) {
+  if (!moduleItems || isCanvasError(moduleItems) || !moduleItems.find) {
     throw new Error(
       `No module items found for module ${moduleId} in course ${sprintMilestone.objectivesCourse}`
     );
@@ -266,7 +267,7 @@ export async function putProgress(lambdaId: string): Promise<Objective[]> {
   // Get the modules from this learner's Objectives course.
   const objectivesCourse = objectives[0].objectivesCourse;
   const modules = await modulesDao.getAllInCourse(objectivesCourse);
-  if (!modules || !modules.length) {
+  if (!modules || isCanvasError(modules) || !modules.length) {
     throw new Error(
       `No modules found for objectives course ${objectivesCourse} for learner ${lambdaId}`
     );

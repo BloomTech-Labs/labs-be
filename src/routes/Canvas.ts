@@ -16,6 +16,7 @@ import {
 
 import { paramMissingError } from "@shared/constants";
 import ModuleCompletion from "@entities/ModuleCompletion";
+import { CanvasError } from "@entities/CanvasError";
 
 const { BAD_REQUEST, CREATED, OK } = StatusCodes;
 
@@ -97,7 +98,7 @@ export async function getCourseModules(
   res: Response
 ): Promise<Response> {
   const { courseId } = req.params;
-  const modules: Module[] | null = await modulesDao.getAllInCourse(
+  const modules: Module[] | CanvasError | null = await modulesDao.getAllInCourse(
     parseInt(courseId)
   );
 
@@ -152,7 +153,7 @@ export async function getModule(
     return res.status(BAD_REQUEST);
   }
 
-  const module: Module | null = await modulesDao.getOne(
+  const module: Module | CanvasError | null = await modulesDao.getOne(
     parseInt(courseId),
     parseInt(moduleId)
   );

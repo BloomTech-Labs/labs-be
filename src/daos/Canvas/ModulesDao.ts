@@ -1,11 +1,12 @@
 import Module from "@entities/Module";
 import ModuleItem from "@entities/ModuleItem";
 import CanvasClient from "@daos/Canvas/client";
+import { CanvasError } from "@entities/CanvasError";
 
-export type ModuleResponse = Promise<Module | null>;
-export type ModuleArrayResponse = Promise<Module[] | null>;
-export type ModuleItemResponse = Promise<ModuleItem | null>;
-export type ModuleItemArrayResponse = Promise<ModuleItem[] | null>;
+export type ModuleResponse = Promise<Module | CanvasError | null>;
+export type ModuleArrayResponse = Promise<Module[] | CanvasError | null>;
+export type ModuleItemResponse = Promise<ModuleItem | CanvasError | null>;
+export type ModuleItemArrayResponse = Promise<ModuleItem[] | CanvasError | null>;
 
 export interface IModulesDao {
   getAllInCourse: (courseId: number) => ModuleArrayResponse;
