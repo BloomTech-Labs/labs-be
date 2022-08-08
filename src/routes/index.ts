@@ -40,8 +40,8 @@ userRouter.post("/add", addOneUser);
 userRouter.put("/update", updateOneUser);
 userRouter.delete("/delete/:id", deleteOneUser);
 
-const envRouter = Router();
-envRouter.get("/all", getAllVars);
+// const envRouter = Router();
+// envRouter.get("/all", getAllVars);
 
 const canvasRouter = Router();
 canvasRouter.get("/courses/:courseId/assignments", getAllAssignments);
@@ -85,7 +85,7 @@ objectivesRouter.put("/cohort/:id", putCohortProgress);
 
 const baseRouter = Router();
 baseRouter.use("/users", userRouter);
-baseRouter.use("/vars", envRouter);
+// baseRouter.use("/vars", envRouter);
 baseRouter.use("/canvas", canvasRouter);
 baseRouter.use("/airtable", airtableRouter);
 baseRouter.use("/teambuilding", teambuildingRouter);

@@ -49,6 +49,7 @@
     "ltijs": "^5.8.1",
     "module-alias": "^2.2.2",
     "morgan": "^1.10.0",
+    "node-cron": "^3.0.0",
     "node-fetch": "^2.6.1",
     "papaparse": "^5.3.1",
     "pg": "^8.7.1",

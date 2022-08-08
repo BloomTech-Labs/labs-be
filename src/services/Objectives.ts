@@ -50,6 +50,12 @@ export async function putObjectiveScore(
       `Assignment not found for objective ${objective.id} in module ${moduleId} in course ${objective.objectivesCourse}`
     );
   }
+  if (!moduleItem.completion_requirement) {
+    console.log("LambdaId", lambdaId);
+    console.log("Objective", objective);
+    console.log("Module Item", moduleItem);
+    console.log("Assignment ID", assignmentId);
+  }
   const points = moduleItem?.completion_requirement.min_score;
   if (points === undefined || points === null) {
     throw new Error(
@@ -86,6 +92,9 @@ export async function putSprintMilestoneScore(
     lambdaId
   );
   if (!moduleItems || isCanvasError(moduleItems) || !moduleItems.find) {
+    console.log("LambdaId:", lambdaId);
+    console.log("Sprint Milestone:", sprintMilestone);
+    console.log(moduleItems);
     throw new Error(
       `No module items found for module ${moduleId} in course ${sprintMilestone.objectivesCourse}`
     );

@@ -211,6 +211,7 @@ export async function processCourseCompleted(
     const modules: ModuleCompletion[] | null =
       await processCourseModuleCompletion(courseId, lambdaId);
     if (!modules) {
+      //return false;
       throw new Error(`No course modules found for course ${courseId} and learner ${lambdaId}`);
     }
 
