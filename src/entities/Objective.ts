@@ -4,30 +4,27 @@ import {
   processCourseCompleted,
   processModuleCompletion,
 } from "@services/Canvas";
+import { Track } from "./TeambuildingOutput";
 
 export enum ObjectiveType {
   Course = "Course",
-  Meetings = "Meetings",
   PullRequests = "Pull Requests",
-  Searchlight = "Searchlight",
   Other = "Other",
 }
 
 export enum SprintMilestoneType {
   Assignments = "Assignments",
-  Meetings = "Meetings",
   Module = "Module",
   Page = "Page",
   PullRequests = "Pull Requests",
-  Searchlight = "Searchlight",
   Other = "Other",
 }
 
 export class Objective {
   public id: string;
-  public role: string;
   public name: string;
   public type: ObjectiveType;
+  public tracks: Track[];
   // If this is a course-type objective, the course ID
   public course: number | null;
   public points: number;
@@ -37,18 +34,18 @@ export class Objective {
 
   constructor(
     id: string,
-    role: string,
     name: string,
     type: ObjectiveType,
+    tracks: Track[],
     course: number | null,
     points: number,
     sprintMilestones: SprintMilestone[] | [],
     objectivesCourse: number
   ) {
     this.id = id;
-    this.role = role;
     this.name = name;
     this.type = type;
+    this.tracks = tracks;
     this.course = course;
     this.points = points;
     this.sprintMilestones = sprintMilestones;
@@ -73,20 +70,8 @@ export class Objective {
         return this.completed;
       }
 
-      // Meetings
-      case ObjectiveType.Meetings: {
-        this.completed = null;
-        return this.completed;
-      }
-
       // Pull Requests
       case ObjectiveType.PullRequests: {
-        this.completed = null;
-        return this.completed;
-      }
-
-      // Searchlight
-      case ObjectiveType.Searchlight: {
         this.completed = null;
         return this.completed;
       }
@@ -110,6 +95,7 @@ export class SprintMilestone {
   public name: string;
   public objective: string;
   public type: SprintMilestoneType;
+  public tracks: Track[];
   // If this is a module-type milestone, the course ID associated with the module
   public course: number | null;
   // The module ID is required to get Canvas completion criteria for module-,
@@ -129,6 +115,7 @@ export class SprintMilestone {
     name: string,
     objective: string,
     type: SprintMilestoneType,
+    tracks: Track[],
     course: number | null,
     module: number | null,
     assignments: string | number[] | [] | null,
@@ -141,6 +128,7 @@ export class SprintMilestone {
     this.name = name;
     this.objective = objective;
     this.type = type;
+    this.tracks = tracks;
     this.course = course;
     this.module = module;
     if (!assignments) {
@@ -192,12 +180,6 @@ export class SprintMilestone {
         return this.completed;
       }
 
-      // Meetings
-      case SprintMilestoneType.Meetings: {
-        this.completed = null;
-        return this.completed;
-      }
-
       // Module
       case SprintMilestoneType.Module: {
         if (!this.course) {
@@ -217,6 +199,7 @@ export class SprintMilestone {
           );
         }
         this.completed = moduleCompletion.completed;
+        console.log(this.name, this.completed);
         return this.completed;
       }
 
@@ -242,12 +225,6 @@ export class SprintMilestone {
 
       // Pull Requests
       case SprintMilestoneType.PullRequests: {
-        this.completed = null;
-        return this.completed;
-      }
-
-      // Searchlight
-      case SprintMilestoneType.Searchlight: {
         this.completed = null;
         return this.completed;
       }

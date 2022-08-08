@@ -1,28 +1,11 @@
 import { FieldSet, Records } from "airtable";
 import ProjectsDao from "@daos/Airtable/ProjectsDao";
 import SurveyDao from "@daos/Airtable/SurveyDao";
-import UsersDao from "@daos/Canvas/UsersDao";
-import CanvasCoursesDao from "@daos/Airtable/CanvasCoursesDao";
-import QuizSubmissionDao from "@daos/Canvas/QuizSubmissionDao";
 import StudentDao from "@daos/Airtable/StudentDao";
-import QuizSubmission from "@entities/QuizSubmission";
-import {
-  getRoleQuizIds,
-  getFinalApplicationQuizIds,
-  getLambdaId,
-} from "@services/Airtable";
-import QuizReportDao from "@daos/Canvas/QuizReportDao";
-import { QuizReportType } from "@entities/QuizReport";
-import { mergeObjectArrays } from "@shared/functions";
-import GroupsDao from "@daos/Canvas/GroupsDao";
-import TeambuildingOutput, {
-  RoleQuizScores,
-  RoleRankings,
-  Track,
-} from "@entities/TeambuildingOutput";
+import { parseTrack } from "@entities/TeambuildingOutput";
+import { getRandomValue, mergeObjectArrays } from "@shared/functions";
+import TeambuildingOutput, { Track } from "@entities/TeambuildingOutput";
 import TeambuildingPayload, {
-  ILearnerRoleQuizScores,
-  ILearnerRoleRankings,
   ILearnerSurvey,
   ILearnerLabsApplication,
   ITeamBuildingProject,
@@ -31,33 +14,8 @@ import SortingHatDao from "@daos/SortingHat/SortingHatDao";
 
 const projectsDao = new ProjectsDao();
 const surveyDao = new SurveyDao();
-const canvasCoursesDao = new CanvasCoursesDao();
-const groupsDao = new GroupsDao();
 const sortingHatDao = new SortingHatDao();
 const studentDao = new StudentDao();
-const usersDao = new UsersDao();
-const quizReportDao = new QuizReportDao();
-const quizSubmissionDao = new QuizSubmissionDao();
-
-type RoleQuizID = Record<string, number>;
-
-/**
- * Attempt to parse a Track from a string. Airtable formats tracks as e.g.
- * "Web (Node)".
- *
- * @param surveys
- * @returns
- */
-function parseTrack(track: string): Track | null {
-  switch (track) {
-    case "Web (Node)" || "Web":
-      return Track.WEB;
-    case "DS":
-      return Track.DS;
-    default:
-      return null;
-  }
-}
 
 /**
  * Given an array of raw teambuilding survey results, parse it into an array of
@@ -70,23 +28,8 @@ async function parseSurveys(
   surveys: Records<FieldSet>
 ): Promise<ILearnerSurvey[]> {
   const learnerSurveys = await Promise.all(
-    surveys.map(async (survey) => {
+    surveys.map((survey) => {
       const record = survey.fields;
-
-      // The "dontWorkWith" field is an array of Airtable record IDs. We need
-      // Lambda IDs.
-      const enemies = (record[
-        "List the names of up to 5 students you do not want to work with"
-      ] || []) as string[];
-      const dontWorkWith = (await Promise.all(
-        enemies
-          .map(async (enemyRecordId) => {
-            const lambdaId = await getLambdaId(enemyRecordId);
-            return lambdaId;
-          })
-          .filter((y) => y)
-      )) as string[];
-
       const learnerSurvey: ILearnerSurvey = {
         name: (record["Student Name"] as string[])[0],
         lambdaId: (record["Lambda ID"] as string[])[0],
@@ -101,10 +44,38 @@ async function parseSurveys(
         speakUpInDiscussions: record[
           "How often do you speak up during group discussions?"
         ] as number,
-        diversityConsent: (record["Consent"] || false) as boolean,
-        genderIdentity: record["Gender"] as string,
-        ethnicities: record["Ethnicities"] as string[],
-        dontWorkWith,
+        soloOrSocial: record["What activities do you prefer?"] as string,
+        meaningOrValue: record["Which do you prefer to seek?"] as string,
+        feelsRightOrMakesSense: record["Choices are easier when..."] as string,
+        favoriteOrCollect: record["Which method do you prefer?"] as string,
+        tpmSkill1: record["TPM Skill 1"] as string,
+        tpmSkill2: record["TPM Skill 2"] as string,
+        tpmSkill3: record["TPM Skill 3"] as string,
+        tpmInterest1: record["TPM Interest 1"] as number,
+        tpmInterest2: record["TPM Interest 2"] as number,
+        tpmInterest3: record["TPM Interest 3"] as number,
+        tpmInterest4: record["TPM Interest 4"] as number,
+        uxInterest1: record["UX Interest 1"] as number,
+        uxInterest2: record["UX Interest 2"] as number,
+        frontendInterest1: record["Frontend Interest 1"] as number,
+        frontendInterest2: record["Frontend Interest 2"] as number,
+        backendInterest1: record["Backend Interest 1"] as number,
+        backendInterest2: record["Backend Interest 2"] as number,
+        dataEngInterest1: record["Data Engineer Interest 1"] as number,
+        dataEngInterest2: record["Data Engineer Interest 2"] as number,
+        dataEngInterest3: record["Data Engineer Interest 3"] as number,
+        mlEngInterest1: record[
+          "Machine Learning Engineer Interest 1"
+        ] as number,
+        mlEngInterest2: record[
+          "Machine Learning Engineer Interest 2"
+        ] as number,
+        mlEngInterest3: record[
+          "Machine Learning Engineer Interest 3"
+        ] as number,
+        mlOpsInterest1: record["ML Ops Interest 1"] as number,
+        mlOpsInterest2: record["ML Ops Interest 2"] as number,
+        mlOpsInterest3: record["ML Ops Interest 3"] as number,
       };
       return learnerSurvey;
     })
@@ -129,10 +100,12 @@ function parseProjects(projects: Records<FieldSet>): ITeamBuildingProject[] {
       teamCode: record["Team Code"] as string,
       tracks: (() => {
         const tracks = record["Tracks"] as string[];
-        return tracks.map((track) => parseTrack(track));
+        return tracks.map((track) =>
+          parseTrack(track) === Track.WEB ? "Web" : parseTrack(track)
+        );
       })(),
       releaseManager: (record["Release Manager"] as string[])[0],
-      teamMemberSmtIds: record["Team Members"] as string[],
+      teamMemberSmtIds: (record["Team Members"] || []) as string[],
     };
     return project;
   });
@@ -149,7 +122,11 @@ async function getContinuingLearners(
   projects: ITeamBuildingProject[]
 ): Promise<Record<string, unknown>[]> {
   const continuingLearners = [] as Record<string, unknown>[];
+  console.log("CONTINUING LEARNERS:")
   for (const project of projects) {
+    console.log("");
+    console.log(project.id);
+    console.log("----------------");
     // For each team member on the project, get their relevant properties.
     for (const smtId of project.teamMemberSmtIds || []) {
       const student = await studentDao.getByRecordId(smtId);
@@ -158,52 +135,47 @@ async function getContinuingLearners(
       }
       const lambdaId = (student["Lambda ID"] as string[])[0];
       const name = student["Name"] as string;
-      const labsRoles = student["Labs Role"] as string[] | null;
-      const labsRole = labsRoles ? labsRoles[0] : null;
       const survey = await surveyDao.getOne(lambdaId);
-      const surveyFields = survey?.fields as Record<string, unknown>;
-      const track = surveyFields
-        ? (surveyFields["Student Course Text"] as Track)
-        : null;
+      const trackRecordId = student["Course"] as string;
+      console.log(name, trackRecordId);
+      if (!trackRecordId) {
+        continue;
+      }
+      const track = await studentDao.getTrackByTrackRecordId(trackRecordId);
+
       const learner = {
         lambdaId,
         name,
         track,
-        labsRole,
         labsProject: project.id,
+        survey,
       };
       continuingLearners.push(learner);
     }
   }
+  console.log("");
   return continuingLearners;
 }
 
 /**
- * Build a TeambuildingPayload by merging surveys, projects, quiz scores, and rankings.
+ * Build a TeambuildingPayload by merging surveys and projects.
  *
  * @param surveys
- * @param quizScores
- * @param rankings
  * @param projects
  * @returns
  */
-async function buildTeambuildingPayload(
+function buildTeambuildingPayload(
+  continuingLearners: Record<string, unknown>[],
   surveys: ILearnerSurvey[],
-  quizScores: ILearnerRoleQuizScores[],
-  rankings: ILearnerRoleRankings[],
   projects: ITeamBuildingProject[]
-): Promise<TeambuildingPayload> {
+): TeambuildingPayload {
   const payload = {} as TeambuildingPayload;
-
-  // Get necessary info on the existing projects.
-  const continuingLearners = await getContinuingLearners(projects);
 
   // Merge everything together.
   let learners = mergeObjectArrays("lambdaId", [
-    surveys,
-    quizScores,
-    rankings,
     continuingLearners,
+    surveys,
+    projects,
   ]) as Record<string, unknown>[];
 
   // Filter out incoming learners who didn't fill out the survey (no existing
@@ -211,24 +183,62 @@ async function buildTeambuildingPayload(
   learners = learners.filter((x) => x.gitExpertise || x.labsProject);
 
   // Make sure all desired ILearnerLabsApplication fields are present for each learner.
+  // NOTE: This currently balances or randomizes any missing survey values!
   learners = learners.map((x) => ({
     lambdaId: x.lambdaId,
-    canvasUserId: x.canvasUserId || null,
+    // canvasUserId: x.canvasUserId || null,
     name: x.name || null,
-    track: x.track || null,
-    labsRole: x.labsRole || null,
-    labsProject: x.labsProject || null,
-    roleQuizScores: x.roleQuizScores || {},
-    roleRankings: x.roleRankings || {},
-    gitExpertise: x.gitExpertise || null,
-    dockerExpertise: x.dockerExpertise || null,
-    playByEar: x.playByEar || null,
-    detailOriented: x.detailOriented || null,
-    speakUpInDiscussions: x.speakUpInDiscussions || null,
-    diversityConsent: x.bodiversityConsentolean || null,
-    genderIdentity: x.genderIdentity || null,
-    ethnicities: x.ethnicities || null,
-    dontWorkWith: x.dontWorkWith || null,
+    track: (x.track === "WEB" ? "Web" : x.track) || null,
+    labsProject: x.labsProject || "",
+    gitExpertise: x.gitExpertise || 3,
+    dockerExpertise: x.dockerExpertise || 3,
+    playByEar: x.playByEar || 3,
+    detailOriented: x.detailOriented || 3,
+    speakUpInDiscussions: x.speakUpInDiscussions || 3,
+    soloOrSocial: x.soloOrSocial ? (x.soloOrSocial as string)[0] : getRandomValue(
+      ["A. Solo", "B. Social"]
+    ),
+    meaningOrValue: x.meaningOrValue ? (x.meaningOrValue as string)[0] : getRandomValue(
+      ["A. Deeper Meaning", "B. Higher Value"]
+    ),
+    feelsRightOrMakesSense: x.feelsRightOrMakesSense
+      ? (x.feelsRightOrMakesSense as string)[0]
+      : getRandomValue(
+          ["A. It feels right", "B. It makes sense"]
+        ),
+    favoriteOrCollect: x.favoriteOrCollect
+      ? (x.favoriteOrCollect as string)[0]
+      : getRandomValue(
+          ["A. Find your favorite", "B. Collect them all"]
+        ),
+    tpmSkill1: x.tpmSkill1 ? (x.tpmSkill1 as string)[0] : getRandomValue(
+      ["A", "B", "C", "D"]
+    ),
+    tpmSkill2: x.tpmSkill2 ? (x.tpmSkill2 as string)[0] : getRandomValue(
+      ["A", "B"]
+    ),
+    tpmSkill3: x.tpmSkill3 ? (x.tpmSkill3 as string)[0] : getRandomValue(
+      ["A", "B", "C", "D"]
+    ),
+    tpmInterest1: x.tpmInterest1 || getRandomValue([2,3]),
+    tpmInterest2: x.tpmInterest2 || getRandomValue([2,3]),
+    tpmInterest3: x.tpmInterest3 || getRandomValue([2,3]),
+    tpmInterest4: x.tpmInterest4 || getRandomValue([2,3]),
+    uxInterest1: x.uxInterest1 || getRandomValue([2,3]),
+    uxInterest2: x.uxInterest2 || getRandomValue([2,3]),
+    frontendInterest1: x.frontendInterest1 || getRandomValue([2,3]),
+    frontendInterest2: x.frontendInterest2 || getRandomValue([2,3]),
+    backendInterest1: x.backendInterest1 || getRandomValue([2,3]),
+    backendInterest2: x.backendInterest2 || getRandomValue([2,3]),
+    dataEngInterest1: x.dataEngInterest1 || getRandomValue([2,3]),
+    dataEngInterest2: x.dataEngInterest2 || getRandomValue([2,3]),
+    dataEngInterest3: x.dataEngInterest3 || getRandomValue([2,3]),
+    mlEngInterest1: x.mlEngInterest1 || getRandomValue([2,3]),
+    mlEngInterest2: x.mlEngInterest2 || getRandomValue([2,3]),
+    mlEngInterest3: x.mlEngInterest3 || getRandomValue([2,3]),
+    mlOpsInterest1: x.mlOpsInterest1 || getRandomValue([2,3]),
+    mlOpsInterest2: x.mlOpsInterest2 || getRandomValue([2,3]),
+    mlOpsInterest3: x.mlOpsInterest3 || getRandomValue([2,3]),
   }));
 
   payload.learners = learners as unknown as ILearnerLabsApplication[];
@@ -238,226 +248,19 @@ async function buildTeambuildingPayload(
 }
 
 /**
- * Filter Canvas results by the specified cohort group in the given course.
- *
- * @param answer
- * @param answers
- * @param matches
- */
-export async function filterByCohort<T>(
-  learners: T[],
-  courseId: number,
-  cohort: string
-): Promise<T[]> {
-  // Get all groups in the given course.
-  const groups = await groupsDao.getGroupsInCourse(courseId);
-
-  // Get all users in this cohort's group.
-  const groupId = (groups?.find((x) => x.name === cohort) || {}).id;
-  if (!groupId) {
-    throw new Error("Group ID not found.");
-  }
-  const users = await usersDao.getUsersInGroup(groupId);
-
-  // Filter learners
-  return learners.filter((quiz) =>
-    users?.find(
-      (user) => user.sis_user_id === (quiz as Record<string, unknown>).lambdaId
-    )
-  );
-}
-
-/**
- * Get the given cohort's Role Quiz scores from the Labs Application in Canvas.
- * 
- * roleQuizIds is an object of the form:
- * [
- *   { "Technical Project Manager": number },
- *   ...
- *   { "UX Engineer": number }
- * ]
-
- * Returns an object of the form:
- * [
- *   {
- *     canvasUserId: number,
- *     roleQuizScores: {
- *         "Technical Project Manager": number,
- *         "Data Engineer": number,
- *          ...
- *         "UX Engineer": number
- *       },
- *   }
- * ]
- *
- * @param courseId
- * @param lambdaId
- * @returns
- */
-export async function getRoleQuizScores(
-  cohort: string,
-  courseId: number,
-  roleQuizIds: Record<string, number>[]
-): Promise<ILearnerRoleQuizScores[]> {
-  let learnerQuizzes: ILearnerRoleQuizScores[] = [] as ILearnerRoleQuizScores[];
-
-  // For each role quiz:
-  for (const roleQuiz of roleQuizIds) {
-    // Get all submissions for the quiz.
-    const role = Object.keys(roleQuiz)[0];
-    const quizId = roleQuiz[role];
-    const quizSubmissions: QuizSubmission[] | null =
-      await quizSubmissionDao.getAll(courseId, quizId);
-    if (!quizSubmissions) {
-      continue;
-    }
-
-    // Collect role quiz scores in learnerQuizzes array
-    for (const quizSubmission of quizSubmissions) {
-      const existing = learnerQuizzes.find(
-        (x) => x.canvasUserId === quizSubmission.user_id
-      );
-      if (existing) {
-        existing.roleQuizScores[role] = quizSubmission.kept_score;
-      } else {
-        const canvasUser = await usersDao.getOne(quizSubmission.user_id);
-        const lambdaId = canvasUser?.sis_user_id;
-        const entry = {
-          canvasUserId: quizSubmission.user_id,
-          lambdaId,
-          roleQuizScores: {} as RoleQuizScores,
-        };
-        entry.roleQuizScores[role] = quizSubmission.kept_score;
-        learnerQuizzes.push(entry);
-      }
-    }
-  }
-
-  learnerQuizzes = await filterByCohort(learnerQuizzes, courseId, cohort);
-
-  return learnerQuizzes;
-}
-
-/**
- * Parse role rankings from a Quiz Report field string.
- *
- * @param answer
- * @param answers
- * @param matches
- */
-function parseRoleRankings(answer: string): RoleRankings {
-  // Empty:
-  //   "1 (Highest Priority)=>,
-  //    2=>,
-  //    3=>,
-  //    4 ( Lowest Priority)=>"
-  // With ranks:
-  //   "1 (Highest Priority)=>Data Engineer,
-  //    2=>Technical Project Manager,
-  //    3=>Data Scientist: ML Ops,
-  //    4 ( Lowest Priority)=>Machine Learning Engineer"
-
-  const rankings: RoleRankings = {};
-
-  for (const x of answer.split(",")) {
-    const role: string | undefined = x.split("=>")[1];
-    const rank: number = parseInt(x[0]);
-    if (role) {
-      rankings[role] = rank;
-    }
-  }
-
-  return rankings;
-}
-
-/**
- * Get the given cohort's Role rankings from the Labs Application in Canvas.
- * 
- * roleQuizIds is an object of the form:
- * [
- *   { "Technical Project Manager": number },
- *   ...
- *   { "UX Engineer": number }
- * ]
-
- * Returns an object of the form:
- * [
- *   {
- *     canvasUserId: number,
- *     roleRankings: {
- *         "Technical Project Manager": number,
- *         "Data Engineer": number,
- *          ...
- *         "UX Engineer": number
- *       },
- *   }
- * ]
- *
- * @param courseId
- * @param lambdaId
- * @returns
- */
-export async function getRoleRankings(
-  cohort: string,
-  courseId: number,
-  finalQuizIds: Record<string, number>
-): Promise<ILearnerRoleRankings[] | undefined> {
-  let learnerRankings: ILearnerRoleRankings[] = [] as ILearnerRoleRankings[];
-
-  // For each Final Application quiz:
-  for (const quizId of Object.values(finalQuizIds)) {
-    const report: Record<string, unknown>[] | null =
-      (await quizReportDao.getFile(
-        courseId,
-        quizId,
-        QuizReportType.student_analysis
-      )) as Record<string, unknown>[] | null;
-
-    const roleRankings: ILearnerRoleRankings[] | undefined = report?.map(
-      (x) => {
-        let rankingsString = "";
-        for (const key of Object.keys(x)) {
-          if (key.includes("Please rank your priorities for a role in Labs")) {
-            rankingsString = x[key] as string;
-          }
-        }
-
-        return {
-          name: x.name as string,
-          lambdaId: x.sis_id as string,
-          canvasUserId: parseInt(x.id as string),
-          roleRankings: parseRoleRankings(rankingsString),
-        };
-      }
-    ) as ILearnerRoleRankings[] | undefined;
-
-    if (roleRankings) {
-      learnerRankings.push(...roleRankings);
-    }
-  }
-
-  learnerRankings = await filterByCohort(learnerRankings, courseId, cohort);
-
-  return learnerRankings;
-}
-
-/**
  * Process teambuilding for a given cohort. See /docs/teambuilding.md
  *
  * Relies on the cohort view already having been created in "Labs - Projects",
  * including each project row with any continuing learners already added.
  *
  *   - Get existing teams from Airtable
- *   - Get surveys from Airtable
- *   - Get new Labs Applications from Canvas
- *     - Role Quiz Scores
- *     - Role Rankings from Final Application quiz (Web + DS)
+ *   - Get incoming cohort surveys from Airtable
+ *   - For continuing learners, check if we have valid values from an old survey.
+ *     If not, fill in random valid values for any missing items.
  *   - POST one JSON body to DS SortingHat in "tidy" format
- *   - TODO: Write teams to "Labs - Projects" table in SMT
+ *   - Write teams to "Labs - Projects" table in SMT
  *
- * @param eventType
- * @param eventDate
- * @param learners
+ * @param cohort
  * @returns
  */
 export async function processTeambuilding(
@@ -473,29 +276,19 @@ export async function processTeambuilding(
     await surveyDao.getCohort(cohort)
   );
 
-  // Get the Labs Application role quiz IDs from Airtable.
-  const roleQuizIds: RoleQuizID[] = (await getRoleQuizIds()) as RoleQuizID[];
-
-  // Get the ID of the Labs Application course from Airtable.
-  const courseId: number =
-    (await canvasCoursesDao.getLabsApplicationCourseId()) as number;
-
-  // Get the Labs Application "Final Application" quiz IDs from Airtable.
-  const finalApplicationQuizIds: Record<string, number> =
-    await getFinalApplicationQuizIds();
-
-  // Get this cohort's Role Quiz scores from the Labs Application in Canvas.
-  const roleQuizScores = await getRoleQuizScores(cohort, courseId, roleQuizIds);
-
-  // Get this cohort's role rankings from the Labs Application in Canvas.
-  const roleRankings =
-    (await getRoleRankings(cohort, courseId, finalApplicationQuizIds)) || [];
-
-  // Merge the quiz scores, rankings, surveys, and projects.
-  const payload = await buildTeambuildingPayload(
-    surveys,
-    roleQuizScores,
-    roleRankings,
+  // Get any continuing learners and their surveys, if any.
+  const continuingLearners = await getContinuingLearners(projects);
+  const continuingSurveys: ILearnerSurvey[] = await parseSurveys(
+    (continuingLearners
+      .filter(learner => learner.survey)
+      .map(learner => learner.survey)
+    ) as Records<FieldSet>
+  );
+  
+  // Merge the surveys and projects.
+  const payload = buildTeambuildingPayload (
+    continuingLearners,
+    [...continuingSurveys, ...surveys],
     projects
   );
 
@@ -505,10 +298,24 @@ export async function processTeambuilding(
     return null;
   }
 
+  console.log("BUILT TEAMS:");
+  for (const project of output.projects) {
+    console.log("");
+    console.log(project.id);
+    console.log("--------------");
+    for (const learner of output.learners) {
+      if (learner.labsProject === project.id) {
+        console.log(learner.name, ", ", learner.track);
+      }
+    }
+  }
+  console.log("");
+  console.log(`Total learner count: ${output.learners.length}`);
+
   // Patch the role and team assignments to Airtable.
   const success = await studentDao.patchCohortLabsAssignments(
     cohort,
-    output.Developers
+    output.learners
   );
   if (!success) {
     console.error("Failed to write Labs assignments to SMT.");

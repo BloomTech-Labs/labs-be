@@ -5,6 +5,9 @@ import SubmissionDao from "@daos/Canvas/SubmissionDao";
 import ModulesDao from "@daos/Canvas/ModulesDao";
 import Airtable, { FieldSet } from "airtable";
 import Module from "@entities/Module";
+import { Track } from "@entities/TeambuildingOutput";
+import * as _ from "lodash";
+import { isCanvasError } from "@entities/CanvasError";
 
 const modulesDao = new ModulesDao();
 const objectivesDao = new ObjectivesDao();
@@ -30,7 +33,7 @@ export async function putObjectiveScore(
     moduleId,
     lambdaId
   );
-  if (!moduleItems) {
+  if (!moduleItems || isCanvasError(moduleItems)) {
     throw new Error(
       `No module items found for module ${moduleId} in course ${objective.objectivesCourse}`
     );
@@ -46,6 +49,12 @@ export async function putObjectiveScore(
     throw new Error(
       `Assignment not found for objective ${objective.id} in module ${moduleId} in course ${objective.objectivesCourse}`
     );
+  }
+  if (!moduleItem.completion_requirement) {
+    console.log("LambdaId", lambdaId);
+    console.log("Objective", objective);
+    console.log("Module Item", moduleItem);
+    console.log("Assignment ID", assignmentId);
   }
   const points = moduleItem?.completion_requirement.min_score;
   if (points === undefined || points === null) {
@@ -82,7 +91,10 @@ export async function putSprintMilestoneScore(
     moduleId,
     lambdaId
   );
-  if (!moduleItems || !moduleItems.find) {
+  if (!moduleItems || isCanvasError(moduleItems) || !moduleItems.find) {
+    console.log("LambdaId:", lambdaId);
+    console.log("Sprint Milestone:", sprintMilestone);
+    console.log(moduleItems);
     throw new Error(
       `No module items found for module ${moduleId} in course ${sprintMilestone.objectivesCourse}`
     );
@@ -233,16 +245,13 @@ export async function evaluateCompletion(
  *  @returns
  */
 export async function getProgress(lambdaId: string): Promise<Objective[]> {
-  let objectives = await objectivesDao.getAll();
-
-  // Get the learner's role
-  const labsRole = (await studentDao.getRole(lambdaId)) as string;
-  if (!labsRole) {
-    throw new Error(`Labs Role not found for learner ID: ${lambdaId}`);
+  // Get the learner's track
+  const track = (await studentDao.getTrack(lambdaId)) as Track;
+  if (!track) {
+    throw new Error(`Track not found for learner ID: ${lambdaId}`);
   }
 
-  // Filter objectives list by this learer's role.
-  objectives = objectives.filter((x) => x.role[0] === labsRole);
+  let objectives = await objectivesDao.getAll(track);
 
   // Evaluate completion for this learner's objectives and sprint milestones.
   objectives = await evaluateCompletion(lambdaId, objectives);
@@ -267,7 +276,7 @@ export async function putProgress(lambdaId: string): Promise<Objective[]> {
   // Get the modules from this learner's Objectives course.
   const objectivesCourse = objectives[0].objectivesCourse;
   const modules = await modulesDao.getAllInCourse(objectivesCourse);
-  if (!modules || !modules.length) {
+  if (!modules || isCanvasError(modules) || !modules.length) {
     throw new Error(
       `No modules found for objectives course ${objectivesCourse} for learner ${lambdaId}`
     );
@@ -287,7 +296,7 @@ export async function putProgress(lambdaId: string): Promise<Objective[]> {
  *  and sprint milestones. Optionally pass in any progress already retrieved.
  *
  *  @param cohortId
- *  @param progress?
+ *  @param incomingObjectiveData?
  *  @returns
  */
 export async function getCohortProgress(
@@ -304,16 +313,35 @@ export async function getCohortProgress(
 
   // For each learner:
   for (const learner of learners) {
+    // If they're a legacy learner (pre-Flexible Labs Release 3 curriculum, before
+    // April 11, 2022), filter them out. Release Managers will handle these manually.
+    const labsRoles = learner.fields["Labs Role"] as string[];
+    if (labsRoles && labsRoles.length) {
+      continue;
+    }
+
+    // If they don't have an assigned Labs project, filter them out.
+    const assignedProjects = learner.fields["Labs - Assigned Projects"] as string[];
+    if (!assignedProjects) {
+      continue;
+    }
+
+    // Get their Lambda ID.
     const lambdaIds = learner.fields["Lambda ID"] as string[];
     const lambdaId = lambdaIds[0] || "";
 
     // Get their objectives.
-    const roleList = learner.fields["Labs Role"] as string[];
-    const role = roleList && roleList.length ? roleList[0] : null;
-    if (!role) {
+    const trackList = learner.fields["Course"] as Track[];
+    const trackRecordId = trackList && trackList.length ? trackList[0] : null;
+    if (!trackRecordId) {
       continue;
     }
-    let learnerObjectives = objectives.filter((x) => x.role === role);
+    const track = await studentDao.getTrackByTrackRecordId(trackRecordId);
+    if (!track) {
+      continue;
+    }
+    let learnerObjectives = objectives.filter((x) => x.tracks.includes(track));
+    learnerObjectives = _.cloneDeep(learnerObjectives);
 
     // Evaluate completion for their objectives and sprint milestones.
     learnerObjectives = await evaluateCompletion(

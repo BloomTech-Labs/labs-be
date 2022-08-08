@@ -9,6 +9,14 @@ export const pErr = (err: Error): void => {
   }
 };
 
+export const chunkArray = (array: unknown[], chunkSize: number): unknown[] => {
+  const chunkedArray = [];
+  for (let i = 0; i < array.length; i += chunkSize) {
+    chunkedArray.push(array.slice(i, i + chunkSize));
+  }
+  return chunkedArray;
+};
+
 export const getRandomInt = (): number => {
   return Math.floor(Math.random() * 1_000_000_000_000);
 };
@@ -84,3 +92,16 @@ export const mergeObjectArrays = (
 
   return combined;
 };
+
+export const getRandomValue = (
+  values: unknown[]
+): unknown => {
+  return values[Math.floor(Math.random() * values.length)];
+};
+
+export function hasOwnProperty<X extends Record<string,unknown>, Y extends PropertyKey> (
+  obj: X,
+  prop: Y
+): obj is X & Record<Y, unknown> {
+  return obj.hasOwnProperty(prop)
+}

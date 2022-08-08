@@ -6,8 +6,10 @@ import CanvasUser from "@entities/CanvasUser";
 import Module from "@entities/Module";
 import ModuleCompletion from "@entities/ModuleCompletion";
 import StudentDao from "@daos/Airtable/StudentDao";
-import { getGeneralCourseIds, getObjectivesCourseId } from "./Airtable";
 import SubmissionDao from "@daos/Canvas/SubmissionDao";
+import { CanvasError, isCanvasError } from "@entities/CanvasError";
+import { hasOwnProperty } from "@shared/functions";
+
 
 const assignmentsDao = new AssignmentsDao();
 const submissionDao = new SubmissionDao();
@@ -38,25 +40,14 @@ export async function getUserIdBySisId(
 export async function getRequiredCourses(
   lambdaId: string
 ): Promise<number[] | null> {
-  const courses: number[] = [];
-
-  // Get the learner's role
-  const labsRole = (await studentDao.getRole(lambdaId)) as string;
-  if (!labsRole) {
-    throw new Error(`Labs Role not found for learner ID: ${lambdaId}`);
+  // Get the learner's track
+  const track = await studentDao.getTrack(lambdaId);
+  if (!track) {
+    throw new Error(`Track not found for learner ID: ${lambdaId}`);
   }
 
-  // Get general courses
-  const generalCourses: number[] | null = await getGeneralCourseIds();
-  if (generalCourses) {
-    courses.push(...generalCourses);
-  }
-
-  // Get the learner's objectives course
-  const objectivesCourseId = await getObjectivesCourseId(labsRole);
-  if (objectivesCourseId) {
-    courses.push(objectivesCourseId);
-  }
+  // Get the learner's courses
+  const courses = await canvasCoursesDao.getCoursesByTrack(track);
 
   return courses;
 }
@@ -74,17 +65,16 @@ export async function processModuleCompletion(
   moduleId: number,
   lambdaId: string
 ): Promise<ModuleCompletion | null> {
-  const userId: number | null = await getUserIdBySisId(lambdaId);
-
-  if (!userId) {
-    return Promise.reject(`Canvas user ID not found for SIS ID: ${lambdaId}`);
-  }
-
-  const module: Module | null = await modulesDao.getCompletion(
+  const module: Module | CanvasError | null = await modulesDao.getCompletion(
     courseId,
     moduleId,
-    userId
+    lambdaId
   );
+
+  if (isCanvasError(module)) {
+    console.error(module);
+    return null;
+  }
 
   const moduleCompletion = module
     ? new ModuleCompletion(
@@ -109,16 +99,17 @@ export async function processCourseModuleCompletion(
   courseId: number,
   lambdaId: string
 ): Promise<ModuleCompletion[] | null> {
-  const userId: number | null = await getUserIdBySisId(lambdaId);
-
-  if (!userId) {
-    return Promise.reject(`Canvas user ID not found for SIS ID: ${lambdaId}`);
+  console.log(courseId, lambdaId);
+  const modules: Module[] | CanvasError | null =
+    await modulesDao.getAllCompletionInCourse(
+      courseId,
+      lambdaId
+    );
+  
+  if (isCanvasError(modules)) {
+    console.error(modules);
+    return null;
   }
-
-  const modules: Module[] | null = await modulesDao.getAllCompletionInCourse(
-    courseId,
-    userId
-  );
 
   const moduleCompletion = modules?.map((module) => {
     return new ModuleCompletion(
@@ -137,6 +128,7 @@ export async function processCourseModuleCompletion(
  * Returns true if the learner met the completion criteria for the assignment.
  *
  * @param courseId
+ * @param moduleId
  * @param assignmentId
  * @param lambdaId
  * @returns
@@ -151,7 +143,7 @@ export async function assignmentCompleted(
     // List the module items for this assignment's module and find the module item ID
     // for this assignment along with completion criteria.
     const moduleItems = await modulesDao.getItems(courseId, moduleId, lambdaId);
-    if (!moduleItems) {
+    if (!moduleItems || isCanvasError(moduleItems)) {
       throw new Error("No module items found for the given module ID.");
     }
     const moduleItem = moduleItems.find((x) => x.content_id === assignmentId);
@@ -173,7 +165,8 @@ export async function assignmentCompleted(
  * Returns true if the learner met the completion criteria for the module item.
  *
  * @param courseId
- * @param assignmentId
+ * @param moduleId
+ * @param moduleItemId
  * @param lambdaId
  * @returns
  */
@@ -191,8 +184,8 @@ export async function moduleItemCompleted(
       moduleItemId,
       lambdaId
     );
-    if (!moduleItem) {
-      throw new Error("No module item found for the given module item ID.");
+    if (!moduleItem || isCanvasError(moduleItem)) {
+      throw new Error(`No module item found for module item ID ${moduleItemId} in course ${courseId} for learner ${lambdaId}`);
     }
 
     // Check whether the module item was completed.
@@ -218,7 +211,8 @@ export async function processCourseCompleted(
     const modules: ModuleCompletion[] | null =
       await processCourseModuleCompletion(courseId, lambdaId);
     if (!modules) {
-      throw new Error("No course modules found.");
+      //return false;
+      throw new Error(`No course modules found for course ${courseId} and learner ${lambdaId}`);
     }
 
     // Get which modules must be completed from Airtable (SMT: "Labs - Courses")
@@ -242,7 +236,6 @@ export async function processCourseCompleted(
 /**
  * Process whether all required Canvas courses have been completed by a given learner.
  *
- * @param courseId
  * @param lambdaId
  * @returns
  */
@@ -258,7 +251,7 @@ export async function processAllRequiredCoursesCompleted(
       const modules: ModuleCompletion[] | null =
         await processCourseModuleCompletion(courseId, lambdaId);
       if (!modules) {
-        throw new Error("No course modules found.");
+        throw new Error(`No course modules found for course ${courseId} and learner ${lambdaId}`);
       }
 
       // Get which modules must be completed from Airtable (SMT: "Labs - Courses")
@@ -279,14 +272,3 @@ export async function processAllRequiredCoursesCompleted(
     return Promise.reject(error);
   }
 }
-
-/**
- * Get the given cohort's Role Quiz scores from the Labs Application in Canvas.
- *
- * @param courseId
- * @param lambdaId
- * @returns
- */
-// export async function getQuizScores(cohort: string) {
-
-// }
