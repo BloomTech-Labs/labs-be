@@ -54,7 +54,6 @@
     "node-cron": "^3.0.0",
     "node-fetch": "^2.6.1",
     "papaparse": "^5.3.1",
-    "pg": "^8.7.1",
     "reflect-metadata": "^0.1.13",
     "request": "^2.88.2",
     "tslint": "^6.1.3",
