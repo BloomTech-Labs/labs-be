@@ -5,15 +5,13 @@ export interface ITeamBuildingProject {
   product: string;
   teamCode: string;
   tracks: (Track | string | null)[];
-  releaseManager: string;
-  teamMemberSmtIds: string[];
+  releaseManager?: string;
+  teamMemberOktaIds: string[];
 }
 
-export interface ILearnerSurvey {
-  name: string;
-  lambdaId: string;
-  smtId: string;
-  track: Track | string;
+export interface ILabsApplication {
+  labsTimeSlot: [string];
+  gitHubHandle: string;
   gitExpertise: number;
   dockerExpertise: number;
   playByEar: number;
@@ -47,56 +45,24 @@ export interface ILearnerSurvey {
   mlOpsInterest3?: number;
 }
 
-export interface ILearnerLabsApplication extends ILearnerSurvey {
-  lambdaId: string;
-  canvasUserId?: number;
-  name: string;
-  track: Track;
-  labsProject: string | null;
-  gitExpertise: number;
-  dockerExpertise: number;
-  playByEar: number;
-  detailOriented: number;
-  speakUpInDiscussions: number;
-  soloOrSocial: string;
-  meaningOrValue: string;
-  feelsRightOrMakesSense: string;
-  favoriteOrCollect: string;
-  tpmSkill1: string;
-  tpmSkill2: string;
-  tpmSkill3: string;
-  tpmInterest1: number;
-  tpmInterest2: number;
-  tpmInterest3: number;
-  tpmInterest4: number;
-  uxInterest1?: number;
-  uxInterest2?: number;
-  frontendInterest1?: number;
-  frontendInterest2?: number;
-  backendInterest1?: number;
-  backendInterest2?: number;
-  dataEngInterest1?: number;
-  dataEngInterest2?: number;
-  dataEngInterest3?: number;
-  mlEngInterest1?: number;
-  mlEngInterest2?: number;
-  mlEngInterest3?: number;
-  mlOpsInterest1?: number;
-  mlOpsInterest2?: number;
-  mlOpsInterest3?: number;
+export interface ILabsApplicationSubmission {
+  oktaId: string;
+  email?: string;
+  slackId?: string;
+  labsApplication: ILabsApplication;
 }
 
 export interface ITeambuildingPayload {
-  learners: ILearnerLabsApplication[];
+  learners: ILabsApplication[];
   projects: ITeamBuildingProject[];
 }
 
 export class TeambuildingPayload implements ITeambuildingPayload {
-  learners: ILearnerLabsApplication[];
+  learners: ILabsApplication[];
   projects: ITeamBuildingProject[];
 
   constructor(
-    learners: ILearnerLabsApplication[],
+    learners: ILabsApplication[],
     projects: ITeamBuildingProject[]
   ) {
     this.learners = learners;
