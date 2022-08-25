@@ -26,15 +26,14 @@ const studentDao = new StudentDao();
  */
 export function processLabsApplication( // TODO (EB): async
   labsApplicationSubmission: ILabsApplicationSubmission
-  ): Promise<void> {
-    const learnerOktaId = labsApplicationSubmission.oktaId;
-    const labsApplication = labsApplicationSubmission.labsApplication;
+): Promise<void> {
+  const learnerOktaId = labsApplicationSubmission.oktaId;
+  const labsApplication = labsApplicationSubmission.labsApplication;
 
   // TODO (EB): Write to Salesforce
 
-    return Promise.resolve(); // TODO: (EB)
+  return Promise.resolve(); // TODO: (EB)
 }
-
 
 /**
  * Given an array of raw teambuilding survey results, parse it into an array of
@@ -303,7 +302,7 @@ export function processLabsApplication( // TODO (EB): async
 //       .map(learner => learner.survey)
 //     ) as Records<FieldSet>
 //   );
-  
+
 //   // Merge the surveys and projects.
 //   const payload = buildTeambuildingPayload (
 //     continuingLearners,

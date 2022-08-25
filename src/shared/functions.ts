@@ -93,15 +93,13 @@ export const mergeObjectArrays = (
   return combined;
 };
 
-export const getRandomValue = (
-  values: unknown[]
-): unknown => {
+export const getRandomValue = (values: unknown[]): unknown => {
   return values[Math.floor(Math.random() * values.length)];
 };
 
-export function hasOwnProperty<X extends Record<string,unknown>, Y extends PropertyKey> (
-  obj: X,
-  prop: Y
-): obj is X & Record<Y, unknown> {
-  return obj.hasOwnProperty(prop)
+export function hasOwnProperty<
+  X extends Record<string, unknown>,
+  Y extends PropertyKey
+>(obj: X, prop: Y): obj is X & Record<Y, unknown> {
+  return obj.hasOwnProperty(prop);
 }

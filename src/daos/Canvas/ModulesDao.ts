@@ -6,7 +6,9 @@ import { CanvasError } from "@entities/CanvasError";
 export type ModuleResponse = Promise<Module | CanvasError | null>;
 export type ModuleArrayResponse = Promise<Module[] | CanvasError | null>;
 export type ModuleItemResponse = Promise<ModuleItem | CanvasError | null>;
-export type ModuleItemArrayResponse = Promise<ModuleItem[] | CanvasError | null>;
+export type ModuleItemArrayResponse = Promise<
+  ModuleItem[] | CanvasError | null
+>;
 
 export interface IModulesDao {
   getAllInCourse: (courseId: number) => ModuleArrayResponse;

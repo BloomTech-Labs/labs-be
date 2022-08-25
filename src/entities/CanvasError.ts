@@ -1,6 +1,6 @@
 export type CanvasError = {
-  status: string
-  errors: Record<string,string>[]
+  status: string;
+  errors: Record<string, string>[];
 };
 
 export const isCanvasError = (x: unknown): x is CanvasError => {
@@ -8,4 +8,4 @@ export const isCanvasError = (x: unknown): x is CanvasError => {
     return true;
   }
   return false;
-}
+};

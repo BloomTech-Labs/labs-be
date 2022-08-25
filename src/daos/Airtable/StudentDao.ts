@@ -311,7 +311,7 @@ class StudentDao {
       )?.id;
 
       const assignedProjects = [...new Set([...prevProjects, projectId])];
-      
+
       return {
         id,
         fields: {
