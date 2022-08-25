@@ -1,9 +1,7 @@
 import jsforce from "jsforce";
 
-// The constructor for this class must be called with 'await', since it contains an IIFE
-// that logs in the Salesforce client.
 export default class SalesforceClient {
-  private connection: jsforce.Connection;
+    public connection: jsforce.Connection;
     private SF_LOGIN_URL: string;
     private SF_USERNAME: string;
     private SF_PASSWORD: string;
@@ -35,14 +33,14 @@ export default class SalesforceClient {
       loginUrl: SF_LOGIN_URL,
     });
 
-    return (async (): Promise<SalesforceClient> => {
-        await this.login();
-        return this;
-    })() as unknown as SalesforceClient;
+    // return (async (): Promise<SalesforceClient> => {
+    //     await this.login();
+    //     return this;
+    // })() as unknown as SalesforceClient;
 
   }
 
-  private async login(): Promise<jsforce.UserInfo> {
+  public async login(): Promise<jsforce.UserInfo> {
     const connection = this.connection;
     return await connection.login(
         this.SF_USERNAME,

@@ -1,7 +1,6 @@
+/* eslint-disable @typescript-eslint/await-thenable */
 import { FieldSet, Records } from "airtable";
-import ProjectsDao from "@daos/Airtable/ProjectsDao";
-import SurveyDao from "@daos/Airtable/SurveyDao";
-import StudentDao from "@daos/Airtable/StudentDao";
+import LabsApplicationDao from "@daos/Salesforce/LabsApplicationDao";
 import { parseTrack } from "@entities/TeambuildingOutput";
 import { getRandomValue, mergeObjectArrays } from "@shared/functions";
 import TeambuildingOutput, { Track } from "@entities/TeambuildingOutput";
@@ -13,10 +12,8 @@ import TeambuildingPayload, {
 import SortingHatDao from "@daos/SortingHat/SortingHatDao";
 import { resolve } from "path";
 
-const projectsDao = new ProjectsDao();
-const surveyDao = new SurveyDao();
+// const labsApplicationDao = (async () => await new LabsApplicationDao())();
 const sortingHatDao = new SortingHatDao();
-const studentDao = new StudentDao();
 
 /**
  * Write a learner's Labs Application responses to Salesforce.
@@ -24,16 +21,27 @@ const studentDao = new StudentDao();
  * @param surveys
  * @returns
  */
-export function processLabsApplication( // TODO (EB): async
+export async function processLabsApplication(
   labsApplicationSubmission: ILabsApplicationSubmission
 ): Promise<void> {
-  const learnerOktaId = labsApplicationSubmission.oktaId;
+  const labsApplicationDao = new LabsApplicationDao();
+  
+  const oktaId = labsApplicationSubmission.oktaId;
   const labsApplication = labsApplicationSubmission.labsApplication;
 
-  // TODO (EB): Write to Salesforce
+  // Write to Salesforce
+  await labsApplicationDao.postLabsApplication(oktaId, labsApplication);
 
-  return Promise.resolve(); // TODO: (EB)
+
+  return Promise.resolve();
 }
+
+
+
+
+
+
+
 
 /**
  * Given an array of raw teambuilding survey results, parse it into an array of

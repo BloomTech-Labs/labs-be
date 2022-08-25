@@ -11,7 +11,7 @@ export interface ITeamBuildingProject {
 
 export interface ILabsApplication {
   labsTimeSlot: [string];
-  gitHubHandle: string;
+  gitHubHandle?: string;
   gitExpertise: number;
   dockerExpertise: number;
   playByEar: number;

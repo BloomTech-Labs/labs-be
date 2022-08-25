@@ -23,8 +23,8 @@ export async function postLabsApplication(
   try {
     await processLabsApplication(labsApplicationSubmission);
   } catch (error) {
-    return res.status(INTERNAL_SERVER_ERROR);
+    return res.sendStatus(INTERNAL_SERVER_ERROR);
   }
 
-  return res.status(OK);
+  return res.sendStatus(OK);
 }
