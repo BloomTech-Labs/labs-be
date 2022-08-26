@@ -11,8 +11,7 @@
     "test": "npx nodemon --config ./spec/nodemon.json",
     "test:no-reloading": "./node_modules/.bin/ts-node -r tsconfig-paths/register ./spec",
     "orm": "npx typeorm",
-    "tsc": "tsc",
-    "postinstall": "npm run tsc"
+    "tsc": "tsc"
   },
   "nodemonConfig": {
     "watch": [
