@@ -5,7 +5,7 @@ export default class LabsApplicationDao {
   private client: SalesforceClient;
 
   constructor() {
-    this.client = new SalesforceClient()
+    this.client = new SalesforceClient();
   }
 
   /**
@@ -18,21 +18,22 @@ export default class LabsApplicationDao {
   ): Promise<ILabsApplication> {
     await this.client.login(); // logs us into SF Client 🔐
     const sfResult = await this.client.connection.query(
-      `SELECT Labs_Application_c, Contact__r.Okta_Id__c
+      `SELECT Labs_Application__c, Contact__r.Okta_Id__c
       FROM JDS_Track_Enrollment__c
       WHERE Contact__r.Okta_Id__c='${oktaId}'
-      LIMIT 1`, {},
+      LIMIT 1`,
+      {},
       (err, result) => {
         if (err) {
           console.error(err);
           // give us a hint as to wot? currently our query is broked
           void Promise.reject(err);
         } else {
-          return(result.records);
+          return result.records;
         }
       }
     );
-    console.log(sfResult); 
+    console.log(sfResult);
     // testing this w/ a functioning query, we get the result. 🚀
     // Once we fix our Query we'll be able to use this to create a Labs App Object 🥜
     //    {
@@ -61,7 +62,7 @@ export default class LabsApplicationDao {
     //   }
     // }
 
-    return sfResult as unknown as ILabsApplication;
+    return (sfResult as unknown) as ILabsApplication;
   }
 
   /**
@@ -74,15 +75,13 @@ export default class LabsApplicationDao {
     oktaId: string,
     labsApplication: ILabsApplication
   ): Promise<void> {
-
     const tempOktaId = "0036f00003iv0xYAAQ";
 
     await this.client.login();
 
-
     // Contact ?
     //  -> Current_Application__c: Application__c ?
-    //    -> JDS_Track_Enrollment__c 
+    //    -> JDS_Track_Enrollment__c
     //      -> Labs_Application [PENDING]
 
     // const accountId = "0017e00001Z3LUcAAN";
@@ -96,7 +95,6 @@ export default class LabsApplicationDao {
     //     console.log(account);
     //   });
 
-    
     // const sfResult = this.client.connection.query(
     //   // return 100 with both Okta and Github not null
     //   `SELECT Name, Contact__c, Contact__r.name, Contact__r.Okta_Id__c, Contact__r.Github_Handle__c
@@ -113,8 +111,6 @@ export default class LabsApplicationDao {
     //     }
     //   }
     // );
-
-
 
     return Promise.resolve();
   }

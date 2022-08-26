@@ -2,7 +2,10 @@ import StatusCodes from "http-status-codes";
 import { Request, Response } from "express";
 import { paramMissingError } from "@shared/constants";
 import { ILabsApplicationSubmission } from "@entities/TeambuildingPayload";
-import { getLabsApplicationByOktaId, processLabsApplication } from "src/services/Teambuilding";
+import {
+  getLabsApplicationByOktaId,
+  processLabsApplication,
+} from "src/services/Teambuilding";
 
 const { BAD_REQUEST, CREATED, INTERNAL_SERVER_ERROR, OK } = StatusCodes;
 
@@ -18,12 +21,14 @@ export async function getLabsApplication(
   res: Response
 ): Promise<Response> {
   const { oktaId } = req.params;
+  let results;
   try {
-    await getLabsApplicationByOktaId(oktaId);
+    results = await getLabsApplicationByOktaId(oktaId);
   } catch (error) {
     return res.sendStatus(INTERNAL_SERVER_ERROR);
   }
-  return res.sendStatus(OK);
+
+  return res.json({ exists: results ? true : false, data: results });
 }
 
 /**

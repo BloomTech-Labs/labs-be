@@ -23,11 +23,12 @@ const sortingHatDao = new SortingHatDao();
  */
 export async function getLabsApplicationByOktaId(
   oktaId: string
-): Promise<void> {
+): Promise<ILabsApplication | null> {
   // Get from Salesforce
-  await labsApplicationDao.getLabsApplicationByOktaId(oktaId);
-
-  return Promise.resolve();
+  const labsApplicationResults = await labsApplicationDao.getLabsApplicationByOktaId(
+    oktaId
+  );
+  return labsApplicationResults;
 }
 
 /**
@@ -45,16 +46,8 @@ export async function processLabsApplication(
   // Write to Salesforce
   await labsApplicationDao.postLabsApplication(oktaId, labsApplication);
 
-
   return Promise.resolve();
 }
-
-
-
-
-
-
-
 
 /**
  * Given an array of raw teambuilding survey results, parse it into an array of
