@@ -78,6 +78,12 @@ export default class LabsApplicationDao {
     const tempOktaId = "0036f00003iv0xYAAQ";
 
     await this.client.login();
+    return Promise.resolve();
+  }
+}
+
+
+
 
     // Contact ?
     //  -> Current_Application__c: Application__c ?
@@ -111,7 +117,3 @@ export default class LabsApplicationDao {
     //     }
     //   }
     // );
-
-    return Promise.resolve();
-  }
-}

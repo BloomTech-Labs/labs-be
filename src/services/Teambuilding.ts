@@ -42,11 +42,13 @@ export async function processLabsApplication(
 ): Promise<void> {
   const oktaId = labsApplicationSubmission.oktaId;
   const labsApplication = labsApplicationSubmission.labsApplication;
-
+  try {
+    return await labsApplicationDao.postLabsApplication(oktaId, labsApplication);
+  } catch (error) {
+    return Promise.reject(error);
+  }
   // Write to Salesforce
-  await labsApplicationDao.postLabsApplication(oktaId, labsApplication);
 
-  return Promise.resolve();
 }
 
 /**

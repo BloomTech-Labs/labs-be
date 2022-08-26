@@ -25,7 +25,7 @@ export async function getLabsApplication(
   try {
     results = await getLabsApplicationByOktaId(oktaId);
   } catch (error) {
-    return res.sendStatus(INTERNAL_SERVER_ERROR);
+    return res.json({ status: INTERNAL_SERVER_ERROR, message: error });
   }
 
   return res.json({ exists: results ? true : false, data: results });
@@ -47,7 +47,7 @@ export async function postLabsApplication(
   try {
     await processLabsApplication(labsApplicationSubmission);
   } catch (error) {
-    return res.sendStatus(INTERNAL_SERVER_ERROR);
+    return res.json({ status: INTERNAL_SERVER_ERROR, message: error });
   }
 
   return res.sendStatus(OK);
