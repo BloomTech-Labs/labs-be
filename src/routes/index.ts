@@ -7,5 +7,6 @@ import { postLabsApplication } from "./LabsApplication";
 const baseRouter = Router();
 // baseRouter.get("/labsApplication", getLabsApplication);
 baseRouter.post("/labsApplication", postLabsApplication);
+// baseRouter.get("/learners", getLearners);
 
 export default baseRouter;

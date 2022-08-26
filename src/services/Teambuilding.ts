@@ -12,8 +12,23 @@ import TeambuildingPayload, {
 import SortingHatDao from "@daos/SortingHat/SortingHatDao";
 import { resolve } from "path";
 
-// const labsApplicationDao = (async () => await new LabsApplicationDao())();
+const labsApplicationDao = new LabsApplicationDao();
 const sortingHatDao = new SortingHatDao();
+
+/**
+ * Get a learner's Labs Application from Salesforce.
+ *
+ * @param oktaId
+ * @returns
+ */
+export async function getLabsApplicationByOktaId(
+  oktaId: string
+): Promise<void> {
+  // Get from Salesforce
+  await labsApplicationDao.getLabsApplicationByOktaId(oktaId);
+
+  return Promise.resolve();
+}
 
 /**
  * Write a learner's Labs Application responses to Salesforce.
@@ -24,8 +39,6 @@ const sortingHatDao = new SortingHatDao();
 export async function processLabsApplication(
   labsApplicationSubmission: ILabsApplicationSubmission
 ): Promise<void> {
-  const labsApplicationDao = new LabsApplicationDao();
-  
   const oktaId = labsApplicationSubmission.oktaId;
   const labsApplication = labsApplicationSubmission.labsApplication;
 

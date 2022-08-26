@@ -9,6 +9,32 @@ export default class LabsApplicationDao {
   }
 
   /**
+   * Get a Labs Application from a learner record in Salesforce.
+   *
+   * @param oktaId string
+   */
+  public async getLabsApplicationByOktaId(
+    oktaId: string
+  ): Promise<ILabsApplication> {
+    const sfResult = await this.client.connection.query(
+      `SELECT Labs_Application_c, Contact__r.Okta_Id__c
+      FROM JDS_Track_Enrollment__c
+      WHERE Contact__r.Okta_Id__c='${oktaId}'
+      LIMIT 1`, {},
+
+      (err, result) => {
+        if (err) {
+          void Promise.reject(err);
+        } else {
+          console.log(result.records);
+          return(result.records);
+        }
+      }
+    );
+    return sfResult as unknown as ILabsApplication;
+  }
+
+  /**
    * Write a Labs Application to a learner record in Salesforce.
    *
    * @param oktaId string
