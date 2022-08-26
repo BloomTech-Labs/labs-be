@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/await-thenable */
 import { FieldSet, Records } from "airtable";
 import LabsApplicationDao from "@daos/Salesforce/LabsApplicationDao";
-import { parseTrack } from "@entities/TeambuildingOutput";
-import { getRandomValue, mergeObjectArrays } from "@shared/functions";
-import TeambuildingOutput, { Track } from "@entities/TeambuildingOutput";
+import ContactDao from "@daos/Salesforce/ContactDao";
 import TeambuildingPayload, {
   ILabsApplication,
   ILabsApplicationSubmission,
@@ -14,6 +12,7 @@ import { resolve } from "path";
 
 const labsApplicationDao = new LabsApplicationDao();
 const sortingHatDao = new SortingHatDao();
+const contactDao = new ContactDao();
 
 /**
  * Get a learner's Labs Application from Salesforce.
@@ -43,12 +42,14 @@ export async function processLabsApplication(
   const oktaId = labsApplicationSubmission.oktaId;
   const labsApplication = labsApplicationSubmission.labsApplication;
   try {
-    return await labsApplicationDao.postLabsApplication(oktaId, labsApplication);
+    const salesForceId = await contactDao.getSalesforceIdByOktaId(oktaId);
+    await labsApplicationDao.postLabsApplication(salesForceId, labsApplication);
+    // write learner's GH to their contact.
+    // get timeSlotData
   } catch (error) {
     return Promise.reject(error);
   }
   // Write to Salesforce
-
 }
 
 /**

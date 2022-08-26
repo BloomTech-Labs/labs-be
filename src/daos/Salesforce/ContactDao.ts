@@ -28,8 +28,7 @@ export default class ContactDao {
         if (err) {
           void Promise.reject(err);
         } else {
-          console.log(result.records);
-          return(result.records);
+          return result;
         }
       }
     );
