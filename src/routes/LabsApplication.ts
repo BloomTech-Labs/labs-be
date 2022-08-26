@@ -18,13 +18,11 @@ export async function getLabsApplication(
   res: Response
 ): Promise<Response> {
   const { oktaId } = req.params;
-
   try {
     await getLabsApplicationByOktaId(oktaId);
   } catch (error) {
     return res.sendStatus(INTERNAL_SERVER_ERROR);
   }
-
   return res.sendStatus(OK);
 }
 
