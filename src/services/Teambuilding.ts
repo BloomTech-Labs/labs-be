@@ -9,6 +9,7 @@ import TeambuildingPayload, {
 } from "@entities/TeambuildingPayload";
 import SortingHatDao from "@daos/SortingHat/SortingHatDao";
 import { resolve } from "path";
+import { buildGitHubUrl } from "@shared/functions";
 
 const labsApplicationDao = new LabsApplicationDao();
 const sortingHatDao = new SortingHatDao();
@@ -31,9 +32,15 @@ export async function getLabsApplicationByOktaId(
 }
 
 /**
- * Write a learner's Labs Application responses to Salesforce.
+ * Process an incoming Labs Application:
+ * - Parse the learner's GitHub handle as a profile URL
+ * - Get the learner's Salesforce ID by their OktaID
+ * - Write the learner's Labs Application responses to Salesforce
+ * - Write the learner's GitHub URL to their Salesforce Contact
+ * - Get all active Labs learners' Labs Application submissions
  *
- * @param surveys
+ * @param oktaId
+ * @param labsApplication
  * @returns
  */
 export async function processLabsApplication(
@@ -42,14 +49,21 @@ export async function processLabsApplication(
   const oktaId = labsApplicationSubmission.oktaId;
   const labsApplication = labsApplicationSubmission.labsApplication;
   try {
-    const salesForceId = await contactDao.getSalesforceIdByOktaId(oktaId);
-    await labsApplicationDao.postLabsApplication(salesForceId, labsApplication);
-    // write learner's GH to their contact.
-    // get timeSlotData
+    // Parse the learner's GitHub handle as a profile URL
+    const gitHubUrl = await buildGitHubUrl(labsApplication.gitHubHandle || "");
+    if (!gitHubUrl) {
+      throw new Error("Invalid GitHub handle");
+    }
+    // // Get the learner's Salesforce ID by their OktaID
+    // const salesforceId = await contactDao.getSalesforceIdByOktaId(oktaId);
+    // // Write the learner's Labs Application responses to Salesforce
+    // await labsApplicationDao.postLabsApplication(salesforceId, labsApplication);
+    // // Write the learner's GitHub URL to their Salesforce Contact
+    // await contactDao.postGitHubUrl(salesforceId, gitHubUrl);
+    // // get timeSlotData
   } catch (error) {
     return Promise.reject(error);
   }
-  // Write to Salesforce
 }
 
 /**

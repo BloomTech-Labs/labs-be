@@ -36,4 +36,29 @@ export default class ContactDao {
       (sfResult.records as Record<string, unknown>[])[0].AccountId as string
     );
   }
+
+  /**
+  * Posts a learner's GitHub profile URL to their Salesforce Contact.
+  *
+  * @param salesforceId string
+  * @param gitHubUrl string
+  */
+  public async postGitHubUrl(
+    salesforceId: string,
+    gitHubUrl: string
+  ): Promise<void> {
+    await this.client.login();
+    const success = await this.client.connection.sobject("Contact").update({
+      Id: salesforceId,
+      GitHub_Link__c: gitHubUrl,
+    }, {},
+    (err, result) => {
+      if (err) {
+        void Promise.reject(err);
+      } else {
+        return result;
+      }
+    });
+    return Promise.resolve();
+  }
 }
