@@ -2,6 +2,8 @@
 import { FieldSet, Records } from "airtable";
 import LabsApplicationDao from "@daos/Salesforce/LabsApplicationDao";
 import ContactDao from "@daos/Salesforce/ContactDao";
+import ProjectDao from "@daos/Salesforce/ProjectDao";
+import JDSTrackEnrollmentDao from "@daos/Salesforce/JDSTrackEnrollmentDao";
 import TeambuildingPayload, {
   ILabsApplication,
   ILabsApplicationSubmission,
@@ -9,11 +11,13 @@ import TeambuildingPayload, {
 } from "@entities/TeambuildingPayload";
 import SortingHatDao from "@daos/SortingHat/SortingHatDao";
 import { resolve } from "path";
-import { buildGitHubUrl } from "@shared/functions";
+import { buildGitHubUrl, mergeObjectArrays } from "@shared/functions";
 
 const labsApplicationDao = new LabsApplicationDao();
-const sortingHatDao = new SortingHatDao();
 const contactDao = new ContactDao();
+const projectDao = new ProjectDao();
+const jdsTrackEnrollmentDao = new JDSTrackEnrollmentDao();
+const sortingHatDao = new SortingHatDao();
 
 /**
  * Get a learner's Labs Application from Salesforce.
@@ -37,7 +41,10 @@ export async function getLabsApplicationByOktaId(
  * - Get the learner's Salesforce ID by their OktaID
  * - Write the learner's Labs Application responses to Salesforce
  * - Write the learner's GitHub URL to their Salesforce Contact
- * - Get all active Labs learners' Labs Application submissions
+ * - Get all active Labs Projects from Salesforce
+ * - Get all active Labs learners from Salesforce, including their Labs Applications
+ * - Get the learner's project assignment from SortingHat
+ * - Post the learner's project assignment to Salesforce
  *
  * @param oktaId
  * @param labsApplication
@@ -51,16 +58,20 @@ export async function processLabsApplication(
   try {
     // Parse the learner's GitHub handle as a profile URL
     const gitHubUrl = await buildGitHubUrl(labsApplication.gitHubHandle || "");
-    if (!gitHubUrl) {
-      throw new Error("Invalid GitHub handle");
-    }
-    // // Get the learner's Salesforce ID by their OktaID
-    // const salesforceId = await contactDao.getSalesforceIdByOktaId(oktaId);
-    // // Write the learner's Labs Application responses to Salesforce
-    // await labsApplicationDao.postLabsApplication(salesforceId, labsApplication);
-    // // Write the learner's GitHub URL to their Salesforce Contact
-    // await contactDao.postGitHubUrl(salesforceId, gitHubUrl);
-    // // get timeSlotData
+    // Get the learner's Salesforce ID by their OktaID
+    const salesforceId = await contactDao.getSalesforceIdByOktaId(oktaId);
+    // Write the learner's Labs Application responses to Salesforce
+    await labsApplicationDao.postLabsApplication(salesforceId, labsApplication);
+    // Write the learner's GitHub URL to their Salesforce Contact
+    await contactDao.postGitHubUrl(salesforceId, gitHubUrl);
+    // Get all active Labs Projects from Salesforce
+    const projects = await projectDao.getActive();
+    // Get all active Labs learners from Salesforce, including their Labs Applications
+    const learners = await jdsTrackEnrollmentDao.getLabsActive();
+    // Get the learner's project assignment from SortingHat
+    // TODO
+    // Post the learner's project assignment to Salesforce
+    // TODO
   } catch (error) {
     return Promise.reject(error);
   }
@@ -213,88 +224,87 @@ export async function processLabsApplication(
  * @param projects
  * @returns
  */
-// function buildTeambuildingPayload(
-//   continuingLearners: Record<string, unknown>[],
-//   surveys: ILearnerSurvey[],
-//   projects: ITeamBuildingProject[]
-// ): TeambuildingPayload {
-//   const payload = {} as TeambuildingPayload;
+function buildTeambuildingPayload(
+  learners: Record<string, unknown>[], // TODO: Assert entity
+  projects: ITeamBuildingProject[]
+): TeambuildingPayload {
+  const payload = {} as TeambuildingPayload;
 
-//   // Merge everything together.
-//   let learners = mergeObjectArrays("lambdaId", [
-//     continuingLearners,
-//     surveys,
-//     projects,
-//   ]) as Record<string, unknown>[];
+  // Merge everything together.
+  learners = mergeObjectArrays("lambdaId", [
+    learners,
+    surveys,
+    projects,
+  ]) as Record<string, unknown>[];
 
-//   // Filter out incoming learners who didn't fill out the survey (no existing
-//   // Labs Project and no "gitExpertise" field.
-//   learners = learners.filter((x) => x.gitExpertise || x.labsProject);
+  // Filter out incoming learners who didn't fill out the survey (no existing
+  // Labs Project and no "gitExpertise" field.
+  learners = learners.filter((x) => x.gitExpertise || x.labsProject);
 
-//   // Make sure all desired ILearnerLabsApplication fields are present for each learner.
-//   // NOTE: This currently balances or randomizes any missing survey values!
-//   learners = learners.map((x) => ({
-//     lambdaId: x.lambdaId,
-//     // canvasUserId: x.canvasUserId || null,
-//     name: x.name || null,
-//     track: (x.track === "WEB" ? "Web" : x.track) || null,
-//     labsProject: x.labsProject || "",
-//     gitExpertise: x.gitExpertise || 3,
-//     dockerExpertise: x.dockerExpertise || 3,
-//     playByEar: x.playByEar || 3,
-//     detailOriented: x.detailOriented || 3,
-//     speakUpInDiscussions: x.speakUpInDiscussions || 3,
-//     soloOrSocial: x.soloOrSocial ? (x.soloOrSocial as string)[0] : getRandomValue(
-//       ["A. Solo", "B. Social"]
-//     ),
-//     meaningOrValue: x.meaningOrValue ? (x.meaningOrValue as string)[0] : getRandomValue(
-//       ["A. Deeper Meaning", "B. Higher Value"]
-//     ),
-//     feelsRightOrMakesSense: x.feelsRightOrMakesSense
-//       ? (x.feelsRightOrMakesSense as string)[0]
-//       : getRandomValue(
-//           ["A. It feels right", "B. It makes sense"]
-//         ),
-//     favoriteOrCollect: x.favoriteOrCollect
-//       ? (x.favoriteOrCollect as string)[0]
-//       : getRandomValue(
-//           ["A. Find your favorite", "B. Collect them all"]
-//         ),
-//     tpmSkill1: x.tpmSkill1 ? (x.tpmSkill1 as string)[0] : getRandomValue(
-//       ["A", "B", "C", "D"]
-//     ),
-//     tpmSkill2: x.tpmSkill2 ? (x.tpmSkill2 as string)[0] : getRandomValue(
-//       ["A", "B"]
-//     ),
-//     tpmSkill3: x.tpmSkill3 ? (x.tpmSkill3 as string)[0] : getRandomValue(
-//       ["A", "B", "C", "D"]
-//     ),
-//     tpmInterest1: x.tpmInterest1 || getRandomValue([2,3]),
-//     tpmInterest2: x.tpmInterest2 || getRandomValue([2,3]),
-//     tpmInterest3: x.tpmInterest3 || getRandomValue([2,3]),
-//     tpmInterest4: x.tpmInterest4 || getRandomValue([2,3]),
-//     uxInterest1: x.uxInterest1 || getRandomValue([2,3]),
-//     uxInterest2: x.uxInterest2 || getRandomValue([2,3]),
-//     frontendInterest1: x.frontendInterest1 || getRandomValue([2,3]),
-//     frontendInterest2: x.frontendInterest2 || getRandomValue([2,3]),
-//     backendInterest1: x.backendInterest1 || getRandomValue([2,3]),
-//     backendInterest2: x.backendInterest2 || getRandomValue([2,3]),
-//     dataEngInterest1: x.dataEngInterest1 || getRandomValue([2,3]),
-//     dataEngInterest2: x.dataEngInterest2 || getRandomValue([2,3]),
-//     dataEngInterest3: x.dataEngInterest3 || getRandomValue([2,3]),
-//     mlEngInterest1: x.mlEngInterest1 || getRandomValue([2,3]),
-//     mlEngInterest2: x.mlEngInterest2 || getRandomValue([2,3]),
-//     mlEngInterest3: x.mlEngInterest3 || getRandomValue([2,3]),
-//     mlOpsInterest1: x.mlOpsInterest1 || getRandomValue([2,3]),
-//     mlOpsInterest2: x.mlOpsInterest2 || getRandomValue([2,3]),
-//     mlOpsInterest3: x.mlOpsInterest3 || getRandomValue([2,3]),
-//   }));
+  // Make sure all desired ILearnerLabsApplication fields are present for each learner.
+  // NOTE: This currently balances or randomizes any missing survey values!
+  learners = learners.map((x) => ({
+    lambdaId: x.lambdaId,
+    // canvasUserId: x.canvasUserId || null,
+    name: x.name || null,
+    track: (x.track === "WEB" ? "Web" : x.track) || null,
+    labsProject: x.labsProject || "",
+    gitExpertise: x.gitExpertise || 3,
+    dockerExpertise: x.dockerExpertise || 3,
+    playByEar: x.playByEar || 3,
+    detailOriented: x.detailOriented || 3,
+    speakUpInDiscussions: x.speakUpInDiscussions || 3,
+    soloOrSocial: x.soloOrSocial ? (x.soloOrSocial as string)[0] : getRandomValue(
+      ["A. Solo", "B. Social"]
+    ),
+    meaningOrValue: x.meaningOrValue ? (x.meaningOrValue as string)[0] : getRandomValue(
+      ["A. Deeper Meaning", "B. Higher Value"]
+    ),
+    feelsRightOrMakesSense: x.feelsRightOrMakesSense
+      ? (x.feelsRightOrMakesSense as string)[0]
+      : getRandomValue(
+          ["A. It feels right", "B. It makes sense"]
+        ),
+    favoriteOrCollect: x.favoriteOrCollect
+      ? (x.favoriteOrCollect as string)[0]
+      : getRandomValue(
+          ["A. Find your favorite", "B. Collect them all"]
+        ),
+    tpmSkill1: x.tpmSkill1 ? (x.tpmSkill1 as string)[0] : getRandomValue(
+      ["A", "B", "C", "D"]
+    ),
+    tpmSkill2: x.tpmSkill2 ? (x.tpmSkill2 as string)[0] : getRandomValue(
+      ["A", "B"]
+    ),
+    tpmSkill3: x.tpmSkill3 ? (x.tpmSkill3 as string)[0] : getRandomValue(
+      ["A", "B", "C", "D"]
+    ),
+    tpmInterest1: x.tpmInterest1 || getRandomValue([2,3]),
+    tpmInterest2: x.tpmInterest2 || getRandomValue([2,3]),
+    tpmInterest3: x.tpmInterest3 || getRandomValue([2,3]),
+    tpmInterest4: x.tpmInterest4 || getRandomValue([2,3]),
+    uxInterest1: x.uxInterest1 || getRandomValue([2,3]),
+    uxInterest2: x.uxInterest2 || getRandomValue([2,3]),
+    frontendInterest1: x.frontendInterest1 || getRandomValue([2,3]),
+    frontendInterest2: x.frontendInterest2 || getRandomValue([2,3]),
+    backendInterest1: x.backendInterest1 || getRandomValue([2,3]),
+    backendInterest2: x.backendInterest2 || getRandomValue([2,3]),
+    dataEngInterest1: x.dataEngInterest1 || getRandomValue([2,3]),
+    dataEngInterest2: x.dataEngInterest2 || getRandomValue([2,3]),
+    dataEngInterest3: x.dataEngInterest3 || getRandomValue([2,3]),
+    mlEngInterest1: x.mlEngInterest1 || getRandomValue([2,3]),
+    mlEngInterest2: x.mlEngInterest2 || getRandomValue([2,3]),
+    mlEngInterest3: x.mlEngInterest3 || getRandomValue([2,3]),
+    mlOpsInterest1: x.mlOpsInterest1 || getRandomValue([2,3]),
+    mlOpsInterest2: x.mlOpsInterest2 || getRandomValue([2,3]),
+    mlOpsInterest3: x.mlOpsInterest3 || getRandomValue([2,3]),
+  }));
 
-//   payload.learners = learners as unknown as ILearnerLabsApplication[];
-//   payload.projects = projects;
+  payload.learners = learners as unknown as ILearnerLabsApplication[];
+  payload.projects = projects;
 
-//   return payload;
-// }
+  return payload;
+}
 
 /**
  * Process teambuilding for a given cohort. See /docs/teambuilding.md
