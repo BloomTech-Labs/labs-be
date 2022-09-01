@@ -58,7 +58,7 @@ export async function processLabsApplication(
   try {
     // Parse the learner's GitHub handle as a profile URL
     const gitHubUrl = await buildGitHubUrl(labsApplication.gitHubHandle || "");
-    // Get the learner's Salesforce ID by their OktaID
+    // Get the learner's Salesforce ID by their OktaID <-- TODO: Need to get their JDS Track Enrollment ID instead
     const salesforceId = await contactDao.getSalesforceIdByOktaId(oktaId);
     // Write the learner's Labs Application responses to Salesforce
     await labsApplicationDao.postLabsApplication(salesforceId, labsApplication);

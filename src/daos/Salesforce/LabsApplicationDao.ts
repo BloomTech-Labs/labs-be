@@ -1,5 +1,4 @@
-ar
-leimport { ILabsApplication } from "@entities/TeambuildingPayload";
+import { ILabsApplication } from "@entities/TeambuildingPayload";
 import SalesforceClient from "./client";
 
 export default class LabsApplicationDao {
@@ -17,7 +16,7 @@ export default class LabsApplicationDao {
   public async getLabsApplicationByOktaId(
     oktaId: string
   ): Promise<ILabsApplication> {
-    await this.client.login(); // logs us into SF Client 🔐
+    await this.client.login();
     const sfResult = await this.client.connection.query(
       `SELECT Labs_Application__c, Contact__r.Okta_Id__c
       FROM JDS_Track_Enrollment__c
@@ -73,71 +72,23 @@ export default class LabsApplicationDao {
    * @param labsApplication ILabsApplication
    */
   public async postLabsApplication(
-    oktaId: string,
+    jdsTrackEnrollmentId: string,
     labsApplication: ILabsApplication
   ): Promise<void> {
     await this.client.login(); // logs us into SF Client 🔐
-    const sfResult = await this.client.connection.sobject("JDS_Track_Enrollment__c").update(
-      {
-      Id: "0017e00001Z3LUcAAN",
-      name: "Updated Account name",
+    const sfResult = await this.client.connection.sobject("Labs_Application__c").create({
+      ...labsApplication,
+      JDS_Track_Enrollment__c: jdsTrackEnrollmentId,
     },
-    function (err, ret) {
-      if (err || !ret.success) {
-        return console.error(err, ret);
+    (err, result) => {
+      if (err || !result.success) {
+        console.error(err, result);
+        void Promise.reject(err);
       }
-      console.log("Updated Successfully : " + ret.id);
-      res.json("Updated Successfully : " + ret.id);
-    }
-      },
-      (err: Error, result: RecordResult) => {
-        if (err) {
-          console.error(err);
-          void Promise.reject(err);
-        } else {
-          return result;
-        }
-      }
-    );
+      console.log("Updated Successfully : ", result);
+      return (result);
+    });
     console.log(sfResult);
     return Promise.resolve();
   }
 }
-
-
-
-
-
-
-    // Contact ?
-    //  -> Current_Application__c: Application__c ?
-    //    -> JDS_Track_Enrollment__c
-    //      -> Labs_Application [PENDING]
-
-    // const accountId = "0017e00001Z3LUcAAN";
-    // await this.client.login();
-    // await this.client.connection
-    //   .sobject("Account")
-    //   .retrieve("0017e00001Z3LUcAAN", function (err, account) {
-    //     if (err) {
-    //       return console.error(err);
-    //     }
-    //     console.log(account);
-    //   });
-
-    // const sfResult = this.client.connection.query(
-    //   // return 100 with both Okta and Github not null
-    //   `SELECT Name, Contact__c, Contact__r.name, Contact__r.Okta_Id__c, Contact__r.Github_Handle__c
-    //   FROM JDS_Track_Enrollment__c
-    //   WHERE Name!=null
-    //   LIMIT 100`, {},
-
-    //   (err, result) => {
-    //     if (err) {
-    //       void Promise.reject(err);
-    //     } else {
-    //       console.log(result.records);
-    //       return(result.records);
-    //     }
-    //   }
-    // );
