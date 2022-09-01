@@ -54,6 +54,26 @@ export interface ILabsApplicationSubmission {
 
 export interface ISalesforceLabsApplication {
   // TODO (EB): Add shape of Labs Application in Salesforce
+  Labs_Time_Slot__c : string;
+  Your_Github_handle__c: string;
+  Git_Expertise__c: string;
+  Docker_expertise__c: string;
+  Play_By_Ear__c: string;
+  Detail_Oriented__c: string;
+  Speak_Up_In_Discussions__c: string;
+  What_activitie_do_you_prefer__c: string;
+  What_do_you_prefer_to_seek_in_your_work__c: string;
+  feelsRightOrMakesSense: string;
+  Choices_are_easier_when__c: string;
+  In_general_which_method_do_you_prefer__c: string;
+  Technical_project_manager_should__c: string;
+  When_their_team_is_facing_a_blocker__c: string;
+  Interested_in_becoming_a_people_manager__c: string;
+  I_enjoy_running_meetings__c: string;
+  I_enjoy_managing_the_flow_of_information__c: string;
+  How_do_you_approach_the_situation__c: string;
+  JDS_Track_Enrollment__c: string;
+
 }
 
 export interface ITeambuildingPayload {
