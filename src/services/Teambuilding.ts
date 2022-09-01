@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable @typescript-eslint/await-thenable */
 import { FieldSet, Records } from "airtable";
 import LabsApplicationDao from "@daos/Salesforce/LabsApplicationDao";
@@ -12,11 +13,13 @@ import TeambuildingPayload, {
 import SortingHatDao from "@daos/SortingHat/SortingHatDao";
 import { resolve } from "path";
 import { buildGitHubUrl, mergeObjectArrays } from "@shared/functions";
+import LabsTimeSlotDao from "@daos/Salesforce/LabsTimeSlotDao";
 
 const labsApplicationDao = new LabsApplicationDao();
 const contactDao = new ContactDao();
 const projectDao = new ProjectDao();
 const jdsTrackEnrollmentDao = new JDSTrackEnrollmentDao();
+const labsTimeSlotDao = new LabsTimeSlotDao();
 const sortingHatDao = new SortingHatDao();
 
 /**
@@ -58,12 +61,14 @@ export async function processLabsApplication(
   try {
     // Parse the learner's GitHub handle as a profile URL
     const gitHubUrl = await buildGitHubUrl(labsApplication.gitHubHandle || "");
-    // Get the learner's Salesforce ID by their OktaID <-- TODO: Still needed?
-    // const salesforceId = await contactDao.getSalesforceIdByOktaId(oktaId);
+    // Get the learner's Salesforce ID by their OktaID
+    const salesforceId = await contactDao.getSalesforceIdByOktaId(oktaId);
     // Get the learner's JDS Track Enrollment ID by their Okta Id
     const jdsTrackEnrollmentId = await jdsTrackEnrollmentDao.getJdsTrackEnrollmentIdByOktaId(oktaId);
+    // Get all Labs Time Slots from Salesforce
+    const labsTimeSlots = await labsTimeSlotDao.getLabsTimeSlots();
     // Write the learner's Labs Application responses to Salesforce
-    await labsApplicationDao.postLabsApplication(jdsTrackEnrollmentId, labsApplication);
+    await labsApplicationDao.postLabsApplication(jdsTrackEnrollmentId, labsTimeSlots, labsApplication);
     // Write the learner's GitHub URL to their Salesforce Contact
     await contactDao.postGitHubUrl(salesforceId, gitHubUrl);
     // Get all active Labs Projects from Salesforce

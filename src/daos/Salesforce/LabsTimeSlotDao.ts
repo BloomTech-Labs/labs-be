@@ -1,4 +1,5 @@
 import { ILabsApplication } from "@entities/TeambuildingPayload";
+import { ILabsTimeSlot } from "@entities/LabsTimeSlot";
 import SalesforceClient from "./client";
 
 export default class LabsTimeSlotDao {
@@ -9,20 +10,14 @@ export default class LabsTimeSlotDao {
   }
 
   /**
-   * Gets a learner's JDS Track Enrollment ID by their Okta ID.
+   * Gets the IDs and names of all Labs Time Slots in Salesforce.
    */
-  public async getJdsTrackEnrollmentIdByOktaId(
-    oktaId: string
-  ): Promise<string> {
+  public async getLabsTimeSlots(): Promise<ILabsTimeSlot[]> {
     await this.client.login();
     const sfResult = await this.client.connection.query(
       `
-        SELECT Id, Application__r.Contact__r.Okta_Id__c
-        FROM JDS_Track_Enrollment__c
-        WHERE Application__r.Contact__r.Okta_Id__c='00uiumfop9CMV9wef357'
-        LIMIT 1
+        SELECT Id, Name FROM Labs_Time_Slot__c
       `, {},
-
       (err, result) => {
         if (err) {
           void Promise.reject(err);
@@ -31,9 +26,14 @@ export default class LabsTimeSlotDao {
         }
       }
     );
-    return Promise.resolve(
-      (sfResult.records as Record<string, unknown>[])[0].Id as string
-    );
+    const labsTimeSlots: ILabsTimeSlot[] = (
+      sfResult.records as Record<string, string>[]
+    ).map((record) => ({
+      id: record.Id,
+      name: record.Name,
+    }));
+
+    return labsTimeSlots;
   }
 
 
