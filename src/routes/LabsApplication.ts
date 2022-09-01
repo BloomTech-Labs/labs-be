@@ -1,10 +1,12 @@
 import StatusCodes from "http-status-codes";
 import { Request, Response } from "express";
 import { paramMissingError } from "@shared/constants";
-import { ILabsApplicationSubmission } from "@entities/TeambuildingPayload";
+import TeamBuildingPayload, { ILabsApplicationSubmission } from "@entities/TeambuildingPayload";
+
 import {
   getLabsApplicationByOktaId,
   processLabsApplication,
+  postAssignmentsToSortingHat
 } from "src/services/Teambuilding";
 
 const { BAD_REQUEST, CREATED, INTERNAL_SERVER_ERROR, OK } = StatusCodes;
@@ -51,4 +53,26 @@ export async function postLabsApplication(
   }
 
   return res.sendStatus(OK);
+}
+
+/**
+ * Check if a Labs Application exists in Salesforce for a given learner.
+ *
+ * @param req
+ * @param res
+ * @returns
+ */
+export async function postTeamAssignment(
+  req: Request,
+  res: Response,
+): Promise<Response> {
+  const learners = req.body as TeamBuildingPayload;
+  // TODO: Await the results of TeamBuilder
+  try {
+    results = await postAssignmentsToSortingHat(learners);
+  } catch (error) {
+    return res.json({ status: INTERNAL_SERVER_ERROR, message: error });
+  }
+
+  return res.json({ exists: results ? true : false, data: results });
 }
