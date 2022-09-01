@@ -75,12 +75,49 @@ export default class LabsApplicationDao {
     oktaId: string,
     labsApplication: ILabsApplication
   ): Promise<void> {
-    const tempOktaId = "0036f00003iv0xYAAQ";
-
-    await this.client.login();
+    await this.client.login(); // logs us into SF Client 🔐
+    const sfResult = await this.client.connection.sobject("JDS_Track_Enrollment__c").update(
+      {
+      Id: "0017e00001Z3LUcAAN",
+      name: "Updated Account name",
+    },
+    function (err, ret) {
+      if (err || !ret.success) {
+        return console.error(err, ret);
+      }
+      console.log("Updated Successfully : " + ret.id);
+      res.json("Updated Successfully : " + ret.id);
+    }
+      },
+      (err: Error, result: RecordResult) => {
+        if (err) {
+          console.error(err);
+          void Promise.reject(err);
+        } else {
+          return result;
+        }
+      }
+    );
+    console.log(sfResult);
     return Promise.resolve();
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+
 
 
 
