@@ -83,6 +83,8 @@ export async function processLabsApplication(
     // - Replace the mock with a real input
     // Post the learner's project assignment to Salesforce
     // TODO
+    // Post the learner's project assignment to Salesforce
+    await jdsTrackEnrollmentDao.postProjectAssignment(jdsTrackEnrollmentId, projectId);
   } catch (error) {
     return Promise.reject(error);
   }
