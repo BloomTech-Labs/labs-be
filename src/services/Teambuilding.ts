@@ -72,6 +72,10 @@ export async function processLabsApplication(
     const learners = await jdsTrackEnrollmentDao.getLabsActive();
     // Get the learner's project assignment from SortingHat
     // TODO
+    // - Understand required payload shape for SortingHat
+    // - Mock the payload for SortingHat for this function 
+    // - Get and return a valid response from SortingHat for the mock payload
+    // - Replace the mock with a real input
     // Post the learner's project assignment to Salesforce
     // TODO
   } catch (error) {
