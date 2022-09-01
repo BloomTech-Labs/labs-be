@@ -13,15 +13,16 @@ export default class ContactDao {
    *
    * @param oktaId string
    */
-  public async getSalesforceIdByOktaId(
+  public async getJDSTrackEnrollmentByOktaId(
     oktaId: string,
   ): Promise<string> {
     await this.client.login();
     const sfResult = await this.client.connection.query(
       `
-        SELECT AccountId, Okta_Id__c
-        FROM Contact
-        WHERE Okta_Id__c = '${oktaId}'
+        SELECT Id, Application__r.Contact__r.Okta_Id__c
+        FROM JDS_Track_Enrollment__c
+        WHERE Application__r.Contact__r.Okta_Id__c='00uiumfop9CMV9wef357'
+        LIMIT 1
       `, {},
 
       (err, result) => {
