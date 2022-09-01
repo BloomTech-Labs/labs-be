@@ -1,4 +1,5 @@
-import { ILabsApplication } from "@entities/TeambuildingPayload";
+ar
+leimport { ILabsApplication } from "@entities/TeambuildingPayload";
 import SalesforceClient from "./client";
 
 export default class LabsApplicationDao {
@@ -101,20 +102,6 @@ export default class LabsApplicationDao {
     console.log(sfResult);
     return Promise.resolve();
   }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
 
 
