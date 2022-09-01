@@ -52,6 +52,10 @@ export interface ILabsApplicationSubmission {
   labsApplication: ILabsApplication;
 }
 
+export interface ISalesforceLabsApplication {
+  // TODO (EB): Add shape of Labs Application in Salesforce
+}
+
 export interface ITeambuildingPayload {
   learners: ILabsApplication[];
   projects: ITeamBuildingProject[];

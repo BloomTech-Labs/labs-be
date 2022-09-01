@@ -1,4 +1,4 @@
-import { ILabsApplication } from "@entities/TeambuildingPayload";
+import { ILabsApplication, ISalesforceLabsApplication } from "@entities/TeambuildingPayload";
 import SalesforceClient from "./client";
 
 export default class LabsApplicationDao {
@@ -66,18 +66,35 @@ export default class LabsApplicationDao {
   }
 
   /**
+   * Format a Labs Application to be written to Salesforce
+   *
+   * @param jdsTrackEnrollmentId: string
+   * @param labsApplication ILabsApplication
+   */
+  public formatLabsApplicationForSalesforce(
+    labsApplication: ILabsApplication
+  ): Promise<ISalesforceLabsApplication> {
+    // TODO
+    const sfLabsApplication = {} as ISalesforceLabsApplication;
+    return Promise.resolve(sfLabsApplication);
+  }
+
+
+  /**
    * Write a Labs Application to a learner record in Salesforce.
    *
-   * @param oktaId string
+   * @param jdsTrackEnrollmentId: string
    * @param labsApplication ILabsApplication
    */
   public async postLabsApplication(
     jdsTrackEnrollmentId: string,
     labsApplication: ILabsApplication
   ): Promise<void> {
-    await this.client.login(); // logs us into SF Client 🔐
+    const sfLabsApplication = this.formatLabsApplicationForSalesforce(labsApplication);
+
+    await this.client.login();
     const sfResult = await this.client.connection.sobject("Labs_Application__c").create({
-      ...labsApplication,
+      ...sfLabsApplication,
       JDS_Track_Enrollment__c: jdsTrackEnrollmentId,
     },
     (err, result) => {

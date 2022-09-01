@@ -58,10 +58,12 @@ export async function processLabsApplication(
   try {
     // Parse the learner's GitHub handle as a profile URL
     const gitHubUrl = await buildGitHubUrl(labsApplication.gitHubHandle || "");
-    // Get the learner's Salesforce ID by their OktaID <-- TODO: Need to get their JDS Track Enrollment ID instead
-    const salesforceId = await contactDao.getSalesforceIdByOktaId(oktaId);
+    // Get the learner's Salesforce ID by their OktaID <-- TODO: Still needed?
+    // const salesforceId = await contactDao.getSalesforceIdByOktaId(oktaId);
+    // Get the learner's JDS Track Enrollment ID by their Okta Id
+    const jdsTrackEnrollmentId = await jdsTrackEnrollmentDao.getJdsTrackEnrollmentIdByOktaId(oktaId);
     // Write the learner's Labs Application responses to Salesforce
-    await labsApplicationDao.postLabsApplication(salesforceId, labsApplication);
+    await labsApplicationDao.postLabsApplication(jdsTrackEnrollmentId, labsApplication);
     // Write the learner's GitHub URL to their Salesforce Contact
     await contactDao.postGitHubUrl(salesforceId, gitHubUrl);
     // Get all active Labs Projects from Salesforce

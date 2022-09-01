@@ -13,13 +13,13 @@ export default class JDSTrackEnrollmentDao {
    */
   public async getJdsTrackEnrollmentIdByOktaId(
     oktaId: string
-  ): Promise<Record<string, unknown>[]> {
+  ): Promise<string> {
     await this.client.login();
     const sfResult = await this.client.connection.query(
       `
-        SELECT JDS_Track_Enrollment__c, Okta_Id__c
-        FROM Contact
-        WHERE Okta_Id__c = '${oktaId}'
+        SELECT Id, Application__r.Contact__r.Okta_Id__c
+        FROM JDS_Track_Enrollment__c
+        WHERE Application__r.Contact__r.Okta_Id__c='00uiumfop9CMV9wef357'
         LIMIT 1
       `, {},
 
@@ -31,10 +31,8 @@ export default class JDSTrackEnrollmentDao {
         }
       }
     );
-    console.log(sfResult);
     return Promise.resolve(
-      // TODO: Add entity and assert type before returning
-      (sfResult.records as Record<string, unknown>[])
+      (sfResult.records as Record<string, unknown>[])[0].Id as string
     );
   }
 
