@@ -53,7 +53,6 @@ export interface ILabsApplicationSubmission {
 }
 
 export interface ISalesforceLabsApplication {
-  // TODO (EB): Add shape of Labs Application in Salesforce
   Labs_Time_Slot__c : string;
   Your_Github_handle__c: string;
   Git_Expertise__c: string;
@@ -73,7 +72,6 @@ export interface ISalesforceLabsApplication {
   I_enjoy_managing_the_flow_of_information__c: string;
   How_do_you_approach_the_situation__c: string;
   JDS_Track_Enrollment__c: string;
-
 }
 
 export interface ITeambuildingPayload {
