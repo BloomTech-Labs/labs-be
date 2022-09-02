@@ -288,7 +288,7 @@ class StudentDao {
   ): Promise<boolean> {
     // Get Airtable record IDs for each learner.
     const students = await this.getByLambdaIds(
-      learners.map((learner) => learner.lambdaId)
+      learners.map((learner) => learner.oktaId)
     );
 
     // Get Airtable record IDs for each project.
@@ -299,7 +299,7 @@ class StudentDao {
       const student = students.find(
         (_student) =>
           ((_student.fields["Lambda ID"] || []) as string[])[0] ===
-          learner.lambdaId
+          learner.oktaId
       );
 
       const id = student?.id;

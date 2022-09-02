@@ -1,7 +1,9 @@
 import StatusCodes from "http-status-codes";
 import { Request, Response } from "express";
 import { paramMissingError } from "@shared/constants";
-import TeamBuildingPayload, { ILabsApplicationSubmission } from "@entities/TeambuildingPayload";
+import TeamBuildingPayload, {
+  ILabsApplicationSubmission,
+} from "@entities/TeambuildingPayload";
 
 import {
   getLabsApplicationByOktaId,

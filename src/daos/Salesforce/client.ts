@@ -1,11 +1,11 @@
 import jsforce from "jsforce";
 
 export default class SalesforceClient {
-    public connection: jsforce.Connection;
-    private SF_LOGIN_URL: string;
-    private SF_USERNAME: string;
-    private SF_PASSWORD: string;
-    private SF_TOKEN: string;
+  public connection: jsforce.Connection;
+  private SF_LOGIN_URL: string;
+  private SF_USERNAME: string;
+  private SF_PASSWORD: string;
+  private SF_TOKEN: string;
 
   constructor() {
     const { SF_LOGIN_URL, SF_USERNAME, SF_PASSWORD, SF_TOKEN } = process.env;
@@ -38,25 +38,24 @@ export default class SalesforceClient {
     //     await this.login();
     //     return this;
     // })() as unknown as SalesforceClient;
-
   }
 
   public async login(): Promise<jsforce.UserInfo> {
     const connection = this.connection;
     return await connection.login(
-        this.SF_USERNAME,
-        this.SF_PASSWORD + this.SF_TOKEN,
-        (err, userInfo) => {
-            if (err) {
-                console.error(err);
-                //return reject(err);
-            } else {
-                console.log(`👤 SFDC User ID: ${userInfo.id}`);
-                console.log(`🏢 SFDC Org ID: ${userInfo.organizationId}`);
-                console.log(`🌐 SFDC url: ${this. SF_LOGIN_URL}\n`);
-                //resolve({ connection, userInfo });
-            }
+      this.SF_USERNAME,
+      this.SF_PASSWORD + this.SF_TOKEN,
+      (err, userInfo) => {
+        if (err) {
+          console.error(err);
+          //return reject(err);
+        } else {
+          console.log(`👤 SFDC User ID: ${userInfo.id}`);
+          console.log(`🏢 SFDC Org ID: ${userInfo.organizationId}`);
+          console.log(`🌐 SFDC url: ${this.SF_LOGIN_URL}\n`);
+          //resolve({ connection, userInfo });
         }
+      }
     );
   }
 }

@@ -15,12 +15,12 @@ export default class LabsTimeSlotDao {
    * @param sfTimeSlotName: string
    */
   public getShortName(sfTimeSlotName: string): string {
-    const sfTimeSlots: Record<string, string> = { 
+    const sfTimeSlots: Record<string, string> = {
       "Morning (Web + DS): 8 AM – 11 AM Pacific": "Morning",
       "Afternoon (Web + BD): 12 PM – 3 PM Pacific": "Afternoon",
       "Evening (Web + BD): 3 PM – 6 PM Pacific": "Evening",
       "Night (Web + DS): 6 PM – 9 PM Pacific": "Night",
-    }
+    };
     return sfTimeSlots[sfTimeSlotName];
   }
 
@@ -30,12 +30,12 @@ export default class LabsTimeSlotDao {
    * @param shortName: string
    */
   public getSalesforceName(shortName: string): string {
-    const timeSlots: Record<string, string> = { 
+    const timeSlots: Record<string, string> = {
       Morning: "Morning (Web + DS): 8 AM – 11 AM Pacific",
       Afternoon: "Afternoon (Web + BD): 12 PM – 3 PM Pacific",
       Evening: "Evening (Web + BD): 3 PM – 6 PM Pacific",
       Night: "Night (Web + DS): 6 PM – 9 PM Pacific",
-    }
+    };
     return timeSlots[shortName];
   }
 
@@ -47,7 +47,8 @@ export default class LabsTimeSlotDao {
     const sfResult = await this.client.connection.query(
       `
         SELECT Id, Name, Tracks__c FROM Labs_Time_Slot__c
-      `, {},
+      `,
+      {},
       (err, result) => {
         if (err) {
           void Promise.reject(err);
@@ -80,7 +81,8 @@ export default class LabsTimeSlotDao {
         WHERE JDS_Labs_Start_Timestamp__c != NULL
         AND JDS_Labs_Completed_Timestamp__c = NULL
         LIMIT 10000
-      `, {},
+      `,
+      {},
 
       (err, result) => {
         if (err) {
@@ -93,7 +95,7 @@ export default class LabsTimeSlotDao {
     console.log(sfResult);
     return Promise.resolve(
       // TODO: Add entity and assert type before returning
-      (sfResult.records as Record<string, unknown>[])
+      sfResult.records as Record<string, unknown>[]
     );
   }
 }

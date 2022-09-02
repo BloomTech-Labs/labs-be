@@ -1,7 +1,7 @@
 import { ILabsTimeSlot } from "@entities/LabsTimeSlot";
 import {
   ILabsApplication,
-  ISalesforceLabsApplication
+  ISalesforceLabsApplication,
 } from "@entities/TeambuildingPayload";
 import SalesforceClient from "./client";
 
@@ -38,9 +38,8 @@ export default class LabsApplicationDao {
         }
       }
     );
-    const sfLabsApplicationRecords = (
-      (sfResult as unknown as unknown[])  as ISalesforceLabsApplication[]
-    );
+    const sfLabsApplicationRecords =
+      sfResult as unknown as unknown[] as ISalesforceLabsApplication[];
     if (!sfLabsApplicationRecords || !sfLabsApplicationRecords.length) {
       return null;
     }
@@ -48,7 +47,8 @@ export default class LabsApplicationDao {
     if (!sfLabsApplication) {
       return null;
     }
-    const labsApplication = this.formatLabsApplicationFromSalesforce(sfLabsApplication);
+    const labsApplication =
+      this.formatLabsApplicationFromSalesforce(sfLabsApplication);
     return labsApplication;
   }
 
@@ -73,9 +73,11 @@ export default class LabsApplicationDao {
       Detail_Oriented__c: labsApplication.detailOriented,
       Speak_Up_In_Discussions__c: labsApplication.speakUpInDiscussions,
       What_activities_do_you_prefer__c: labsApplication.soloOrSocial,
-      What_do_you_prefer_to_seek_in_your_work__c: labsApplication.meaningOrValue,
+      What_do_you_prefer_to_seek_in_your_work__c:
+        labsApplication.meaningOrValue,
       Choices_are_easier_when__c: labsApplication.feelsRightOrMakesSense,
-      In_general_which_method_do_you_prefer__c: labsApplication.favoriteOrCollect,
+      In_general_which_method_do_you_prefer__c:
+        labsApplication.favoriteOrCollect,
       Technical_project_manager_should__c: labsApplication.tpmSkill1,
       When_their_team_is_facing_a_blocker__c: labsApplication.tpmSkill2,
       Interested_in_becoming_a_people_manager__c: labsApplication.tpmInterest1,
@@ -107,16 +109,20 @@ export default class LabsApplicationDao {
       detailOriented: sfLabsApplication.Detail_Oriented__c,
       speakUpInDiscussions: sfLabsApplication.Speak_Up_In_Discussions__c,
       soloOrSocial: sfLabsApplication.What_activities_do_you_prefer__c,
-      meaningOrValue: sfLabsApplication.What_do_you_prefer_to_seek_in_your_work__c,
+      meaningOrValue:
+        sfLabsApplication.What_do_you_prefer_to_seek_in_your_work__c,
       feelsRightOrMakesSense: sfLabsApplication.feelsRightOrMakesSense__c,
-      favoriteOrCollect: sfLabsApplication.In_general_which_method_do_you_prefer__c,
+      favoriteOrCollect:
+        sfLabsApplication.In_general_which_method_do_you_prefer__c,
       tpmSkill1: sfLabsApplication.Technical_project_manager_should__c,
       tpmSkill2: sfLabsApplication.When_their_team_is_facing_a_blocker__c,
       tpmSkill3: sfLabsApplication.How_do_you_approach_the_situation__c,
-      tpmInterest1: sfLabsApplication.Interested_in_becoming_a_people_manager__c,
+      tpmInterest1:
+        sfLabsApplication.Interested_in_becoming_a_people_manager__c,
       tpmInterest2: undefined, // TODO: Salesforce is still missing this field.
       tpmInterest3: sfLabsApplication.I_enjoy_running_meetings__c,
-      tpmInterest4: sfLabsApplication.I_enjoy_managing_the_flow_of_information__c
+      tpmInterest4:
+        sfLabsApplication.I_enjoy_managing_the_flow_of_information__c,
     };
 
     return labsApplication;
@@ -138,26 +144,32 @@ export default class LabsApplicationDao {
     let sfLabsApplication: ISalesforceLabsApplication | null = null;
     try {
       sfLabsApplication = this.formatLabsApplicationForSalesforce(
-        labsApplication, labsTimeSlot, jdsTrackEnrollmentId
+        labsApplication,
+        labsTimeSlot,
+        jdsTrackEnrollmentId
       );
     } catch (error) {
       void Promise.reject(error);
     }
-    
+
     // Write the Labs Application to Salesforce
     await this.client.login();
-    const sfResult = await this.client.connection.sobject("Labs_Application__c").create({
-      ...sfLabsApplication,
-      JDS_Track_Enrollment__c: jdsTrackEnrollmentId,
-    },
-    (err, result) => {
-      if (err || !result.success) {
-        console.error(err, result);
-        void Promise.reject(err);
-      }
-      console.log("Updated Successfully : ", result);
-      return (result);
-    });
+    const sfResult = await this.client.connection
+      .sobject("Labs_Application__c")
+      .create(
+        {
+          ...sfLabsApplication,
+          JDS_Track_Enrollment__c: jdsTrackEnrollmentId,
+        },
+        (err, result) => {
+          if (err || !result.success) {
+            console.error(err, result);
+            void Promise.reject(err);
+          }
+          console.log("Updated Successfully : ", result);
+          return result;
+        }
+      );
     console.log(sfResult);
     return Promise.resolve();
   }

@@ -83,29 +83,29 @@ export interface ISalesforceLearner {
 }
 
 export interface ITeamBuildingLearner {
-  oktaId: string,
-  name: string,
-  track: Track | string,
-  storyPoints: number,
-  labsProject: string,
-  labsTimeSlot: string[],
-  gitHubHandle: string,
-  gitExpertise: number,
-  dockerExpertise: number,
-  playByEar: number,
-  detailOriented: number,
-  speakUpInDiscussions: number,
-  soloOrSocial: string,
-  meaningOrValue: string,
-  feelsRightOrMakesSense: string,
-  favoriteOrCollect: string,
-  tpmSkill1: string,
-  tpmSkill2: string,
-  tpmSkill3: string,
-  tpmInterest1: number,
-  tpmInterest2: number,
-  tpmInterest3: number,
-  tpmInterest4: number
+  oktaId: string;
+  name: string;
+  track: Track | string;
+  storyPoints: number;
+  labsProject: string;
+  labsTimeSlot: string[];
+  gitHubHandle: string;
+  gitExpertise: number;
+  dockerExpertise: number;
+  playByEar: number;
+  detailOriented: number;
+  speakUpInDiscussions: number;
+  soloOrSocial: string;
+  meaningOrValue: string;
+  feelsRightOrMakesSense: string;
+  favoriteOrCollect: string;
+  tpmSkill1: string;
+  tpmSkill2: string;
+  tpmSkill3: string;
+  tpmInterest1: number;
+  tpmInterest2: number;
+  tpmInterest3: number;
+  tpmInterest4: number;
 }
 
 export interface ITeambuildingPayload {
@@ -117,7 +117,10 @@ export class TeambuildingPayload implements ITeambuildingPayload {
   learners: ITeamBuildingLearner[];
   projects: ITeamBuildingProject[];
 
-  constructor(learners: ITeamBuildingLearner[], projects: ITeamBuildingProject[]) {
+  constructor(
+    learners: ITeamBuildingLearner[],
+    projects: ITeamBuildingProject[]
+  ) {
     this.learners = learners;
     this.projects = projects;
   }

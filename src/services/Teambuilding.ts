@@ -15,9 +15,16 @@ import { parseTrack, Track } from "@entities/TeambuildingOutput";
 import { ILabsTimeSlot } from "@entities/LabsTimeSlot";
 import SortingHatDao from "@daos/SortingHat/SortingHatDao";
 import { resolve } from "path";
-import { buildGitHubUrl, getRandomValue, mergeObjectArrays } from "@shared/functions";
+import {
+  buildGitHubUrl,
+  getRandomValue,
+  mergeObjectArrays,
+} from "@shared/functions";
 import LabsTimeSlotDao from "@daos/Salesforce/LabsTimeSlotDao";
-import TeambuildingOutput, { Learner, formatTrackForSortingHat } from "@entities/TeambuildingOutput";
+import TeambuildingOutput, {
+  Learner,
+  formatTrackForSortingHat,
+} from "@entities/TeambuildingOutput";
 import LabsProject from "@entities/LabsProject";
 
 const labsApplicationDao = new LabsApplicationDao();
@@ -37,9 +44,8 @@ export async function getLabsApplicationByOktaId(
   oktaId: string
 ): Promise<ILabsApplication | null> {
   // Get from Salesforce
-  const labsApplicationResults = await labsApplicationDao.getLabsApplicationByOktaId(
-    oktaId
-  );
+  const labsApplicationResults =
+    await labsApplicationDao.getLabsApplicationByOktaId(oktaId);
   return labsApplicationResults;
 }
 
@@ -53,10 +59,10 @@ function getValidTimeSlot(
   learnerTimeSlotRankings: string[],
   learnerTrack: Track
 ): ILabsTimeSlot | null {
-
   for (const learnerSlot of learnerTimeSlotRankings) {
-    const timeSlot = labsTimeSlots.find(slot => slot.shortName === learnerSlot) || {};
-    for (const track of (timeSlot.tracks || [])) {
+    const timeSlot =
+      labsTimeSlots.find((slot) => slot.shortName === learnerSlot) || {};
+    for (const track of timeSlot.tracks || []) {
       if (parseTrack(track) === learnerTrack) {
         return timeSlot;
       }
@@ -98,35 +104,34 @@ function buildTeambuildingPayload(
     playByEar: x.playByEar || 3,
     detailOriented: x.detailOriented || 3,
     speakUpInDiscussions: x.speakUpInDiscussions || 3,
-    soloOrSocial: x.soloOrSocial ? (x.soloOrSocial )[0] : getRandomValue(
-      ["A. Solo", "B. Social"]
-    ) as string,
-    meaningOrValue: x.meaningOrValue ? (x.meaningOrValue )[0] : getRandomValue(
-      ["A. Deeper Meaning", "B. Higher Value"]
-    )  as string,
+    soloOrSocial: x.soloOrSocial
+      ? x.soloOrSocial[0]
+      : (getRandomValue(["A. Solo", "B. Social"]) as string),
+    meaningOrValue: x.meaningOrValue
+      ? x.meaningOrValue[0]
+      : (getRandomValue(["A. Deeper Meaning", "B. Higher Value"]) as string),
     feelsRightOrMakesSense: x.feelsRightOrMakesSense
-      ? (x.feelsRightOrMakesSense )[0]
-      : getRandomValue(
-          ["A. It feels right", "B. It makes sense"]
-        )  as string,
+      ? x.feelsRightOrMakesSense[0]
+      : (getRandomValue(["A. It feels right", "B. It makes sense"]) as string),
     favoriteOrCollect: x.favoriteOrCollect
-      ? (x.favoriteOrCollect )[0]
-      : getRandomValue(
-          ["A. Find your favorite", "B. Collect them all"]
-        )  as string,
-    tpmSkill1: x.tpmSkill1 ? (x.tpmSkill1 )[0] : getRandomValue(
-      ["A", "B", "C", "D"]
-    )  as string,
-    tpmSkill2: x.tpmSkill2 ? (x.tpmSkill2 )[0] : getRandomValue(
-      ["A", "B"]
-    )  as string,
-    tpmSkill3: x.tpmSkill3 ? (x.tpmSkill3 )[0] : getRandomValue(
-      ["A", "B", "C", "D"]
-    )  as string,
-    tpmInterest1: x.tpmInterest1 || getRandomValue([2,3]) as number,
-    tpmInterest2: x.tpmInterest2 || getRandomValue([2,3]) as number,
-    tpmInterest3: x.tpmInterest3 || getRandomValue([2,3]) as number,
-    tpmInterest4: x.tpmInterest4 || getRandomValue([2,3]) as number,
+      ? x.favoriteOrCollect[0]
+      : (getRandomValue([
+          "A. Find your favorite",
+          "B. Collect them all",
+        ]) as string),
+    tpmSkill1: x.tpmSkill1
+      ? x.tpmSkill1[0]
+      : (getRandomValue(["A", "B", "C", "D"]) as string),
+    tpmSkill2: x.tpmSkill2
+      ? x.tpmSkill2[0]
+      : (getRandomValue(["A", "B"]) as string),
+    tpmSkill3: x.tpmSkill3
+      ? x.tpmSkill3[0]
+      : (getRandomValue(["A", "B", "C", "D"]) as string),
+    tpmInterest1: x.tpmInterest1 || (getRandomValue([2, 3]) as number),
+    tpmInterest2: x.tpmInterest2 || (getRandomValue([2, 3]) as number),
+    tpmInterest3: x.tpmInterest3 || (getRandomValue([2, 3]) as number),
+    tpmInterest4: x.tpmInterest4 || (getRandomValue([2, 3]) as number),
   }));
 
   payload.learners = learners;
@@ -138,8 +143,11 @@ function buildTeambuildingPayload(
 function findTeamAssignmentByLearnerId(
   oktaId: string,
   assignments: TeambuildingOutput
-) : string | null {
-  return assignments.learners.find(learner => learner.oktaId === oktaId)?.labsProject || null;
+): string | null {
+  return (
+    assignments.learners.find((learner) => learner.oktaId === oktaId)
+      ?.labsProject || null
+  );
 }
 
 /**
@@ -167,7 +175,8 @@ export async function processLabsApplication(
     // Get the learner's Salesforce Contact ID by their OktaID
     const contactId = await contactDao.getContactIdByOktaId(oktaId);
     // Get the learner's JDS Track Enrollment ID by their Okta Id
-    const jdsTrackEnrollmentId = await jdsTrackEnrollmentDao.getJdsTrackEnrollmentIdByOktaId(oktaId);
+    const jdsTrackEnrollmentId =
+      await jdsTrackEnrollmentDao.getJdsTrackEnrollmentIdByOktaId(oktaId);
     // Get the learner's track based on their JDS Track Enrollment
     const track = await jdsTrackEnrollmentDao.getTrack(jdsTrackEnrollmentId);
     // console.log("Track", track);
@@ -178,13 +187,21 @@ export async function processLabsApplication(
     const labsTimeSlots = await labsTimeSlotDao.getLabsTimeSlots();
     // console.log("labsTimeSlots", labsTimeSlots);
     // Get the first valid time slot for the learner based on their track
-    const timeSlot = getValidTimeSlot(labsTimeSlots, labsApplication.labsTimeSlot || [], track);
+    const timeSlot = getValidTimeSlot(
+      labsTimeSlots,
+      labsApplication.labsTimeSlot || [],
+      track
+    );
     // console.log("timeSlot", timeSlot);
     if (!timeSlot) {
       throw new Error("Invalid time slot");
     }
     // Write the learner's Labs Application responses to Salesforce
-    await labsApplicationDao.postLabsApplication(jdsTrackEnrollmentId, timeSlot, labsApplication);
+    await labsApplicationDao.postLabsApplication(
+      jdsTrackEnrollmentId,
+      timeSlot,
+      labsApplication
+    );
 
     // Write the learner's GitHub URL to their Salesforce Contact
     await contactDao.postGitHubUrl(contactId, gitHubUrl);
@@ -195,7 +212,9 @@ export async function processLabsApplication(
 
     // Convert the team member IDs on existing projects from Contact IDs to
     // Okta IDs.
-    projects = await contactDao.getTeamMemberOktaIds(projects as ITeamBuildingProject[]);
+    projects = await contactDao.getTeamMemberOktaIds(
+      projects as ITeamBuildingProject[]
+    );
     console.log("projects", projects);
 
     // Get all active Labs learners from Salesforce, including their Labs Applications
@@ -211,22 +230,32 @@ export async function processLabsApplication(
       labsProject: "",
       labsTimeSlot: labsApplication.labsTimeSlot || [""],
       gitHubHandle: labsApplication.gitHubHandle || "",
-      gitExpertise: labsApplication.gitExpertise || getRandomValue([2,3]) as number,
-      dockerExpertise: labsApplication.dockerExpertise || getRandomValue([2,3]) as number,
-      playByEar: labsApplication.playByEar || getRandomValue([2,3]) as number,
-      detailOriented: labsApplication.detailOriented || getRandomValue([2,3]) as number,
-      speakUpInDiscussions: labsApplication.speakUpInDiscussions || getRandomValue([2,3]) as number,
+      gitExpertise:
+        labsApplication.gitExpertise || (getRandomValue([2, 3]) as number),
+      dockerExpertise:
+        labsApplication.dockerExpertise || (getRandomValue([2, 3]) as number),
+      playByEar:
+        labsApplication.playByEar || (getRandomValue([2, 3]) as number),
+      detailOriented:
+        labsApplication.detailOriented || (getRandomValue([2, 3]) as number),
+      speakUpInDiscussions:
+        labsApplication.speakUpInDiscussions ||
+        (getRandomValue([2, 3]) as number),
       soloOrSocial: labsApplication.soloOrSocial || "",
       meaningOrValue: labsApplication.meaningOrValue || "",
       feelsRightOrMakesSense: labsApplication.feelsRightOrMakesSense || "",
       favoriteOrCollect: labsApplication.favoriteOrCollect || "",
       tpmSkill1: labsApplication.tpmSkill1 || "",
       tpmSkill2: labsApplication.tpmSkill2 || "",
-      tpmSkill3: labsApplication.tpmSkill3  || "",
-      tpmInterest1: labsApplication.tpmInterest1 || getRandomValue([2,3]) as number,
-      tpmInterest2: labsApplication.tpmInterest2 || getRandomValue([2,3]) as number,
-      tpmInterest3: labsApplication.tpmInterest3 || getRandomValue([2,3]) as number,
-      tpmInterest4: labsApplication.tpmInterest4 || getRandomValue([2,3]) as number  
+      tpmSkill3: labsApplication.tpmSkill3 || "",
+      tpmInterest1:
+        labsApplication.tpmInterest1 || (getRandomValue([2, 3]) as number),
+      tpmInterest2:
+        labsApplication.tpmInterest2 || (getRandomValue([2, 3]) as number),
+      tpmInterest3:
+        labsApplication.tpmInterest3 || (getRandomValue([2, 3]) as number),
+      tpmInterest4:
+        labsApplication.tpmInterest4 || (getRandomValue([2, 3]) as number),
     };
     learners.push(learner);
     const payload = buildTeambuildingPayload(learners, projects);
@@ -244,8 +273,10 @@ export async function processLabsApplication(
     }
 
     // Post the learner's project assignment to Salesforce
-    await jdsTrackEnrollmentDao.postProjectAssignment(jdsTrackEnrollmentId, await projectDao.getIdByName(projectId));
-
+    await jdsTrackEnrollmentDao.postProjectAssignment(
+      jdsTrackEnrollmentId,
+      await projectDao.getIdByName(projectId)
+    );
   } catch (error) {
     return Promise.reject(error);
   }

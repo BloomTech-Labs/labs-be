@@ -20,7 +20,8 @@ export default class ProjectDao {
         FROM Labs_Project__c
         WHERE Active__c = TRUE
         LIMIT 100
-      `, {},
+      `,
+      {},
       (err, result) => {
         if (err) {
           console.error(err);
@@ -30,18 +31,18 @@ export default class ProjectDao {
         }
       }
     );
-    const sfLabsProjects = (sfResult.records as Record<string,unknown>[]);
+    const sfLabsProjects = sfResult.records as Record<string, unknown>[];
     console.log(sfLabsProjects);
-    const labsProjects = sfLabsProjects.map((record => ({
-      "id": record.Name as string,
-      "product": record.Labs_Product__c as string,
-      "teamCode": record.Team_Code__c as string,
-      "tracks": ((record.Tracks__c as string) || "").split(";").filter(x => x),
-      "releaseManager": (record.Release_Manager__c as string) || "",
+    const labsProjects = sfLabsProjects.map((record) => ({
+      id: record.Name as string,
+      product: record.Labs_Product__c as string,
+      teamCode: record.Team_Code__c as string,
+      tracks: ((record.Tracks__c as string) || "").split(";").filter((x) => x),
+      releaseManager: (record.Release_Manager__c as string) || "",
       // teamMemberSmtIds need to be converted from Salesforce Contact IDs
       // into oktaIds.
-      "teamMemberSmtIds": (record.Team_Members__c as string[]) || [],
-    })));
+      teamMemberSmtIds: (record.Team_Members__c as string[]) || [],
+    }));
 
     return Promise.resolve(labsProjects);
   }
@@ -49,9 +50,7 @@ export default class ProjectDao {
   /**
    * Gets the ID of a Labs Project by its name.
    */
-  public async getIdByName(
-    projectName: string
-  ): Promise<string> {
+  public async getIdByName(projectName: string): Promise<string> {
     await this.client.login();
     const sfResult = await this.client.connection.query(
       `
@@ -59,7 +58,8 @@ export default class ProjectDao {
         FROM Labs_Project__c
         WHERE Name = '${projectName}'
         LIMIT 1
-      `, {},
+      `,
+      {},
       (err, result) => {
         if (err) {
           console.error(err);
@@ -69,10 +69,9 @@ export default class ProjectDao {
         }
       }
     );
-    const sfProjectId = (sfResult.records as Record<string,unknown>[])[0];
+    const sfProjectId = (sfResult.records as Record<string, unknown>[])[0];
     console.log(sfProjectId);
     const projectId = sfProjectId.Id as string;
     return Promise.resolve(projectId);
   }
-
 }
