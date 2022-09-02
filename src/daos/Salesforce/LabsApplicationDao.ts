@@ -99,9 +99,7 @@ export default class LabsApplicationDao {
     sfLabsApplication: ISalesforceLabsApplication
   ): ILabsApplication {
     const labsApplication: ILabsApplication = {
-      labsTimeSlot: sfLabsApplication.Labs_Time_Slot__c
-        ? [sfLabsApplication.Labs_Time_Slot__c]
-        : undefined,
+      labsTimeSlot: sfLabsApplication.Labs_Time_Slot__c? [sfLabsApplication.Labs_Time_Slot__c]: undefined,
       gitHubHandle: sfLabsApplication.Your_Github_handle__c,
       gitExpertise: sfLabsApplication.Git_Expertise__c,
       dockerExpertise: sfLabsApplication.Docker_expertise__c,

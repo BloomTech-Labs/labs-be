@@ -22,7 +22,9 @@ class SurveyDao {
   public async getAll(): Promise<Records<FieldSet>> {
     const surveys = await this.airtable("Labs - TBSurveys")
       .select({
-        view: "Grid view",
+        // temporarily updated this for backfilling labs apps
+        // should be changed back to `grid view` after backfilling is complete
+        view: "[DND] Backfill Labs Apps",
       })
       .all();
 

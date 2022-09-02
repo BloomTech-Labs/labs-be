@@ -43,6 +43,35 @@ export default class JDSTrackEnrollmentDao {
       (sfResult.records as Record<string, unknown>[])[0].Id as string
     );
   }
+  /**
+   * Gets a learner's JDS Track Enrollment ID by their Lambda ID.
+   */
+  public async getJdsTrackEnrollmentIdByLambdaId(
+    lambdaId: string
+  ): Promise<string> {
+    await this.client.login();
+    const sfResult = await this.client.connection.query(
+      `
+        SELECT Id, Application__r.Contact__r.Lambda_ID__c
+        FROM JDS_Track_Enrollment__c
+        WHERE Application__r.Contact__r.Lambda_ID__c='${lambdaId}'
+        LIMIT 1
+      `,
+      {},
+
+      (err, result) => {
+        if (err) {
+          void Promise.reject(err);
+        } else {
+          return result;
+        }
+      }
+    );
+    console.log({sfResult})
+    return Promise.resolve(
+      (sfResult.records as Record<string, unknown>[])[0].Id as string
+    );
+  }
 
   /**
    * Gets a learner's track by their JDS Track Enrollment ID.
