@@ -189,9 +189,17 @@ export async function processLabsApplication(
     // console.log("labsTimeSlots", labsTimeSlots);
     // Get the first valid time slot for the learner based on their track
     // []  1 => 'morning'   2 => 'afternoon'   3 => 'evening'    4 =>  'night'  
+    
+    const sortedTimeSlots = [
+      `${labsApplication.timeSlotChoiceMorning}.Morning`,
+      `${labsApplication.timeSlotChoiceAfternoon}.Afternoon`,
+      `${labsApplication.timeSlotChoiceEvening}.Evening`,
+      `${labsApplication.timeSlotChoiceNight}.Night`,
+    ].sort().map(s => s.split(".")[1]);
+    
     const timeSlot = getValidTimeSlot(
       labsTimeSlots,
-      [labsApplication.timeSlotChoice1 || "", labsApplication.timeSlotChoice2 || "", labsApplication.timeSlotChoice3 || "", labsApplication.timeSlotChoice4 || ""], 
+      sortedTimeSlots, 
       track
     );
     if (!timeSlot) {

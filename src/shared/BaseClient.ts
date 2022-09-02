@@ -61,10 +61,10 @@ export class BaseClient<T> implements IBaseClient<T> {
     return this.request(path, "PUT", {}, body as BodyInit);
   }
 
-  // public post(path: string, body = {}): ClientResponse<T> {
-  //   if (body == {}) {
-  //     throw new Error("Body is missing for POST method.");
-  //   }
-  //   return this.request(path, "POST", {}, body as BodyInit);
-  // }
+  public post(path: string, body = {}): ClientResponse<T> {
+    if (!body) {
+      throw new Error("Body is missing for POST method.");
+    }
+    return this.request(path, "POST", {}, body as BodyInit);
+  }
 }
