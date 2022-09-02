@@ -1,4 +1,4 @@
-import { ILabsApplication } from "@entities/TeambuildingPayload";
+import { ILabsApplication, ISalesforceLearner, ITeamBuildingLearner } from "@entities/TeambuildingPayload";
 import SalesforceClient from "./client";
 
 export default class JDSTrackEnrollmentDao {
@@ -40,17 +40,16 @@ export default class JDSTrackEnrollmentDao {
   /**
    * Gets all active Labs learners from Salesforce, including their Labs Applications.
    */
-  public async getLabsActive(): Promise<Record<string, unknown>[]> {
+  public async getLabsActive(): Promise<ITeamBuildingLearner[]> {
     await this.client.login();
     const sfResult = await this.client.connection.query(
       `
-        SELECT Contact__c, JDS_Labs_Start_Timestamp__c, JDS_Labs_Completed_Timestamp__c, Labs_Application__c
+        SELECT Id, Contact__c, JDS_Labs_Start_Timestamp__c, JDS_Labs_Completed_Timestamp__c, Labs_Application__c
         FROM JDS_Track_Enrollment__c
         WHERE JDS_Labs_Start_Timestamp__c != NULL
         AND JDS_Labs_Completed_Timestamp__c = NULL
         LIMIT 10000
       `, {},
-
       (err, result) => {
         if (err) {
           void Promise.reject(err);
@@ -60,9 +59,10 @@ export default class JDSTrackEnrollmentDao {
       }
     );
     console.log(sfResult);
-    return Promise.resolve(
-      // TODO: Add entity and assert type before returning
-      (sfResult.records as Record<string, unknown>[])
-    );
+    const learners = (sfResult.records as ISalesforceLearner[]).map((record) => ({
+      id: record.Id
+      // TODO
+    }));
+    return Promise.resolve(learners);
   }
 }

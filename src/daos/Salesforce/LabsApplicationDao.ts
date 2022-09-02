@@ -94,7 +94,7 @@ export default class LabsApplicationDao {
       Play_By_Ear__c: labsApplication.playByEar,
       Detail_Oriented__c: labsApplication.detailOriented,
       Speak_Up_In_Discussions__c: labsApplication.speakUpInDiscussions,
-      What_activitie_do_you_prefer__c: labsApplication.soloOrSocial,
+      What_activities_do_you_prefer__c: labsApplication.soloOrSocial,
       What_do_you_prefer_to_seek_in_your_work__c: labsApplication.meaningOrValue,
       feelsRightOrMakesSense: labsApplication.feelsRightOrMakesSense,
       Choices_are_easier_when__c: labsApplication.feelsRightOrMakesSense,

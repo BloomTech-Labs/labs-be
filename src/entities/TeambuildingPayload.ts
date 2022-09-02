@@ -60,7 +60,7 @@ export interface ISalesforceLabsApplication {
   Play_By_Ear__c?: number;
   Detail_Oriented__c?: number;
   Speak_Up_In_Discussions__c?: number;
-  What_activitie_do_you_prefer__c?: string;
+  What_activities_do_you_prefer__c?: string;
   What_do_you_prefer_to_seek_in_your_work__c?: string;
   feelsRightOrMakesSense?: string;
   Choices_are_easier_when__c?: string;
@@ -72,6 +72,19 @@ export interface ISalesforceLabsApplication {
   I_enjoy_managing_the_flow_of_information__c?: number;
   How_do_you_approach_the_situation__c?: string;
   JDS_Track_Enrollment__c?: string;
+}
+
+export interface ISalesforceLearner {
+  Id: string;
+  Contact__c: string;
+  JDS_Labs_Start_Timestamp__c: string;
+  JDS_Labs_Completed_Timestamp__c: string;
+  Labs_Application__c: ILabsApplication;
+}
+
+export interface ITeamBuildingLearner {
+  id: string;
+  // TODO
 }
 
 export interface ITeambuildingPayload {

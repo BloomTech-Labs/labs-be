@@ -1,3 +1,4 @@
+import LabsProject from "@entities/LabsProject";
 import { ILabsApplication } from "@entities/TeambuildingPayload";
 import SalesforceClient from "./client";
 
@@ -11,7 +12,7 @@ export default class ProjectDao {
   /**
    * Gets all active Labs projects from Salesforce.
    */
-  public async getActive(): Promise<Record<string, unknown>[]> {
+  public async getActive(): Promise<LabsProject[]> {
     await this.client.login();
     const sfResult = await this.client.connection.query(
       `
@@ -31,8 +32,7 @@ export default class ProjectDao {
     );
     console.log(sfResult);
     return Promise.resolve(
-      // TODO: Add entity and assert type before returning
-      (sfResult.records as Record<string, unknown>[])
+      (sfResult.records as LabsProject[])
     );
   }
 }
