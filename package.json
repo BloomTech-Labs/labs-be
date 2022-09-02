@@ -1,6 +1,9 @@
 {
   "name": "labs-be-test-deploy",
   "version": "0.0.0",
+  "engines": {
+    "node": "18.x"
+  },
   "scripts": {
     "build": "tsc",
     "format": "npx prettier --write .",
