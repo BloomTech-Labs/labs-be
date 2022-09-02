@@ -5,7 +5,6 @@ import { Stream } from "stream";
 
 export const pErr = (err: Error): void => {
   if (err) {
-    
   }
 };
 

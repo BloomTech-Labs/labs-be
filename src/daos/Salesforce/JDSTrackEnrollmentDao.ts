@@ -38,7 +38,7 @@ export default class JDSTrackEnrollmentDao {
         }
       }
     );
-    console.log({sfResult})
+    console.log({ sfResult });
     return Promise.resolve(
       (sfResult.records as Record<string, unknown>[])[0].Id as string
     );
@@ -67,7 +67,7 @@ export default class JDSTrackEnrollmentDao {
         }
       }
     );
-    console.log({sfResult})
+    console.log({ sfResult });
     return Promise.resolve(
       (sfResult.records as Record<string, unknown>[])[0].Id as string
     );

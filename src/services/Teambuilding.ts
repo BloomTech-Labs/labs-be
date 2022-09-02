@@ -169,8 +169,8 @@ export async function processLabsApplication(
 ): Promise<void> {
   const oktaId = labsApplicationSubmission.oktaId;
   const labsApplication = labsApplicationSubmission;
-  console.log(labsApplicationSubmission)
-  try { 
+  console.log(labsApplicationSubmission);
+  try {
     // Parse the learner's GitHub handle as a profile URL
     const gitHubUrl = await buildGitHubUrl(labsApplication.gitHubHandle || "");
     // Get the learner's Salesforce Contact ID by their OktaID
@@ -188,20 +188,18 @@ export async function processLabsApplication(
     const labsTimeSlots = await labsTimeSlotDao.getLabsTimeSlots();
     // console.log("labsTimeSlots", labsTimeSlots);
     // Get the first valid time slot for the learner based on their track
-    // []  1 => 'morning'   2 => 'afternoon'   3 => 'evening'    4 =>  'night'  
-    
+    // []  1 => 'morning'   2 => 'afternoon'   3 => 'evening'    4 =>  'night'
+
     const sortedTimeSlots = [
       `${labsApplication.timeSlotChoiceMorning}.Morning`,
       `${labsApplication.timeSlotChoiceAfternoon}.Afternoon`,
       `${labsApplication.timeSlotChoiceEvening}.Evening`,
       `${labsApplication.timeSlotChoiceNight}.Night`,
-    ].sort().map(s => s.split(".")[1]);
-    
-    const timeSlot = getValidTimeSlot(
-      labsTimeSlots,
-      sortedTimeSlots, 
-      track
-    );
+    ]
+      .sort()
+      .map((s) => s.split(".")[1]);
+
+    const timeSlot = getValidTimeSlot(labsTimeSlots, sortedTimeSlots, track);
     if (!timeSlot) {
       throw new Error("Invalid time slot");
     }
