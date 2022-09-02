@@ -10,7 +10,6 @@
     "lint:fix": "npx eslint src --ext .ts --fix",
     "start": "ts-node -r tsconfig-paths/register -r dotenv/config --transpile-only src/index.ts",
     "start:dev": "npx nodemon",
-    "postinstall": "npm run build",
     "test": "npx nodemon --config ./spec/nodemon.json",
     "test:no-reloading": "./node_modules/.bin/ts-node -r tsconfig-paths/register ./spec",
     "orm": "npx typeorm",
