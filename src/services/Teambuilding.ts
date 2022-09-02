@@ -214,7 +214,7 @@ export async function processLabsApplication(
 
     // Write the learner's GitHub URL to their Salesforce Contact
     await contactDao.postGitHubUrl(contactId, gitHubUrl);
-
+    
     // Get all active Labs Projects from Salesforce
     let projects = await projectDao.getActive();
     console.log("projects", projects);
