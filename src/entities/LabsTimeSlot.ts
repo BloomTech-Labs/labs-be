@@ -12,6 +12,7 @@ export interface ILabsTimeSlot {
   lastReferencedDate?: Date;
   lastViewedDate?: Date;
   name?: string;
+  shortName?: string;
   ownerId?: string;
   systemModstamp?: Date;
   tracks?: string[];

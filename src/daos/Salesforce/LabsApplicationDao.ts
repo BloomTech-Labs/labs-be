@@ -60,7 +60,7 @@ export default class LabsApplicationDao {
   ): ISalesforceLabsApplication {
     // Get the relevant time slot ID by name
     const labsTimeSlot = labsTimeSlots.find(
-      slot => slot.name === (labsApplication.labsTimeSlot || [])[0]
+      slot => slot.shortName === (labsApplication.labsTimeSlot || [])[0]
     )?.id;
     if (!labsTimeSlot) {
       throw new Error("Invalid Labs Application");

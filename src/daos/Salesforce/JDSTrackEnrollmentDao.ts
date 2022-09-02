@@ -1,3 +1,4 @@
+import { parseTrack, Track } from "@entities/TeambuildingOutput";
 import { ILabsApplication, ISalesforceLearner, ITeamBuildingLearner } from "@entities/TeambuildingPayload";
 import SalesforceClient from "./client";
 
@@ -36,6 +37,38 @@ export default class JDSTrackEnrollmentDao {
     );
   }
 
+  /**
+   * Gets a learner's track by their JDS Track Enrollment ID.
+   */
+  public async getTrack(
+    jdsTrackEnrollmentId: string
+  ): Promise<Track | null> {
+    await this.client.login();
+    const sfResult = await this.client.connection.query(
+      `
+        SELECT Id, Class_Applied_For__c
+        FROM JDS_Track_Enrollment__c
+        WHERE Id = '${jdsTrackEnrollmentId}'
+        LIMIT 1
+      `, {},
+      (err, result) => {
+        if (err) {
+          void Promise.reject(err);
+        } else {
+          return result;
+        }
+      }
+    );
+
+    const sfTrack = (
+      sfResult.records as Record<string, unknown>[]
+    )[0].Class_Applied_For__c as string;
+    const track = parseTrack(sfTrack);
+    if (!track) {
+      void Promise.reject("Invalid track");
+    }
+    return Promise.resolve(track);
+  }
 
   /**
    * Gets all active Labs learners from Salesforce, including their Labs Applications.

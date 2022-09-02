@@ -50,8 +50,7 @@ export async function getLabsApplicationByOktaId(
  * - Get the learner's project assignment from SortingHat
  * - Post the learner's project assignment to Salesforce
  *
- * @param oktaId
- * @param labsApplication
+ * @param labsApplicationSubmission: ILabsApplicationSubmission
  * @returns
  */
 export async function processLabsApplication(
@@ -66,10 +65,14 @@ export async function processLabsApplication(
     const salesforceId = await contactDao.getSalesforceIdByOktaId(oktaId);
     // Get the learner's JDS Track Enrollment ID by their Okta Id
     const jdsTrackEnrollmentId = await jdsTrackEnrollmentDao.getJdsTrackEnrollmentIdByOktaId(oktaId);
+    // Get the learner's track based on their JDS Track Enrollment
+    const track = await jdsTrackEnrollmentDao.getTrack(jdsTrackEnrollmentId);
     // Get all Labs Time Slots from Salesforce
     const labsTimeSlots = await labsTimeSlotDao.getLabsTimeSlots();
     // Write the learner's Labs Application responses to Salesforce
     await labsApplicationDao.postLabsApplication(jdsTrackEnrollmentId, labsTimeSlots, labsApplication);
+
+    /*
     // Write the learner's GitHub URL to their Salesforce Contact
     await contactDao.postGitHubUrl(salesforceId, gitHubUrl);
     // Get all active Labs Projects from Salesforce
@@ -96,11 +99,14 @@ export async function processLabsApplication(
     // TODO
     // Post the learner's project assignment to Salesforce
     //await jdsTrackEnrollmentDao.postProjectAssignment(jdsTrackEnrollmentId, projectId);
+
+    */
+
+
   } catch (error) {
     return Promise.reject(error);//str labsProject: 'Test Product - a"
   }
 }
-
 
 function findTeamAssignmentByLearnerId(
   learnerId: string,
