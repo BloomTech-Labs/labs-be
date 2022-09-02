@@ -3,12 +3,7 @@
  */
 
 import fs from "fs-extra";
-import Logger from "jet-logger";
 import childProcess from "child_process";
-
-// Setup logger
-const logger = new Logger();
-logger.timestamp = false;
 
 (async () => {
   try {
@@ -25,7 +20,7 @@ logger.timestamp = false;
     // Copy back-end files
     await exec("tsc --build tsconfig.prod.json", "./");
   } catch (err) {
-    logger.err(err);
+
   }
 })();
 

@@ -3,7 +3,7 @@ import OktaJwtVerifier, { JwtClaims } from "@okta/jwt-verifier";
 import oktaConfig from "@shared/oktaConfig";
 import { IUser } from "@entities/User";
 import UserDao from "@daos/User/UserDao";
-import Logger from "@shared/Logger";
+
 
 const makeUserFromClaims = (claims: JwtClaims): IUser => {
   return {
@@ -48,7 +48,7 @@ const authRequired = (
       }
       next();
     } catch (err) {
-      Logger.err(err);
+      // Logger.err(err);
       next({ status: 401, error: err });
     }
   })();

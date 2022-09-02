@@ -7,7 +7,6 @@ import StatusCodes from "http-status-codes";
 import "express-async-errors";
 
 import baseRouter from "./routes";
-import logger from "@shared/Logger";
 
 const app = express();
 const { BAD_REQUEST } = StatusCodes;
@@ -36,7 +35,7 @@ app.use("/", baseRouter);
 // Print API errors
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  logger.err(err, true);
+  // logger.err(err, true);
   return res.status(BAD_REQUEST).json({
     error: err.message,
   });

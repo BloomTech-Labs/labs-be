@@ -1,4 +1,3 @@
-import logger from "./Logger";
 import Papa, { ParseError, ParseResult } from "papaparse";
 import { Octokit, App } from "octokit";
 import request from "request";
@@ -6,7 +5,7 @@ import { Stream } from "stream";
 
 export const pErr = (err: Error): void => {
   if (err) {
-    logger.err(err);
+    
   }
 };
 
