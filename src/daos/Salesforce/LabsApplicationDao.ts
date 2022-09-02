@@ -19,7 +19,7 @@ export default class LabsApplicationDao {
    */
   public async getLabsApplicationByOktaId(
     oktaId: string
-  ): Promise<ILabsApplication> {
+  ): Promise<ILabsApplication | null> {
     await this.client.login();
     const sfResult = await this.client.connection.query(
       `
@@ -38,10 +38,16 @@ export default class LabsApplicationDao {
         }
       }
     );
-    console.log(sfResult);
-    const sfLabsApplication = (
-      (sfResult as unknown as unknown[])[0]  as ISalesforceLabsApplication
+    const sfLabsApplicationRecords = (
+      (sfResult as unknown as unknown[])  as ISalesforceLabsApplication[]
     );
+    if (!sfLabsApplicationRecords || !sfLabsApplicationRecords.length) {
+      return null;
+    }
+    const sfLabsApplication = sfLabsApplicationRecords[0];
+    if (!sfLabsApplication) {
+      return null;
+    }
     const labsApplication = this.formatLabsApplicationFromSalesforce(sfLabsApplication);
     return labsApplication;
   }
@@ -55,19 +61,11 @@ export default class LabsApplicationDao {
    */
   public formatLabsApplicationForSalesforce(
     labsApplication: ILabsApplication,
-    labsTimeSlots: ILabsTimeSlot[],
+    labsTimeSlot: ILabsTimeSlot,
     jdsTrackEnrollmentId: string
   ): ISalesforceLabsApplication {
-    // Get the relevant time slot ID by name
-    const labsTimeSlot = labsTimeSlots.find(
-      slot => slot.shortName === (labsApplication.labsTimeSlot || [])[0]
-    )?.id;
-    if (!labsTimeSlot) {
-      throw new Error("Invalid Labs Application");
-    }
-
     const sfLabsApplication: ISalesforceLabsApplication = {
-      Labs_Time_Slot__c: labsTimeSlot,
+      Labs_Time_Slot__c: labsTimeSlot.id,
       Your_Github_handle__c: labsApplication.gitHubHandle,
       Git_Expertise__c: labsApplication.gitExpertise,
       Docker_expertise__c: labsApplication.dockerExpertise,
@@ -134,14 +132,14 @@ export default class LabsApplicationDao {
    */
   public async postLabsApplication(
     jdsTrackEnrollmentId: string,
-    labsTimeSlots: ILabsTimeSlot[],
+    labsTimeSlot: ILabsTimeSlot,
     labsApplication: ILabsApplication
   ): Promise<void> {
     // Format the Labs Application for Salesforce
     let sfLabsApplication: ISalesforceLabsApplication | null = null;
     try {
       sfLabsApplication = this.formatLabsApplicationForSalesforce(
-        labsApplication, labsTimeSlots, jdsTrackEnrollmentId
+        labsApplication, labsTimeSlot, jdsTrackEnrollmentId
       );
     } catch (error) {
       void Promise.reject(error);

@@ -10,6 +10,8 @@ import TeambuildingPayload, {
   ILabsApplicationSubmission,
   ITeamBuildingProject,
 } from "@entities/TeambuildingPayload";
+import { parseTrack, Track } from "@entities/TeambuildingOutput";
+import { ILabsTimeSlot } from "@entities/LabsTimeSlot";
 import SortingHatDao from "@daos/SortingHat/SortingHatDao";
 import { resolve } from "path";
 import { buildGitHubUrl, getRandomValue, mergeObjectArrays } from "@shared/functions";
@@ -40,6 +42,43 @@ export async function getLabsApplicationByOktaId(
 }
 
 /**
+ * Get the first valid time slot for a learner based on their track.
+ *
+ * @param labsTimeSlots: TimeSlot[]
+ */
+function getValidTimeSlot(
+  labsTimeSlots: ILabsTimeSlot[],
+  learnerTimeSlotRankings: string[],
+  learnerTrack: Track
+): ILabsTimeSlot | null {
+
+  for (const learnerSlot of learnerTimeSlotRankings) {
+    const timeSlot = labsTimeSlots.find(slot => slot.shortName === learnerSlot) || {};
+    for (const track of (timeSlot.tracks || [])) {
+      if (parseTrack(track) === learnerTrack) {
+        return timeSlot;
+      }
+    }
+  }
+
+  // const labsTimeSlot = labsTimeSlots.find(
+  //   slot => slot.shortName === (labsApplication.labsTimeSlot || [])[0]
+  // )?.id;
+  // if (!labsTimeSlot) {
+  //   throw new Error("Invalid Labs Application");
+  // }
+
+  // for (const timeSlot of labsTimeSlots) {
+  //   for (const track of (timeSlot.tracks || [])) {
+  //     if (parseTrack(track) === learnerTrack) {
+  //       return timeSlot;
+  //     }
+  //   }
+  // }
+  return null;
+}
+
+/**
  * Process an incoming Labs Application:
  * - Parse the learner's GitHub handle as a profile URL
  * - Get the learner's Salesforce ID by their OktaID
@@ -67,10 +106,18 @@ export async function processLabsApplication(
     const jdsTrackEnrollmentId = await jdsTrackEnrollmentDao.getJdsTrackEnrollmentIdByOktaId(oktaId);
     // Get the learner's track based on their JDS Track Enrollment
     const track = await jdsTrackEnrollmentDao.getTrack(jdsTrackEnrollmentId);
+    if (!track) {
+      throw new Error("Invalid track");
+    }
     // Get all Labs Time Slots from Salesforce
     const labsTimeSlots = await labsTimeSlotDao.getLabsTimeSlots();
+    // Get the first valid time slot for the learner based on their track
+    const timeSlot = getValidTimeSlot(labsTimeSlots, labsApplication.labsTimeSlot || [], track);
+    if (!timeSlot) {
+      throw new Error("Invalid time slot");
+    }
     // Write the learner's Labs Application responses to Salesforce
-    await labsApplicationDao.postLabsApplication(jdsTrackEnrollmentId, labsTimeSlots, labsApplication);
+    await labsApplicationDao.postLabsApplication(jdsTrackEnrollmentId, timeSlot, labsApplication);
 
     /*
     // Write the learner's GitHub URL to their Salesforce Contact
@@ -107,6 +154,7 @@ export async function processLabsApplication(
     return Promise.reject(error);//str labsProject: 'Test Product - a"
   }
 }
+
 
 function findTeamAssignmentByLearnerId(
   learnerId: string,

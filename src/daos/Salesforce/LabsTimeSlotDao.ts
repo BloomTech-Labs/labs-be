@@ -9,7 +9,7 @@ export default class LabsTimeSlotDao {
     this.client = new SalesforceClient();
   }
 
-/**
+  /**
    * Get the short name of a Labs Time Slot by its name in Salesforce.
    *
    * @param sfTimeSlotName: string
@@ -22,6 +22,21 @@ export default class LabsTimeSlotDao {
       "Night (Web + DS): 6 PM – 9 PM Pacific": "Night",
     }
     return sfTimeSlots[sfTimeSlotName];
+  }
+
+  /**
+   * Get the Salesforce name of a Labs Time Slot by its short name.
+   *
+   * @param shortName: string
+   */
+  public getSalesforceName(shortName: string): string {
+    const timeSlots: Record<string, string> = { 
+      Morning: "Morning (Web + DS): 8 AM – 11 AM Pacific",
+      Afternoon: "Afternoon (Web + BD): 12 PM – 3 PM Pacific",
+      Evening: "Evening (Web + BD): 3 PM – 6 PM Pacific",
+      Night: "Night (Web + DS): 6 PM – 9 PM Pacific",
+    }
+    return timeSlots[shortName];
   }
 
   /**
