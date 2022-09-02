@@ -19,7 +19,8 @@ import commandLineArgs from "command-line-args";
   ]);
   // Set the env file
   const result2 = dotenv.config({
-    //path: path.join(__dirname, `env/${options.env}.env`),
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    path: path.join(__dirname, `env/${options.env}.env`),
   });
   if (result2.error) {
     throw result2.error;
