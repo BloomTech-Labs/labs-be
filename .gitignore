@@ -45,4 +45,4 @@ jspm_packages/
 # dotenv environment variables file
 .env.test
 .env.local
-*.env
+.env
