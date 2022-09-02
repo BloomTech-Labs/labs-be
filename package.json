@@ -10,6 +10,7 @@
     "lint:fix": "npx eslint src --ext .ts --fix",
     "start": "ts-node -r tsconfig-paths/register -r dotenv/config --transpile-only src/index.ts",
     "start:dev": "npx nodemon",
+    "compile": "npx -p typescript tsc --project tsconfig.prod.json",
     "test": "npx nodemon --config ./spec/nodemon.json",
     "test:no-reloading": "./node_modules/.bin/ts-node -r tsconfig-paths/register ./spec",
     "orm": "npx typeorm",
@@ -91,7 +92,6 @@
     "fs-extra": "^10.0.0",
     "jasmine": "^3.8.0",
     "nodemon": "^2.0.12",
-    "supertest": "^6.1.4",
-    "tsc": "^2.0.4"
+    "supertest": "^6.1.4"
   }
 }
