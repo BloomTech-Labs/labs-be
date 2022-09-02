@@ -1,2 +1,2 @@
 worker: npm start
-web: node src/routes/index.js
+web: npm start src/routes/index.js
