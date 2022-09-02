@@ -9,17 +9,17 @@ export default class ContactDao {
   }
 
   /**
-   * Gets a learner's Salesforce Account ID from their Okta ID.
+   * Gets a learner's Salesforce Contact ID from their Okta ID.
    *
    * @param oktaId string
    */
-  public async getSalesforceIdByOktaId(
+  public async getContactIdByOktaId(
     oktaId: string,
   ): Promise<string> {
     await this.client.login();
     const sfResult = await this.client.connection.query(
       `
-        SELECT AccountId, Okta_Id__c
+        SELECT Id, Okta_Id__c
         FROM Contact
         WHERE Okta_Id__c = '${oktaId}'
       `, {},
@@ -32,7 +32,7 @@ export default class ContactDao {
       }
     );
     return Promise.resolve(
-      (sfResult.records as Record<string, unknown>[])[0].AccountId as string
+      (sfResult.records as Record<string, unknown>[])[0].Id as string
     );
   }
 
@@ -43,12 +43,14 @@ export default class ContactDao {
   * @param gitHubUrl string
   */
   public async postGitHubUrl(
-    salesforceId: string,
+    contactId: string,
     gitHubUrl: string
   ): Promise<void> {
     await this.client.login();
+    console.log("contactId", contactId);
+    console.log("gitHubUrl", gitHubUrl);
     const success = await this.client.connection.sobject("Contact").update({
-      Id: salesforceId,
+      Id: contactId,
       GitHub_Link__c: gitHubUrl,
     }, {},
     (err, result) => {

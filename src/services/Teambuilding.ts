@@ -52,8 +52,13 @@ function getValidTimeSlot(
   learnerTrack: Track
 ): ILabsTimeSlot | null {
 
+  console.table(labsTimeSlots);
+  console.table(learnerTimeSlotRankings);
+  console.table(learnerTrack);
+
   for (const learnerSlot of learnerTimeSlotRankings) {
     const timeSlot = labsTimeSlots.find(slot => slot.shortName === learnerSlot) || {};
+    console.log (timeSlot);
     for (const track of (timeSlot.tracks || [])) {
       if (parseTrack(track) === learnerTrack) {
         return timeSlot;
@@ -100,32 +105,39 @@ export async function processLabsApplication(
   try {
     // Parse the learner's GitHub handle as a profile URL
     const gitHubUrl = await buildGitHubUrl(labsApplication.gitHubHandle || "");
-    // Get the learner's Salesforce ID by their OktaID
-    const salesforceId = await contactDao.getSalesforceIdByOktaId(oktaId);
+    // Get the learner's Salesforce Contact ID by their OktaID
+    const contactId = await contactDao.getContactIdByOktaId(oktaId);
     // Get the learner's JDS Track Enrollment ID by their Okta Id
     const jdsTrackEnrollmentId = await jdsTrackEnrollmentDao.getJdsTrackEnrollmentIdByOktaId(oktaId);
     // Get the learner's track based on their JDS Track Enrollment
     const track = await jdsTrackEnrollmentDao.getTrack(jdsTrackEnrollmentId);
+    console.log("Track", track); // TEMP
     if (!track) {
       throw new Error("Invalid track");
     }
     // Get all Labs Time Slots from Salesforce
     const labsTimeSlots = await labsTimeSlotDao.getLabsTimeSlots();
+    console.log("labsTimeSlots", labsTimeSlots);
     // Get the first valid time slot for the learner based on their track
     const timeSlot = getValidTimeSlot(labsTimeSlots, labsApplication.labsTimeSlot || [], track);
+    console.log("timeSlot", timeSlot);
     if (!timeSlot) {
       throw new Error("Invalid time slot");
     }
     // Write the learner's Labs Application responses to Salesforce
     await labsApplicationDao.postLabsApplication(jdsTrackEnrollmentId, timeSlot, labsApplication);
 
-    /*
     // Write the learner's GitHub URL to their Salesforce Contact
-    await contactDao.postGitHubUrl(salesforceId, gitHubUrl);
+    await contactDao.postGitHubUrl(contactId, gitHubUrl);
+
     // Get all active Labs Projects from Salesforce
     const projects = await projectDao.getActive();
+    console.log(projects);
+
     // Get all active Labs learners from Salesforce, including their Labs Applications
-    const learners = await jdsTrackEnrollmentDao.getLabsActive();
+    const learners = await jdsTrackEnrollmentDao.getLabsActive(track);
+
+    /*
 
     // builds out payload for teams // probably needs to be async
     // const formatPayload = buildTeambuildingPayload(projects, learners);

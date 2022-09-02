@@ -74,7 +74,6 @@ export default class LabsApplicationDao {
       Speak_Up_In_Discussions__c: labsApplication.speakUpInDiscussions,
       What_activities_do_you_prefer__c: labsApplication.soloOrSocial,
       What_do_you_prefer_to_seek_in_your_work__c: labsApplication.meaningOrValue,
-      feelsRightOrMakesSense__c: labsApplication.feelsRightOrMakesSense,
       Choices_are_easier_when__c: labsApplication.feelsRightOrMakesSense,
       In_general_which_method_do_you_prefer__c: labsApplication.favoriteOrCollect,
       Technical_project_manager_should__c: labsApplication.tpmSkill1,

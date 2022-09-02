@@ -83,20 +83,41 @@ export interface ISalesforceLearner {
 }
 
 export interface ITeamBuildingLearner {
-  id: string;
-  // TODO
+  oktaId: string,
+  name: string,
+  track: Track,
+  storyPoints: number,
+  labsProject: string,
+  labsTimeSlot: string[],
+  gitHubHandle: string,
+  gitExpertise: number,
+  dockerExpertise: number,
+  playByEar: number,
+  detailOriented: number,
+  speakUpInDiscussions: number,
+  soloOrSocial: string,
+  meaningOrValue: string,
+  feelsRightOrMakesSense: string,
+  favoriteOrCollect: string,
+  tpmSkill1: string,
+  tpmSkill2: string,
+  tpmSkill3: string,
+  tpmInterest1: number,
+  tpmInterest2: number,
+  tpmInterest3: number,
+  tpmInterest4: number
 }
 
 export interface ITeambuildingPayload {
-  learners: ILabsApplication[];
+  learners: ITeambuildingLearner[];
   projects: ITeamBuildingProject[];
 }
 
 export class TeambuildingPayload implements ITeambuildingPayload {
-  learners: ILabsApplication[];
+  learners: ITeambuildingLearner[];
   projects: ITeamBuildingProject[];
 
-  constructor(learners: ILabsApplication[], projects: ITeamBuildingProject[]) {
+  constructor(learners: ITeambuildingLearner[], projects: ITeamBuildingProject[]) {
     this.learners = learners;
     this.projects = projects;
   }

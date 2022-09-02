@@ -21,16 +21,15 @@ export default class ProjectDao {
         WHERE Active__c = TRUE
         LIMIT 100
       `, {},
-
       (err, result) => {
         if (err) {
+          console.error(err);
           void Promise.reject(err);
         } else {
           return result;
         }
       }
     );
-    console.log(sfResult);
     return Promise.resolve(
       (sfResult.records as LabsProject[])
     );

@@ -46,7 +46,7 @@ export default class LabsTimeSlotDao {
     await this.client.login();
     const sfResult = await this.client.connection.query(
       `
-        SELECT Id, Name FROM Labs_Time_Slot__c
+        SELECT Id, Name, Tracks__c FROM Labs_Time_Slot__c
       `, {},
       (err, result) => {
         if (err) {
@@ -61,7 +61,8 @@ export default class LabsTimeSlotDao {
     ).map((record) => ({
       id: record.Id,
       name: record.Name,
-      shortName: this.getShortName(record.name),
+      shortName: this.getShortName(record.Name),
+      tracks: record.Tracks__c.split(";"),
     }));
 
     return labsTimeSlots;
