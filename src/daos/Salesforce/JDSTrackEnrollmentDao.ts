@@ -65,4 +65,32 @@ export default class JDSTrackEnrollmentDao {
     }));
     return Promise.resolve(learners);
   }
+
+  /**
+   * Posts a learner's project assignment to Salesforce.
+   * 
+   * @param jdsTrackEnrollmentId: string
+   * @param projectId: string
+   */
+  public async postProjectAssignment(
+    jdsTrackEnrollmentId: string,
+    projectId: string
+  ): Promise<void> {
+    await this.client.login();
+    const sfResult = await this.client.connection.sobject(
+      "JDS_Track_Enrollment__c"
+    ).update({
+      Id: jdsTrackEnrollmentId,
+      Labs_Projects__c: projectId,
+    },
+    (error, result) => {
+      if (error || !result.success) {
+        console.error(error, result);
+        void Promise.reject(error);
+      }
+      console.log("Updated Successfully : ", result);
+      return result;
+    });
+    return Promise.resolve();
+  }
 }

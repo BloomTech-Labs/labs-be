@@ -10,24 +10,24 @@ export interface ITeamBuildingProject {
 }
 
 export interface ILabsApplication {
-  labsTimeSlot: [string];
+  labsTimeSlot?: [string];
   gitHubHandle?: string;
-  gitExpertise: number;
-  dockerExpertise: number;
-  playByEar: number;
-  detailOriented: number;
-  speakUpInDiscussions: number;
-  soloOrSocial: string;
-  meaningOrValue: string;
-  feelsRightOrMakesSense: string;
-  favoriteOrCollect: string;
-  tpmSkill1: string;
-  tpmSkill2: string;
-  tpmSkill3: string;
-  tpmInterest1: number;
-  tpmInterest2: number;
-  tpmInterest3: number;
-  tpmInterest4: number;
+  gitExpertise?: number;
+  dockerExpertise?: number;
+  playByEar?: number;
+  detailOriented?: number;
+  speakUpInDiscussions?: number;
+  soloOrSocial?: string;
+  meaningOrValue?: string;
+  feelsRightOrMakesSense?: string;
+  favoriteOrCollect?: string;
+  tpmSkill1?: string;
+  tpmSkill2?: string;
+  tpmSkill3?: string;
+  tpmInterest1?: number;
+  tpmInterest2?: number;
+  tpmInterest3?: number;
+  tpmInterest4?: number;
   uxInterest1?: number;
   uxInterest2?: number;
   frontendInterest1?: number;
@@ -62,7 +62,7 @@ export interface ISalesforceLabsApplication {
   Speak_Up_In_Discussions__c?: number;
   What_activities_do_you_prefer__c?: string;
   What_do_you_prefer_to_seek_in_your_work__c?: string;
-  feelsRightOrMakesSense?: string;
+  feelsRightOrMakesSense__c?: string;
   Choices_are_easier_when__c?: string;
   In_general_which_method_do_you_prefer__c?: string;
   Technical_project_manager_should__c?: string;

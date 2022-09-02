@@ -95,7 +95,7 @@ export async function processLabsApplication(
     // Post the learner's project assignment to Salesforce
     // TODO
     // Post the learner's project assignment to Salesforce
-    // await jdsTrackEnrollmentDao.postProjectAssignment(jdsTrackEnrollmentId, projectId);
+    //await jdsTrackEnrollmentDao.postProjectAssignment(jdsTrackEnrollmentId, projectId);
   } catch (error) {
     return Promise.reject(error);//str labsProject: 'Test Product - a"
   }

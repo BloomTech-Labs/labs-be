@@ -1,5 +1,8 @@
 import { ILabsTimeSlot } from "@entities/LabsTimeSlot";
-import { ILabsApplication, ISalesforceLabsApplication } from "@entities/TeambuildingPayload";
+import {
+  ILabsApplication,
+  ISalesforceLabsApplication
+} from "@entities/TeambuildingPayload";
 import SalesforceClient from "./client";
 
 export default class LabsApplicationDao {
@@ -19,15 +22,16 @@ export default class LabsApplicationDao {
   ): Promise<ILabsApplication> {
     await this.client.login();
     const sfResult = await this.client.connection.query(
-      `SELECT Labs_Application__c, Contact__r.Okta_Id__c
-      FROM JDS_Track_Enrollment__c
-      WHERE Contact__r.Okta_Id__c='${oktaId}'
-      LIMIT 1`,
+      `
+        SELECT FIELDS(ALL), JDS_Track_Enrollment__r.Contact__r.Okta_Id__c
+        FROM Labs_Application__c
+        WHERE JDS_Track_Enrollment__r.Contact__r.Okta_Id__c = '${oktaId}'
+        LIMIT 1
+      `,
       {},
       (err, result) => {
         if (err) {
           console.error(err);
-          // give us a hint as to wot? currently our query is broked
           void Promise.reject(err);
         } else {
           return result.records;
@@ -35,35 +39,11 @@ export default class LabsApplicationDao {
       }
     );
     console.log(sfResult);
-    // testing this w/ a functioning query, we get the result. 🚀
-    // Once we fix our Query we'll be able to use this to create a Labs App Object 🥜
-    //    {
-    //   "oktaId": "0ua87nvcgEq7PF5l357",
-    //   "email": "kenjigrr@gmail.com",
-    //   "slackId": "U025XR1E3J9",
-    //   "labsApplication": {
-    //     "labsTimeSlot": ["morning", "afternoon", "night"],
-    //     "githubHandle": "KemjiGr",
-    //     "gitExpertise": "expert",
-    //     "dockerExpertise": "expert",
-    //     "playByEar": "play it by ear",
-    //     "detailOriented": "detail oriented",
-    //     "speakUpInDiscussions": "speaks up in discussions",
-    //     "soloOrSocial": "social",
-    //     "meaningOrValue": "meaning",
-    //     "feelsRightOrMakesSense": "feels right",
-    //     "favoriteOrCollect": "collect",
-    //     "tpmSkill1": "skill 1",
-    //     "tpmSkill2": "skill 2",
-    //     "tpmSkill3": "skill 3",
-    //     "tpmInterest1": "interest 1",
-    //     "tpmInterest2": "interest 2",
-    //     "tpmInterest3": "interest 3",
-    //     "tpmInterest4": "interest 4"
-    //   }
-    // }
-
-    return (sfResult as unknown) as ILabsApplication;
+    const sfLabsApplication = (
+      (sfResult as unknown as unknown[])[0]  as ISalesforceLabsApplication
+    );
+    const labsApplication = this.formatLabsApplicationFromSalesforce(sfLabsApplication);
+    return labsApplication;
   }
 
   /**
@@ -80,7 +60,7 @@ export default class LabsApplicationDao {
   ): ISalesforceLabsApplication {
     // Get the relevant time slot ID by name
     const labsTimeSlot = labsTimeSlots.find(
-      slot => slot.name === labsApplication.labsTimeSlot[0]
+      slot => slot.name === (labsApplication.labsTimeSlot || [])[0]
     )?.id;
     if (!labsTimeSlot) {
       throw new Error("Invalid Labs Application");
@@ -96,7 +76,7 @@ export default class LabsApplicationDao {
       Speak_Up_In_Discussions__c: labsApplication.speakUpInDiscussions,
       What_activities_do_you_prefer__c: labsApplication.soloOrSocial,
       What_do_you_prefer_to_seek_in_your_work__c: labsApplication.meaningOrValue,
-      feelsRightOrMakesSense: labsApplication.feelsRightOrMakesSense,
+      feelsRightOrMakesSense__c: labsApplication.feelsRightOrMakesSense,
       Choices_are_easier_when__c: labsApplication.feelsRightOrMakesSense,
       In_general_which_method_do_you_prefer__c: labsApplication.favoriteOrCollect,
       Technical_project_manager_should__c: labsApplication.tpmSkill1,
@@ -109,6 +89,40 @@ export default class LabsApplicationDao {
     };
 
     return sfLabsApplication;
+  }
+
+  /**
+   * Format a Labs Application read from Salesforce
+   *
+   * @param sfLabsApplication ISalesforceLabsApplication
+   */
+  public formatLabsApplicationFromSalesforce(
+    sfLabsApplication: ISalesforceLabsApplication
+  ): ILabsApplication {
+    const labsApplication: ILabsApplication = {
+      labsTimeSlot: sfLabsApplication.Labs_Time_Slot__c
+        ? [sfLabsApplication.Labs_Time_Slot__c]
+        : undefined,
+      gitHubHandle: sfLabsApplication.Your_Github_handle__c,
+      gitExpertise: sfLabsApplication.Git_Expertise__c,
+      dockerExpertise: sfLabsApplication.Docker_expertise__c,
+      playByEar: sfLabsApplication.Play_By_Ear__c,
+      detailOriented: sfLabsApplication.Detail_Oriented__c,
+      speakUpInDiscussions: sfLabsApplication.Speak_Up_In_Discussions__c,
+      soloOrSocial: sfLabsApplication.What_activities_do_you_prefer__c,
+      meaningOrValue: sfLabsApplication.What_do_you_prefer_to_seek_in_your_work__c,
+      feelsRightOrMakesSense: sfLabsApplication.feelsRightOrMakesSense__c,
+      favoriteOrCollect: sfLabsApplication.In_general_which_method_do_you_prefer__c,
+      tpmSkill1: sfLabsApplication.Technical_project_manager_should__c,
+      tpmSkill2: sfLabsApplication.When_their_team_is_facing_a_blocker__c,
+      tpmSkill3: sfLabsApplication.How_do_you_approach_the_situation__c,
+      tpmInterest1: sfLabsApplication.Interested_in_becoming_a_people_manager__c,
+      tpmInterest2: undefined, // TODO: Salesforce is still missing this field.
+      tpmInterest3: sfLabsApplication.I_enjoy_running_meetings__c,
+      tpmInterest4: sfLabsApplication.I_enjoy_managing_the_flow_of_information__c
+    };
+
+    return labsApplication;
   }
 
   /**

@@ -31,6 +31,7 @@ export default class SalesforceClient {
     // Create connection to SFDC Fullcopy sandbox (v54.0)
     this.connection = new jsforce.Connection({
       loginUrl: SF_LOGIN_URL,
+      version: "54.0",
     });
 
     // return (async (): Promise<SalesforceClient> => {
