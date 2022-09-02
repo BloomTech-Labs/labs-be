@@ -22,13 +22,10 @@ class SortingHatDao implements ISortingHatDao {
 
   /**
    * @param payload
-   * @param cohort
    */
   public async postBuildTeams(
-    payload: TeambuildingPayload,
-    cohort: string
+    payload: TeambuildingPayload
   ): TeambuildingOutputResponse {
-    // const path = `build/teams/?cohort_name=${cohort}`;
     const path = "sortinghat";
 
     const body = payload;

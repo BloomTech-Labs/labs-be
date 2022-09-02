@@ -1,14 +1,41 @@
 import StatusCodes from "http-status-codes";
 import { Request, Response } from "express";
 import { paramMissingError } from "@shared/constants";
-import { ILabsApplicationSubmission } from "@entities/TeambuildingPayload";
-import { processLabsApplication } from "src/services/Teambuilding";
+import TeamBuildingPayload, {
+  ILabsApplicationSubmission,
+} from "@entities/TeambuildingPayload";
+
+import {
+  getLabsApplicationByOktaId,
+  processLabsApplication,
+} from "src/services/Teambuilding";
 
 const { BAD_REQUEST, CREATED, INTERNAL_SERVER_ERROR, OK } = StatusCodes;
 
 /**
- * Build new teams for a given cohort. See /docs/teambuilding.md
- * Post a set of new project teams to the "Labs - Projects" table in SMT.
+ * Check if a Labs Application exists in Salesforce for a given learner.
+ *
+ * @param req
+ * @param res
+ * @returns
+ */
+export async function getLabsApplication(
+  req: Request,
+  res: Response
+): Promise<Response> {
+  const { oktaId } = req.params;
+  let results;
+  try {
+    results = await getLabsApplicationByOktaId(oktaId);
+  } catch (error) {
+    return res.json({ status: INTERNAL_SERVER_ERROR, message: error });
+  }
+
+  return res.json({ exists: results ? true : false, data: results });
+}
+
+/**
+ * Add a Labs Application to Salesforce for a given learner.
  *
  * @param req
  * @param res
@@ -23,8 +50,8 @@ export async function postLabsApplication(
   try {
     await processLabsApplication(labsApplicationSubmission);
   } catch (error) {
-    return res.status(INTERNAL_SERVER_ERROR);
+    return res.json({ status: INTERNAL_SERVER_ERROR, message: error });
   }
 
-  return res.status(OK);
+  return res.sendStatus(OK);
 }

@@ -321,7 +321,9 @@ export async function getCohortProgress(
     }
 
     // If they don't have an assigned Labs project, filter them out.
-    const assignedProjects = learner.fields["Labs - Assigned Projects"] as string[];
+    const assignedProjects = learner.fields[
+      "Labs - Assigned Projects"
+    ] as string[];
     if (!assignedProjects) {
       continue;
     }

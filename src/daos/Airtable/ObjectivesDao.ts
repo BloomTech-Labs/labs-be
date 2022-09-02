@@ -40,7 +40,7 @@ class ObjectivesDao {
     const course = record.get("Course") as string | undefined;
     const points = record.get("Points") as number;
     const objectivesCourse = record.get("Objectives Course")
-      ? ((record.get("Objectives Course") as string[]))[0]
+      ? (record.get("Objectives Course") as string[])[0]
       : "";
 
     const objective = new Objective(
@@ -76,7 +76,7 @@ class ObjectivesDao {
     const points = record.get("Points") as number;
     const sprint = record.get("Sprint") as number;
     const objectivesCourse = record.get("Objectives Course")
-      ? ((record.get("Objectives Course") as string[]))[0]
+      ? (record.get("Objectives Course") as string[])[0]
       : "";
 
     const milestone = new SprintMilestone(

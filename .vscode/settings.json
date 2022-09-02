@@ -1,5 +1,6 @@
 {
   "eslint.format.enable": true,
   "editor.formatOnPaste": true,
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "editor.hover.enabled": true
 }

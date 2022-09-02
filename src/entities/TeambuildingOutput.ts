@@ -12,17 +12,20 @@ export enum Track {
  * Attempt to parse a Track from a string. Airtable formats tracks as e.g.
  * "Web (Node)".
  *
- * @param surveys
- * @returns
+ * @param track: string
+ * @returns Track
  */
 export function parseTrack(track: string): Track | null {
   switch (track) {
+    case "CS Web Dev":
     case "Web (Node)":
     case "Web":
     case "WEB":
       return Track.WEB;
+    case "Data Science":
     case "DS":
       return Track.DS;
+    case "Backend":
     case "BD":
       return Track.BD;
     case "iOS":
@@ -33,8 +36,21 @@ export function parseTrack(track: string): Track | null {
   }
 }
 
+export function formatTrackForSortingHat(track: Track): string {
+  switch (track) {
+    case Track.WEB:
+      return "Web";
+    case Track.DS:
+      return "DS";
+    case Track.BD:
+      return "BD";
+    default:
+      return "";
+  }
+}
+
 export interface Learner {
-  lambdaId: string;
+  oktaId: string;
   name: string;
   track: Track;
   labsProject?: string;

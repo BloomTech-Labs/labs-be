@@ -10,7 +10,6 @@ import SubmissionDao from "@daos/Canvas/SubmissionDao";
 import { CanvasError, isCanvasError } from "@entities/CanvasError";
 import { hasOwnProperty } from "@shared/functions";
 
-
 const assignmentsDao = new AssignmentsDao();
 const submissionDao = new SubmissionDao();
 const studentDao = new StudentDao();
@@ -101,11 +100,8 @@ export async function processCourseModuleCompletion(
 ): Promise<ModuleCompletion[] | null> {
   console.log(courseId, lambdaId);
   const modules: Module[] | CanvasError | null =
-    await modulesDao.getAllCompletionInCourse(
-      courseId,
-      lambdaId
-    );
-  
+    await modulesDao.getAllCompletionInCourse(courseId, lambdaId);
+
   if (isCanvasError(modules)) {
     console.error(modules);
     return null;
@@ -185,7 +181,9 @@ export async function moduleItemCompleted(
       lambdaId
     );
     if (!moduleItem || isCanvasError(moduleItem)) {
-      throw new Error(`No module item found for module item ID ${moduleItemId} in course ${courseId} for learner ${lambdaId}`);
+      throw new Error(
+        `No module item found for module item ID ${moduleItemId} in course ${courseId} for learner ${lambdaId}`
+      );
     }
 
     // Check whether the module item was completed.
@@ -212,7 +210,9 @@ export async function processCourseCompleted(
       await processCourseModuleCompletion(courseId, lambdaId);
     if (!modules) {
       //return false;
-      throw new Error(`No course modules found for course ${courseId} and learner ${lambdaId}`);
+      throw new Error(
+        `No course modules found for course ${courseId} and learner ${lambdaId}`
+      );
     }
 
     // Get which modules must be completed from Airtable (SMT: "Labs - Courses")
@@ -251,7 +251,9 @@ export async function processAllRequiredCoursesCompleted(
       const modules: ModuleCompletion[] | null =
         await processCourseModuleCompletion(courseId, lambdaId);
       if (!modules) {
-        throw new Error(`No course modules found for course ${courseId} and learner ${lambdaId}`);
+        throw new Error(
+          `No course modules found for course ${courseId} and learner ${lambdaId}`
+        );
       }
 
       // Get which modules must be completed from Airtable (SMT: "Labs - Courses")

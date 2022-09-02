@@ -11,8 +11,7 @@
     "test": "npx nodemon --config ./spec/nodemon.json",
     "test:no-reloading": "./node_modules/.bin/ts-node -r tsconfig-paths/register ./spec",
     "orm": "npx typeorm",
-    "tsc": "tsc",
-    "postinstall": "npm run tsc"
+    "tsc": "tsc"
   },
   "nodemonConfig": {
     "watch": [
@@ -37,6 +36,7 @@
   "dependencies": {
     "@okta/jwt-verifier": "^2.3.0",
     "airtable": "^0.11.1",
+    "body-parser": "^1.20.0",
     "bottleneck": "^2.19.5",
     "command-line-args": "^5.2.0",
     "cookie-parser": "^1.4.5",
@@ -46,6 +46,7 @@
     "helmet": "^4.6.0",
     "http-status-codes": "^2.1.4",
     "jet-logger": "^1.0.6",
+    "jsforce": "^1.11.0",
     "jsonfile": "^6.1.0",
     "lodash": "^4.17.21",
     "ltijs": "^5.8.1",
@@ -53,6 +54,7 @@
     "morgan": "^1.10.0",
     "node-cron": "^3.0.0",
     "node-fetch": "^2.6.1",
+    "octokit": "^2.0.7",
     "papaparse": "^5.3.1",
     "reflect-metadata": "^0.1.13",
     "request": "^2.88.2",
@@ -67,6 +69,7 @@
     "@types/find": "^0.2.1",
     "@types/fs-extra": "^9.0.12",
     "@types/jasmine": "^3.8.2",
+    "@types/jsforce": "^1.9.43",
     "@types/jsonfile": "^6.0.1",
     "@types/lodash": "^4.14.181",
     "@types/morgan": "^1.9.3",
