@@ -5,7 +5,6 @@
     "node": "18.x"
   },
   "scripts": {
-    "build": "tsc",
     "format": "npx prettier --write .",
     "lint": "npx eslint src --ext .ts",
     "lint:fix": "npx eslint src --ext .ts --fix",
