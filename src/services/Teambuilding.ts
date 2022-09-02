@@ -203,6 +203,32 @@ export async function processLabsApplication(
     console.log("learners", learners);
 
     // Build payload for SortingHat
+    const learner: ITeamBuildingLearner = {
+      oktaId: oktaId,
+      name: oktaId,
+      track: track,
+      storyPoints: 0,
+      labsProject: "",
+      labsTimeSlot: labsApplication.labsTimeSlot || [""],
+      gitHubHandle: labsApplication.gitHubHandle || "",
+      gitExpertise: labsApplication.gitExpertise || getRandomValue([2,3]) as number,
+      dockerExpertise: labsApplication.dockerExpertise || getRandomValue([2,3]) as number,
+      playByEar: labsApplication.playByEar || getRandomValue([2,3]) as number,
+      detailOriented: labsApplication.detailOriented || getRandomValue([2,3]) as number,
+      speakUpInDiscussions: labsApplication.speakUpInDiscussions || getRandomValue([2,3]) as number,
+      soloOrSocial: labsApplication.soloOrSocial || "",
+      meaningOrValue: labsApplication.meaningOrValue || "",
+      feelsRightOrMakesSense: labsApplication.feelsRightOrMakesSense || "",
+      favoriteOrCollect: labsApplication.favoriteOrCollect || "",
+      tpmSkill1: labsApplication.tpmSkill1 || "",
+      tpmSkill2: labsApplication.tpmSkill2 || "",
+      tpmSkill3: labsApplication.tpmSkill3  || "",
+      tpmInterest1: labsApplication.tpmInterest1 || getRandomValue([2,3]) as number,
+      tpmInterest2: labsApplication.tpmInterest2 || getRandomValue([2,3]) as number,
+      tpmInterest3: labsApplication.tpmInterest3 || getRandomValue([2,3]) as number,
+      tpmInterest4: labsApplication.tpmInterest4 || getRandomValue([2,3]) as number  
+    };
+    learners.push(learner);
     const payload = buildTeambuildingPayload(learners, projects);
     console.log("payload", payload);
 
@@ -218,63 +244,12 @@ export async function processLabsApplication(
     }
 
     // Post the learner's project assignment to Salesforce
-    await jdsTrackEnrollmentDao.postProjectAssignment(jdsTrackEnrollmentId, projectId);
+    await jdsTrackEnrollmentDao.postProjectAssignment(jdsTrackEnrollmentId, await projectDao.getIdByName(projectId));
 
   } catch (error) {
     return Promise.reject(error);
   }
 }
-
-    // {
-    //   "lambdaId": "KpM2l67553U1G2ze",
-    //   "name": "Aiden Martinez",
-    //   "track": "DS",
-    //   "storyPoints": 7,
-    //   "labsProject": "Test Product - A",
-    //   "gitExpertise": 0,
-    //   "dockerExpertise": 0,
-    //   "playByEar": 0,
-    //   "detailOriented": 0,
-    //   "speakUpInDiscussions": 0,
-    //   "soloOrSocial": "",
-    //   "meaningOrValue": "",
-    //   "feelsRightOrMakesSense": "",
-    //   "favoriteOrCollect": "",
-    //   "tpmSkill1": "B",
-    //   "tpmSkill2": "B",
-    //   "tpmSkill3": "C",
-    //   "tpmInterest1": 2,
-    //   "tpmInterest2": 1,
-    //   "tpmInterest3": 2,
-    //   "tpmInterest4": 2,
-    //   "uxInterest1": 3,
-    //   "uxInterest2": 2,
-    //   "frontendInterest1": 1,
-    //   "frontendInterest2": 2,
-    //   "backendInterest1": 2,
-    //   "backendInterest2": 1,
-    //   "dataEngInterest1": 0,
-    //   "dataEngInterest2": 0,
-    //   "dataEngInterest3": 0,
-    //   "mlEngInterest1": 0,
-    //   "mlEngInterest2": 0,
-    //   "mlEngInterest3": 0,
-    //   "mlOpsInterest1": 0,
-    //   "mlOpsInterest2": 0,
-    //   "mlOpsInterest3": 0,
-    //   "tpmSkillRank": 1,
-    //   "tpmInterestRank": 0.4375,
-    //   "uxInterestRank": 0.625,
-    //   "frontendInterestRank": 0.375,
-    //   "backendInterestRank": 0.375,
-    //   "dataEngInterestRank": 0,
-    //   "mlEngInterestRank": 0,
-    //   "mlOpsInterestRank": 0
-    // }
-
-
-
-
 
 /**
  * Given an array of raw teambuilding survey results, parse it into an array of

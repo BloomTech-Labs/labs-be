@@ -45,4 +45,34 @@ export default class ProjectDao {
 
     return Promise.resolve(labsProjects);
   }
+
+  /**
+   * Gets the ID of a Labs Project by its name.
+   */
+  public async getIdByName(
+    projectName: string
+  ): Promise<string> {
+    await this.client.login();
+    const sfResult = await this.client.connection.query(
+      `
+        SELECT Id, Name
+        FROM Labs_Project__c
+        WHERE Name = '${projectName}'
+        LIMIT 1
+      `, {},
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          void Promise.reject(err);
+        } else {
+          return result;
+        }
+      }
+    );
+    const sfProjectId = (sfResult.records as Record<string,unknown>[])[0];
+    console.log(sfProjectId);
+    const projectId = sfProjectId.Id as string;
+    return Promise.resolve(projectId);
+  }
+
 }
