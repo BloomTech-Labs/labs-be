@@ -36,8 +36,21 @@ export function parseTrack(track: string): Track | null {
   }
 }
 
+export function formatTrackForSortingHat(track: Track): string {
+  switch (track) {
+    case Track.WEB:
+      return "Web";
+    case Track.DS:
+      return "DS";
+    case Track.BD:
+      return "BD";
+    default:
+      return "";
+  }
+}
+
 export interface Learner {
-  lambdaId: string;
+  oktaId: string;
   name: string;
   track: Track;
   labsProject?: string;

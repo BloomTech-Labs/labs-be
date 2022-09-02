@@ -1,5 +1,6 @@
 import { parseTrack, Track } from "@entities/TeambuildingOutput";
 import { ILabsApplication, ISalesforceLearner, ITeamBuildingLearner } from "@entities/TeambuildingPayload";
+import { getRandomValue } from "@shared/functions";
 import SalesforceClient from "./client";
 
 export default class JDSTrackEnrollmentDao {
@@ -196,34 +197,36 @@ export default class JDSTrackEnrollmentDao {
         }
       }
     );
-    console.log(sfResult);
-    // const learners = (sfResult.records as ISalesforceLearner[]).map((record) => ({
-    //   oktaId: record.,
-    //   name: string,
-    //   track: track,
-    //   storyPoints: 0, // TODO: Get from Canvas
-    //   labsProject: string,
-    //   labsTimeSlot: string[],
-    //   gitHubHandle: string,
-    //   gitExpertise: number,
-    //   dockerExpertise: number,
-    //   playByEar: number,
-    //   detailOriented: number,
-    //   speakUpInDiscussions: number,
-    //   soloOrSocial: string,
-    //   meaningOrValue: string,
-    //   feelsRightOrMakesSense: string,
-    //   favoriteOrCollect: string,
-    //   tpmSkill1: string,
-    //   tpmSkill2: string,
-    //   tpmSkill3: string,
-    //   tpmInterest1: number,
-    //   tpmInterest2: number,
-    //   tpmInterest3: number,
-    //   tpmInterest4: number
-    // }));
-    // return Promise.resolve(learners);
-    return Promise.resolve(sfResult as unknown as ITeamBuildingLearner[]);
+    const learners = (sfResult.records as Record<string,unknown>[]).map((record) => {
+      const jdsTrackEnrollment = record.JDS_Track_Enrollment__r as Record<string,unknown>;
+      const contact = jdsTrackEnrollment.Contact__r as Record<string,unknown>;
+      return {
+        oktaId: contact.Okta_Id__c as string,
+        name: contact.Name as string,
+        track: track,
+        storyPoints: 0, // TODO: Get from Canvas
+        labsProject: jdsTrackEnrollment.Labs_Projects__c as string,
+        labsTimeSlot: [record.Labs_Time_Slot__c as string],
+        gitHubHandle: record.Your_Github_handle__c as string,
+        gitExpertise: record.Git_Expertise__c as number,
+        dockerExpertise: getRandomValue([2,3]) as number, // TODO: Still not in SFDC
+        playByEar: record.Play_By_Ear__c as number,
+        detailOriented: record.Detail_Oriented__c as number,
+        speakUpInDiscussions: record.Speak_Up_In_Discussions__c as number,
+        soloOrSocial: record.What_activities_do_you_prefer__c as string,
+        meaningOrValue: record.What_do_you_prefer_to_seek_in_your_work__c as string,
+        feelsRightOrMakesSense: record.Choices_are_easier_when__c as string,
+        favoriteOrCollect: record.In_general_which_method_do_you_prefer__c as string,
+        tpmSkill1: record.Technical_project_manager_should__c as string,
+        tpmSkill2: record.When_their_team_is_facing_a_blocker__c as string,
+        tpmSkill3: record.How_do_you_approach_the_situation__c as string,
+        tpmInterest1: record.Interested_in_becoming_a_people_manager__c as number,
+        tpmInterest2: getRandomValue([2,3]) as number,
+        tpmInterest3: record.I_enjoy_running_meetings__c as number,
+        tpmInterest4: record.I_enjoy_managing_the_flow_of_information__c as number,
+      }
+    });
+    return Promise.resolve(learners);
   }
 
   /**

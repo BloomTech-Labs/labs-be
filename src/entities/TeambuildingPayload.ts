@@ -6,7 +6,7 @@ export interface ITeamBuildingProject {
   teamCode: string;
   tracks: (Track | string | null)[];
   releaseManager?: string;
-  teamMemberOktaIds: string[];
+  teamMemberSmtIds: string[];
 }
 
 export interface ILabsApplication {
@@ -85,7 +85,7 @@ export interface ISalesforceLearner {
 export interface ITeamBuildingLearner {
   oktaId: string,
   name: string,
-  track: Track,
+  track: Track | string,
   storyPoints: number,
   labsProject: string,
   labsTimeSlot: string[],
@@ -109,15 +109,15 @@ export interface ITeamBuildingLearner {
 }
 
 export interface ITeambuildingPayload {
-  learners: ITeambuildingLearner[];
+  learners: ITeamBuildingLearner[];
   projects: ITeamBuildingProject[];
 }
 
 export class TeambuildingPayload implements ITeambuildingPayload {
-  learners: ITeambuildingLearner[];
+  learners: ITeamBuildingLearner[];
   projects: ITeamBuildingProject[];
 
-  constructor(learners: ITeambuildingLearner[], projects: ITeamBuildingProject[]) {
+  constructor(learners: ITeamBuildingLearner[], projects: ITeamBuildingProject[]) {
     this.learners = learners;
     this.projects = projects;
   }
