@@ -52,31 +52,24 @@ export default class ContactDao {
     for (const project of projects) {
       const teamMemberIds: string[] = project.teamMemberSmtIds;
       console.log(teamMemberIds);
-      teamMemberIds.map(async (contactId: string) => {
-        console.log("     ", contactId);
-        const sfResult = await this.client.connection.query(
-          `
-          SELECT Okta_Id__c 
-          FROM Contact
-          WHERE Id='${contactId}'
-          LIMIT 1
+
+      const sfResult = await this.client.connection.query(
+        `
+          Select Contact__r.Okta_Id__c from JDS_Track_Enrollment__c Where Labs_Projects__c In ('${project.id}')
         `,
-          {},
-          (err, result) => {
-            if (err) {
-              void Promise.reject(err);
-            } else {
-              return result.records;
-            }
+        {},
+        (err, result) => {
+          if (err) {
+            void Promise.reject(err);
+          } else {
+            return result.records;
           }
-        );
-        console.log("     RESULT: ", sfResult);
-        const oktaId = (sfResult as unknown as Record<string, unknown>[])[0]
-          .Okta_Id__c as string;
-        console.log("          OKTAID: ", oktaId);
-        return oktaId;
-      });
-    }
+        }
+      );
+      const oktaIds = (sfResult as unknown as Record<string, unknown>[]);
+      newTeamMemberIds = teamMemberIds.map(oktaId => );
+
+      
     return Promise.resolve(projects as unknown as LabsProject[]);
   }
 
