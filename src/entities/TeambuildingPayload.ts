@@ -10,7 +10,54 @@ export interface ITeamBuildingProject {
 }
 
 export interface ILabsApplication {
-  labsTimeSlot?: [string];
+    // labsTimeSlot?: [string];
+    timeSlotChoice1?: string;
+    timeSlotChoice2?: string;
+    timeSlotChoice3?: string;
+    timeSlotChoice4?: string;
+    gitHubHandle?: string;
+    gitExpertise?: number;
+    dockerExpertise?: number;
+    playByEar?: number;
+    detailOriented?: number;
+    speakUpInDiscussions?: number;
+    soloOrSocial?: string;
+    meaningOrValue?: string;
+    feelsRightOrMakesSense?: string;
+    favoriteOrCollect?: string;
+    tpmSkill1?: string;
+    tpmSkill2?: string;
+    tpmSkill3?: string;
+    tpmInterest1?: number;
+    tpmInterest2?: number;
+    tpmInterest3?: number;
+    tpmInterest4?: number;
+    uxInterest1?: number;
+    uxInterest2?: number;
+    frontendInterest1?: number;
+    frontendInterest2?: number;
+    backendInterest1?: number;
+    backendInterest2?: number;
+    dataEngInterest1?: number;
+    dataEngInterest2?: number;
+    dataEngInterest3?: number;
+    mlEngInterest1?: number;
+    mlEngInterest2?: number;
+    mlEngInterest3?: number;
+    mlOpsInterest1?: number;
+    mlOpsInterest2?: number;
+    mlOpsInterest3?: number;
+}
+
+export interface ILabsApplicationSubmission {
+  oktaId: string;
+  email?: string;
+  slackId?: string;
+  // labsTimeSlot?: [string];
+  timeSlotChoiceMorning?: string;
+  timeSlotChoiceAfternoon?: string;
+  timeSlotChoiceEvening?: string;
+  timeSlotChoiceNight?: string;
   gitHubHandle?: string;
   gitExpertise?: number;
   dockerExpertise?: number;
@@ -43,13 +90,6 @@ export interface ILabsApplication {
   mlOpsInterest1?: number;
   mlOpsInterest2?: number;
   mlOpsInterest3?: number;
-}
-
-export interface ILabsApplicationSubmission {
-  oktaId: string;
-  email?: string;
-  slackId?: string;
-  labsApplication: ILabsApplication;
 }
 
 export interface ISalesforceLabsApplication {

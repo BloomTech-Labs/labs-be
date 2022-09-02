@@ -168,8 +168,9 @@ export async function processLabsApplication(
   labsApplicationSubmission: ILabsApplicationSubmission
 ): Promise<void> {
   const oktaId = labsApplicationSubmission.oktaId;
-  const labsApplication = labsApplicationSubmission.labsApplication;
-  try {
+  const labsApplication = labsApplicationSubmission;
+  console.log(labsApplicationSubmission)
+  try { 
     // Parse the learner's GitHub handle as a profile URL
     const gitHubUrl = await buildGitHubUrl(labsApplication.gitHubHandle || "");
     // Get the learner's Salesforce Contact ID by their OktaID
@@ -187,12 +188,12 @@ export async function processLabsApplication(
     const labsTimeSlots = await labsTimeSlotDao.getLabsTimeSlots();
     // console.log("labsTimeSlots", labsTimeSlots);
     // Get the first valid time slot for the learner based on their track
+    // []  1 => 'morning'   2 => 'afternoon'   3 => 'evening'    4 =>  'night'  
     const timeSlot = getValidTimeSlot(
       labsTimeSlots,
-      labsApplication.labsTimeSlot || [],
+      [labsApplication.timeSlotChoice1 || "", labsApplication.timeSlotChoice2 || "", labsApplication.timeSlotChoice3 || "", labsApplication.timeSlotChoice4 || ""], 
       track
     );
-    // console.log("timeSlot", timeSlot);
     if (!timeSlot) {
       throw new Error("Invalid time slot");
     }
@@ -278,6 +279,7 @@ export async function processLabsApplication(
       await projectDao.getIdByName(projectId)
     );
   } catch (error) {
+    console.log("Process application error", error);
     return Promise.reject(error);
   }
 }
