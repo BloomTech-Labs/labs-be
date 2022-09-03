@@ -10,7 +10,7 @@ export interface ITeamBuildingProject {
 }
 
 export interface ILabsApplication {
-    // labsTimeSlot?: [string];
+    labsTimeSlot?: [string];
     timeSlotChoice1?: string;
     timeSlotChoice2?: string;
     timeSlotChoice3?: string;

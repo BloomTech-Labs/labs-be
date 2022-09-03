@@ -48,10 +48,8 @@ export async function postLabsApplication(
   const labsApplicationSubmission = req.body as ILabsApplicationSubmission;
 
   try {
-    await processLabsApplication(labsApplicationSubmission);
+    return res.json(await processLabsApplication(labsApplicationSubmission));
   } catch (error) {
     return res.json({ status: INTERNAL_SERVER_ERROR, message: error });
   }
-
-  return res.sendStatus(OK);
 }
