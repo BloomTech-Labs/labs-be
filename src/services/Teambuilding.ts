@@ -277,19 +277,19 @@ export async function processLabsApplication(
     if (!assignments) {
       throw new Error("Invalid response from SortingHat");
     }
-    const projectId = findTeamAssignmentByLearnerId(oktaId, assignments);
-    console.log("projectId", projectId);
-    if (!projectId) {
+    const projectName = findTeamAssignmentByLearnerId(oktaId, assignments);
+    console.log("projectId", projectName);
+    if (!projectName) {
       throw new Error("Invalid project assignment from SortingHat");
     }
-
+    const projectId = await projectDao.getIdByName(projectName)
     // Post the learner's project assignment to Salesforce
     await jdsTrackEnrollmentDao.postProjectAssignment(
       jdsTrackEnrollmentId,
-      await projectDao.getIdByName(projectId)
+      projectId
     );
 
-    return labsProjectDao.getProject(projectId);
+    return await labsProjectDao.getProject(projectId);
   } catch (error) {
     console.log("Process application error", error);
     return Promise.reject(error);
