@@ -3,7 +3,8 @@
 import { FieldSet, Records } from "airtable";
 import LabsApplicationDao from "@daos/Salesforce/LabsApplicationDao";
 import ContactDao from "@daos/Salesforce/ContactDao";
-import ProjectDao from "@daos/Salesforce/ProjectDao";
+import ProjectDao, { FinalLabsProject } from "@daos/Salesforce/ProjectDao";
+import LabsProjectDao from "@daos/Salesforce/LabsProjectDao";
 import JDSTrackEnrollmentDao from "@daos/Salesforce/JDSTrackEnrollmentDao";
 import TeambuildingPayload, {
   ILabsApplication,
@@ -33,6 +34,7 @@ const projectDao = new ProjectDao();
 const jdsTrackEnrollmentDao = new JDSTrackEnrollmentDao();
 const labsTimeSlotDao = new LabsTimeSlotDao();
 const sortingHatDao = new SortingHatDao();
+const labsProjectDao = new LabsProjectDao();
 
 /**
  * Get a learner's Labs Application from Salesforce.
@@ -166,7 +168,7 @@ function findTeamAssignmentByLearnerId(
  */
 export async function processLabsApplication(
   labsApplicationSubmission: ILabsApplicationSubmission
-): Promise<void> {
+): Promise<FinalLabsProject> {
   const oktaId = labsApplicationSubmission.oktaId;
   const labsApplication = labsApplicationSubmission;
   console.log(labsApplicationSubmission)
@@ -217,7 +219,7 @@ export async function processLabsApplication(
     
     // Get all active Labs Projects from Salesforce
     let projects = await projectDao.getActive();
-    console.log("projects", projects);
+    console.log("projects", JSON.stringify(projects, null, 2));
 
     // Convert the team member IDs on existing projects from Contact IDs to
     // Okta IDs.
@@ -271,7 +273,7 @@ export async function processLabsApplication(
     console.log("payload", payload);
 
     const assignments = await sortingHatDao.postBuildTeams(payload);
-    console.log("assignments", assignments);
+    console.log("assignments", JSON.stringify(assignments, null, 2));
     if (!assignments) {
       throw new Error("Invalid response from SortingHat");
     }
@@ -286,6 +288,8 @@ export async function processLabsApplication(
       jdsTrackEnrollmentId,
       await projectDao.getIdByName(projectId)
     );
+
+    return labsProjectDao.getProject(projectId);
   } catch (error) {
     console.log("Process application error", error);
     return Promise.reject(error);
