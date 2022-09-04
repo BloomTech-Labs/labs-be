@@ -25,10 +25,7 @@ import TeambuildingOutput, {
 import LabsProject from "@entities/LabsProject";
 
 // =========== ********** HELPERS ********** =========== //
-import {
-  buildGitHubUrl,
-  getRandomValue
-} from "@shared/functions";
+import { buildGitHubUrl, getRandomValue } from "@shared/functions";
 
 // =========== ********** INSTANTIATE DAOS ********** =========== //
 const labsApplicationDao = new LabsApplicationDao();
@@ -49,8 +46,9 @@ export async function getLabsApplicationByOktaId(
   oktaId: string
 ): Promise<ILabsApplication | null> {
   // Get from Salesforce
-  const labsApplicationResults =
-    await labsApplicationDao.getLabsApplicationByOktaId(oktaId);
+  const labsApplicationResults = await labsApplicationDao.getLabsApplicationByOktaId(
+    oktaId
+  );
   return labsApplicationResults;
 }
 
@@ -173,15 +171,16 @@ export async function processLabsApplication(
 ): Promise<FinalLabsProject> {
   const oktaId = labsApplicationSubmission.oktaId;
   const labsApplication = labsApplicationSubmission;
-  console.log(labsApplicationSubmission)
-  try { 
+  console.log(labsApplicationSubmission);
+  try {
     // Parse the learner's GitHub handle as a profile URL
     const gitHubUrl = await buildGitHubUrl(labsApplication.gitHubHandle || "");
     // Get the learner's Salesforce Contact ID by their OktaID
     const contactId = await contactDao.getContactIdByOktaId(oktaId);
     // Get the learner's JDS Track Enrollment ID by their Okta Id
-    const jdsTrackEnrollmentId =
-      await jdsTrackEnrollmentDao.getJdsTrackEnrollmentIdByOktaId(oktaId);
+    const jdsTrackEnrollmentId = await jdsTrackEnrollmentDao.getJdsTrackEnrollmentIdByOktaId(
+      oktaId
+    );
     // Get the learner's track based on their JDS Track Enrollment
     const track = await jdsTrackEnrollmentDao.getTrack(jdsTrackEnrollmentId);
     if (!track) {
@@ -191,19 +190,17 @@ export async function processLabsApplication(
     const labsTimeSlots = await labsTimeSlotDao.getLabsTimeSlots();
 
     // Get the first valid time slot for the learner based on their track
-    
+
     const sortedTimeSlots = [
       `${labsApplication.timeSlotChoiceMorning}.Morning`,
       `${labsApplication.timeSlotChoiceAfternoon}.Afternoon`,
       `${labsApplication.timeSlotChoiceEvening}.Evening`,
       `${labsApplication.timeSlotChoiceNight}.Night`,
-    ].sort().map(s => s.split(".")[1]);
-    
-    const timeSlot = getValidTimeSlot(
-      labsTimeSlots,
-      sortedTimeSlots, 
-      track
-    );
+    ]
+      .sort()
+      .map((s) => s.split(".")[1]);
+
+    const timeSlot = getValidTimeSlot(labsTimeSlots, sortedTimeSlots, track);
     if (!timeSlot) {
       throw new Error("Invalid time slot");
     }
@@ -216,7 +213,7 @@ export async function processLabsApplication(
 
     // Write the learner's GitHub URL to their Salesforce Contact
     await contactDao.postGitHubUrl(contactId, gitHubUrl);
-    
+
     // Get all active Labs Projects from Salesforce
     let projects = await projectDao.getActive();
 
@@ -279,7 +276,7 @@ export async function processLabsApplication(
     if (!projectName) {
       throw new Error("Invalid project assignment from SortingHat");
     }
-    const projectId = await projectDao.getIdByName(projectName)
+    const projectId = await projectDao.getIdByName(projectName);
     // Post the learner's project assignment to Salesforce
     await jdsTrackEnrollmentDao.postProjectAssignment(
       jdsTrackEnrollmentId,
@@ -291,4 +288,3 @@ export async function processLabsApplication(
     return Promise.reject(error);
   }
 }
-

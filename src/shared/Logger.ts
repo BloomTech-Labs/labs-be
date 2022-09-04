@@ -3,5 +3,3 @@
  *
  * Documentation: https://github.com/seanpmaxwell/jet-logger
  */
-
-

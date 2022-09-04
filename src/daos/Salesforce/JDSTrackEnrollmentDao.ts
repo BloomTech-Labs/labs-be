@@ -38,7 +38,7 @@ export default class JDSTrackEnrollmentDao {
         }
       }
     );
-    console.log({sfResult})
+    console.log({ sfResult });
     return Promise.resolve(
       (sfResult.records as Record<string, unknown>[])[0].Id as string
     );
@@ -226,20 +226,16 @@ export default class JDSTrackEnrollmentDao {
           detailOriented: record.Detail_Oriented__c as number,
           speakUpInDiscussions: record.Speak_Up_In_Discussions__c as number,
           soloOrSocial: record.What_activities_do_you_prefer__c as string,
-          meaningOrValue:
-            record.What_do_you_prefer_to_seek_in_your_work__c as string,
+          meaningOrValue: record.What_do_you_prefer_to_seek_in_your_work__c as string,
           feelsRightOrMakesSense: record.Choices_are_easier_when__c as string,
-          favoriteOrCollect:
-            record.In_general_which_method_do_you_prefer__c as string,
+          favoriteOrCollect: record.In_general_which_method_do_you_prefer__c as string,
           tpmSkill1: record.Technical_project_manager_should__c as string,
           tpmSkill2: record.When_their_team_is_facing_a_blocker__c as string,
           tpmSkill3: record.How_do_you_approach_the_situation__c as string,
-          tpmInterest1:
-            record.Interested_in_becoming_a_people_manager__c as number,
+          tpmInterest1: record.Interested_in_becoming_a_people_manager__c as number,
           tpmInterest2: getRandomValue([2, 3]) as number,
           tpmInterest3: record.I_enjoy_running_meetings__c as number,
-          tpmInterest4:
-            record.I_enjoy_managing_the_flow_of_information__c as number,
+          tpmInterest4: record.I_enjoy_managing_the_flow_of_information__c as number,
         };
       }
     );
