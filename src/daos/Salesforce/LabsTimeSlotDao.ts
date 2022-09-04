@@ -57,9 +57,10 @@ export default class LabsTimeSlotDao {
         }
       }
     );
-    const labsTimeSlots: ILabsTimeSlot[] = (
-      sfResult.records as Record<string, string>[]
-    ).map((record) => ({
+    const labsTimeSlots: ILabsTimeSlot[] = (sfResult.records as Record<
+      string,
+      string
+    >[]).map((record) => ({
       id: record.Id,
       name: record.Name,
       shortName: this.getShortName(record.Name),

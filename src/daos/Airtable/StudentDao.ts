@@ -57,7 +57,7 @@ class StudentDao {
 
     if (students.length) {
       const student = students[0];
-      return student as unknown as Record<string, unknown>;
+      return (student as unknown) as Record<string, unknown>;
     } else {
       return null;
     }
@@ -92,7 +92,7 @@ class StudentDao {
 
     if (students.length) {
       const student = students[0];
-      return student as unknown as Record<string, unknown>;
+      return (student as unknown) as Record<string, unknown>;
     } else {
       return null;
     }

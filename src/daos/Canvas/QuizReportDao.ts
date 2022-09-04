@@ -35,7 +35,7 @@ class QuizReportDao implements IQuizReportDao {
     quizId: number
   ): QuizReportArrayResponse {
     const path = `courses/${courseId}/quizzes/${quizId}/reports`;
-    const response = (await this.client.get(path)) as unknown as Record<
+    const response = ((await this.client.get(path)) as unknown) as Record<
       string,
       QuizReport[]
     >;
@@ -53,7 +53,7 @@ class QuizReportDao implements IQuizReportDao {
     reportId: string
   ): QuizReportArrayResponse {
     const path = `courses/${courseId}/quizzes/${quizId}/reports/${reportId}`;
-    const response = (await this.client.get(path)) as unknown as Record<
+    const response = ((await this.client.get(path)) as unknown) as Record<
       string,
       QuizReport[]
     >;

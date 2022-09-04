@@ -42,7 +42,7 @@ class SurveyDao {
 
     if (surveys.length) {
       const survey = surveys[0];
-      return survey as unknown as Record<string, unknown>;
+      return (survey as unknown) as Record<string, unknown>;
     } else {
       return null;
     }

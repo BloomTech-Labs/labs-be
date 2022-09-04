@@ -50,16 +50,19 @@ export default class ContactDao {
   ): Promise<LabsProject[]> {
     await this.client.login();
     for (const project of projects) {
-      const trackEnrollments = await this.client.connection.query<{ Contact__r: { Okta_Id__c: string } }>(
+      const trackEnrollments = await this.client.connection.query<{
+        Contact__r: { Okta_Id__c: string };
+      }>(
         `
           Select Contact__r.Okta_Id__c from JDS_Track_Enrollment__c Where Labs_Projects__r.Name In ('${project.id}')
         `
-      );  
-       project.teamMemberSmtIds = trackEnrollments.records.map(record => record.Contact__r['Okta_Id__c']).filter(Boolean);
-      }
-    return projects as unknown as LabsProject[];
+      );
+      project.teamMemberSmtIds = trackEnrollments.records
+        .map((record) => record.Contact__r["Okta_Id__c"])
+        .filter(Boolean);
+    }
+    return (projects as unknown) as LabsProject[];
   }
-
 
   /**
    * Posts a learner's GitHub profile URL to their Salesforce Contact.
