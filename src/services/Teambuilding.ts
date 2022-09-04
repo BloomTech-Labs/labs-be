@@ -1,11 +1,16 @@
 /* eslint-disable max-len */
 /* eslint-disable @typescript-eslint/await-thenable */
-import { FieldSet, Records } from "airtable";
+
+// =========== ********** DAOS ********** =========== //
 import LabsApplicationDao from "@daos/Salesforce/LabsApplicationDao";
 import ContactDao from "@daos/Salesforce/ContactDao";
 import ProjectDao, { FinalLabsProject } from "@daos/Salesforce/ProjectDao";
 import LabsProjectDao from "@daos/Salesforce/LabsProjectDao";
 import JDSTrackEnrollmentDao from "@daos/Salesforce/JDSTrackEnrollmentDao";
+import SortingHatDao from "@daos/SortingHat/SortingHatDao";
+import LabsTimeSlotDao from "@daos/Salesforce/LabsTimeSlotDao";
+
+// =========== ********** ENTITIES ********** =========== //
 import TeambuildingPayload, {
   ILabsApplication,
   ILabsApplicationSubmission,
@@ -14,20 +19,18 @@ import TeambuildingPayload, {
 } from "@entities/TeambuildingPayload";
 import { parseTrack, Track } from "@entities/TeambuildingOutput";
 import { ILabsTimeSlot } from "@entities/LabsTimeSlot";
-import SortingHatDao from "@daos/SortingHat/SortingHatDao";
-import { resolve } from "path";
-import {
-  buildGitHubUrl,
-  getRandomValue,
-  mergeObjectArrays,
-} from "@shared/functions";
-import LabsTimeSlotDao from "@daos/Salesforce/LabsTimeSlotDao";
 import TeambuildingOutput, {
-  Learner,
   formatTrackForSortingHat,
 } from "@entities/TeambuildingOutput";
 import LabsProject from "@entities/LabsProject";
 
+// =========== ********** HELPERS ********** =========== //
+import {
+  buildGitHubUrl,
+  getRandomValue
+} from "@shared/functions";
+
+// =========== ********** INSTANTIATE DAOS ********** =========== //
 const labsApplicationDao = new LabsApplicationDao();
 const contactDao = new ContactDao();
 const projectDao = new ProjectDao();
@@ -70,7 +73,6 @@ function getValidTimeSlot(
       }
     }
   }
-
   return null;
 }
 
@@ -182,15 +184,13 @@ export async function processLabsApplication(
       await jdsTrackEnrollmentDao.getJdsTrackEnrollmentIdByOktaId(oktaId);
     // Get the learner's track based on their JDS Track Enrollment
     const track = await jdsTrackEnrollmentDao.getTrack(jdsTrackEnrollmentId);
-    // console.log("Track", track);
     if (!track) {
       throw new Error("Invalid track");
     }
     // Get all Labs Time Slots from Salesforce
     const labsTimeSlots = await labsTimeSlotDao.getLabsTimeSlots();
-    // console.log("labsTimeSlots", labsTimeSlots);
+
     // Get the first valid time slot for the learner based on their track
-    // []  1 => 'morning'   2 => 'afternoon'   3 => 'evening'    4 =>  'night'  
     
     const sortedTimeSlots = [
       `${labsApplication.timeSlotChoiceMorning}.Morning`,
@@ -219,18 +219,15 @@ export async function processLabsApplication(
     
     // Get all active Labs Projects from Salesforce
     let projects = await projectDao.getActive();
-    console.log("projects", JSON.stringify(projects, null, 2));
 
     // Convert the team member IDs on existing projects from Contact IDs to
     // Okta IDs.
     projects = await contactDao.getTeamMemberOktaIds(
       projects as ITeamBuildingProject[]
     );
-    console.log("projects", projects);
 
     // Get all active Labs learners from Salesforce, including their Labs Applications
     const learners = await jdsTrackEnrollmentDao.getLabsActive(track);
-    console.log("learners", learners);
 
     // Build payload for SortingHat
     const learner: ITeamBuildingLearner = {
@@ -270,15 +267,15 @@ export async function processLabsApplication(
     };
     learners.push(learner);
     const payload = buildTeambuildingPayload(learners, projects);
-    console.log("payload", payload);
+    console.log("💰💰💰 payload 💰💰💰", payload);
 
     const assignments = await sortingHatDao.postBuildTeams(payload);
-    console.log("assignments", JSON.stringify(assignments, null, 2));
+    console.log("🪧🪧🪧 assignments 🪧🪧🪧", JSON.stringify(assignments, null, 2));
     if (!assignments) {
       throw new Error("Invalid response from SortingHat");
     }
     const projectName = findTeamAssignmentByLearnerId(oktaId, assignments);
-    console.log("projectId", projectName);
+    console.log("🪪 🪪 🪪 projectId 🪪 🪪 🪪", projectName);
     if (!projectName) {
       throw new Error("Invalid project assignment from SortingHat");
     }
@@ -291,224 +288,7 @@ export async function processLabsApplication(
 
     return await labsProjectDao.getProject(projectId);
   } catch (error) {
-    console.log("Process application error", error);
     return Promise.reject(error);
   }
 }
 
-/**
- * Given an array of raw teambuilding survey results, parse it into an array of
- * ILearnerSurveys.
- *
- * @param surveys
- * @returns
- */
-// async function parseSurveys(
-//   surveys: Records<FieldSet>
-// ): Promise<ILearnerSurvey[]> {
-//   const learnerSurveys = await Promise.all(
-//     surveys.map((survey) => {
-//       const record = survey.fields;
-//       const learnerSurvey: ILearnerSurvey = {
-//         name: (record["Student Name"] as string[])[0],
-//         lambdaId: (record["Lambda ID"] as string[])[0],
-//         smtId: record["SMT ID"] as string,
-//         track: parseTrack(record["Track"] as string) as Track,
-//         gitExpertise: record["Git Expertise"] as number,
-//         dockerExpertise: record["Docker Expertise"] as number,
-//         playByEar: record["Do you plan ahead or play it by ear?"] as number,
-//         detailOriented: record[
-//           "Are you more interested in the big picture or details?"
-//         ] as number,
-//         speakUpInDiscussions: record[
-//           "How often do you speak up during group discussions?"
-//         ] as number,
-//         soloOrSocial: record["What activities do you prefer?"] as string,
-//         meaningOrValue: record["Which do you prefer to seek?"] as string,
-//         feelsRightOrMakesSense: record["Choices are easier when..."] as string,
-//         favoriteOrCollect: record["Which method do you prefer?"] as string,
-//         tpmSkill1: record["TPM Skill 1"] as string,
-//         tpmSkill2: record["TPM Skill 2"] as string,
-//         tpmSkill3: record["TPM Skill 3"] as string,
-//         tpmInterest1: record["TPM Interest 1"] as number,
-//         tpmInterest2: record["TPM Interest 2"] as number,
-//         tpmInterest3: record["TPM Interest 3"] as number,
-//         tpmInterest4: record["TPM Interest 4"] as number,
-//         uxInterest1: record["UX Interest 1"] as number,
-//         uxInterest2: record["UX Interest 2"] as number,
-//         frontendInterest1: record["Frontend Interest 1"] as number,
-//         frontendInterest2: record["Frontend Interest 2"] as number,
-//         backendInterest1: record["Backend Interest 1"] as number,
-//         backendInterest2: record["Backend Interest 2"] as number,
-//         dataEngInterest1: record["Data Engineer Interest 1"] as number,
-//         dataEngInterest2: record["Data Engineer Interest 2"] as number,
-//         dataEngInterest3: record["Data Engineer Interest 3"] as number,
-//         mlEngInterest1: record[
-//           "Machine Learning Engineer Interest 1"
-//         ] as number,
-//         mlEngInterest2: record[
-//           "Machine Learning Engineer Interest 2"
-//         ] as number,
-//         mlEngInterest3: record[
-//           "Machine Learning Engineer Interest 3"
-//         ] as number,
-//         mlOpsInterest1: record["ML Ops Interest 1"] as number,
-//         mlOpsInterest2: record["ML Ops Interest 2"] as number,
-//         mlOpsInterest3: record["ML Ops Interest 3"] as number,
-//       };
-//       return learnerSurvey;
-//     })
-//   );
-
-//   return learnerSurveys;
-// }
-
-/**
- * Given an array of raw project results, parse it into an array of
- * ITeamBuildingProjects.
- *
- * @param projects
- * @returns
- */
-// function parseProjects(projects: Records<FieldSet>): ITeamBuildingProject[] {
-//   return projects.map((x) => {
-//     const record = x.fields;
-//     const project: ITeamBuildingProject = {
-//       id: record["Name"] as string,
-//       product: (record["Product Name"] as string[])[0],
-//       teamCode: record["Team Code"] as string,
-//       tracks: (() => {
-//         const tracks = record["Tracks"] as string[];
-//         return tracks.map((track) =>
-//           parseTrack(track) === Track.WEB ? "Web" : parseTrack(track)
-//         );
-//       })(),
-//       releaseManager: (record["Release Manager"] as string[])[0],
-//       teamMemberSmtIds: (record["Team Members"] || []) as string[],
-//     };
-//     return project;
-//   });
-// }
-
-/**
- * Given an array of ITeamBuildingProjects, get info on the continuing learners for
- * each project from Airtable.
- *
- * @param projects
- * @returns
- */
-// async function getContinuingLearners(
-//   projects: ITeamBuildingProject[]
-// ): Promise<Record<string, unknown>[]> {
-//   const continuingLearners = [] as Record<string, unknown>[];
-//   console.log("CONTINUING LEARNERS:")
-//   for (const project of projects) {
-//     console.log("");
-//     console.log(project.id);
-//     console.log("----------------");
-//     // For each team member on the project, get their relevant properties.
-//     for (const smtId of project.teamMemberSmtIds || []) {
-//       const student = await studentDao.getByRecordId(smtId);
-//       if (!student) {
-//         continue;
-//       }
-//       const lambdaId = (student["Lambda ID"] as string[])[0];
-//       const name = student["Name"] as string;
-//       const survey = await surveyDao.getOne(lambdaId);
-//       const trackRecordId = student["Course"] as string;
-//       console.log(name, trackRecordId);
-//       if (!trackRecordId) {
-//         continue;
-//       }
-//       const track = await studentDao.getTrackByTrackRecordId(trackRecordId);
-
-//       const learner = {
-//         lambdaId,
-//         name,
-//         track,
-//         labsProject: project.id,
-//         survey,
-//       };
-//       continuingLearners.push(learner);
-//     }
-//   }
-//   console.log("");
-//   return continuingLearners;
-// }
-
-/**
- * Process teambuilding for a given cohort. See /docs/teambuilding.md
- *
- * Relies on the cohort view already having been created in "Labs - Projects",
- * including each project row with any continuing learners already added.
- *
- *   - Get existing teams from Airtable
- *   - Get incoming cohort surveys from Airtable
- *   - For continuing learners, check if we have valid values from an old survey.
- *     If not, fill in random valid values for any missing items.
- *   - POST one JSON body to DS SortingHat in "tidy" format
- *   - Write teams to "Labs - Projects" table in SMT
- *
- * @param cohort
- * @returns
- */
-// export async function processTeambuilding(
-//   cohort: string
-// ): Promise<TeambuildingOutput | null> {
-//   // Get this cohort's set of projects from Airtable.
-//   const projects: ITeamBuildingProject[] = parseProjects(
-//     await projectsDao.getCohort(cohort)
-//   );
-
-//   // Get this cohort's surveys from Airtable.
-//   const surveys: ILearnerSurvey[] = await parseSurveys(
-//     await surveyDao.getCohort(cohort)
-//   );
-
-//   // Get any continuing learners and their surveys, if any.
-//   const continuingLearners = await getContinuingLearners(projects);
-//   const continuingSurveys: ILearnerSurvey[] = await parseSurveys(
-//     (continuingLearners
-//       .filter(learner => learner.survey)
-//       .map(learner => learner.survey)
-//     ) as Records<FieldSet>
-//   );
-
-//   // Merge the surveys and projects.
-//   const payload = buildTeambuildingPayload (
-//     continuingLearners,
-//     [...continuingSurveys, ...surveys],
-//     projects
-//   );
-
-//   // Post the teambuilding payload to the SortingHat DS API.
-//   const output = await sortingHatDao.postBuildTeams(payload, cohort);
-//   if (!output) {
-//     return null;
-//   }
-
-//   console.log("BUILT TEAMS:");
-//   for (const project of output.projects) {
-//     console.log("");
-//     console.log(project.id);
-//     console.log("--------------");
-//     for (const learner of output.learners) {
-//       if (learner.labsProject === project.id) {
-//         console.log(learner.name, ", ", learner.track);
-//       }
-//     }
-//   }
-//   console.log("");
-//   console.log(`Total learner count: ${output.learners.length}`);
-
-//   // Patch the role and team assignments to Airtable.
-//   const success = await studentDao.patchCohortLabsAssignments(
-//     cohort,
-//     output.learners
-//   );
-//   if (!success) {
-//     console.error("Failed to write Labs assignments to SMT.");
-//   }
-
-//   return output;
-// }
