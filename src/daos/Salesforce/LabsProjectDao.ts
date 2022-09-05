@@ -1,12 +1,6 @@
 import { stringify } from "querystring";
 import SalesforceClient from "./client";
-
-export interface FinalLabsProject {
-  labsProduct: string;
-  releaseManager: string;
-  timeSlot: string;
-  teamCode: string;
-}
+import { IFinalLabsProject } from "@entities/LabsProject";
 
 export default class LabsProjectDao {
   private client: SalesforceClient;
@@ -15,7 +9,7 @@ export default class LabsProjectDao {
     this.client = new SalesforceClient();
   }
 
-  public async getProject(projectId: string): Promise<FinalLabsProject | null> {
+  public async getProject(projectId: string): Promise<IFinalLabsProject> {
     await this.client.login();
     const sfResult = await this.client.connection.query<{
       Labs_Time_Slot__r: { Name: string };
