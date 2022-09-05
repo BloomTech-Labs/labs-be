@@ -49,6 +49,9 @@ export default class JDSTrackEnrollmentDao {
   public async getJdsTrackEnrollmentIdByLambdaId(
     lambdaId: string
   ): Promise<string> {
+    if (!lambdaId) {
+      void Promise.reject();
+    }
     await this.client.login();
     const sfResult = await this.client.connection.query(
       `
