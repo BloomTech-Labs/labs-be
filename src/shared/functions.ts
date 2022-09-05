@@ -42,8 +42,10 @@ export const buildGitHubUrl = async (gitHubHandle: string): Promise<string> => {
   // Trim any "@"
   gitHubHandle = gitHubHandle.replace(/@/g, "");
   // Parse handle if provided string is already a URL
-  const regex = /(http(s)?:\/\/)?(www\.)?(github.com\/)?(?<handle>[\w.-]+)/;
+  const regex = /(http(s)?:\/\/)?(www\.)?(github.com\/)?(?<handle>[ \w.-]+)/;
   gitHubHandle = regex.exec(gitHubHandle)?.groups?.handle || "";
+  // if has space rejoin back
+  gitHubHandle = gitHubHandle.replace(/\s+/g, "").trim();
   // Verify the handle exists on GitHub
   if (!gitHubHandle || !(await verifyGitHubHandle(gitHubHandle))) {
     return Promise.reject("Invalid GitHub handle");

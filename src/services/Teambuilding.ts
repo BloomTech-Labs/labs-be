@@ -235,7 +235,7 @@ export async function processLabsApplication(
       track: track,
       storyPoints: 0,
       labsProject: "",
-      labsTimeSlot: labsApplication.labsTimeSlot || [""],
+      labsTimeSlot: [timeSlot.shortName || ""],
       gitHubHandle: labsApplication.gitHubHandle || "",
       gitExpertise:
         labsApplication.gitExpertise || (getRandomValue([2, 3]) as number),
