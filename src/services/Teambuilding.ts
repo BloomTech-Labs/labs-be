@@ -4,7 +4,7 @@
 // =========== ********** DAOS ********** =========== //
 import LabsApplicationDao from "@daos/Salesforce/LabsApplicationDao";
 import ContactDao from "@daos/Salesforce/ContactDao";
-import ProjectDao, { FinalLabsProject } from "@daos/Salesforce/ProjectDao";
+import ProjectDao from "@daos/Salesforce/ProjectDao";
 import LabsProjectDao from "@daos/Salesforce/LabsProjectDao";
 import JDSTrackEnrollmentDao from "@daos/Salesforce/JDSTrackEnrollmentDao";
 import SortingHatDao from "@daos/SortingHat/SortingHatDao";
@@ -22,7 +22,7 @@ import { ILabsTimeSlot } from "@entities/LabsTimeSlot";
 import TeambuildingOutput, {
   formatTrackForSortingHat,
 } from "@entities/TeambuildingOutput";
-import LabsProject from "@entities/LabsProject";
+import LabsProject, { IFinalLabsProject } from "@entities/LabsProject";
 
 // =========== ********** HELPERS ********** =========== //
 import { buildGitHubUrl, getRandomValue } from "@shared/functions";
@@ -46,9 +46,8 @@ export async function getLabsApplicationByOktaId(
   oktaId: string
 ): Promise<ILabsApplication | null> {
   // Get from Salesforce
-  const labsApplicationResults = await labsApplicationDao.getLabsApplicationByOktaId(
-    oktaId
-  );
+  const labsApplicationResults =
+    await labsApplicationDao.getLabsApplicationByOktaId(oktaId);
   return labsApplicationResults;
 }
 
@@ -168,7 +167,7 @@ function findTeamAssignmentByLearnerId(
  */
 export async function processLabsApplication(
   labsApplicationSubmission: ILabsApplicationSubmission
-): Promise<FinalLabsProject> {
+): Promise<IFinalLabsProject> {
   const oktaId = labsApplicationSubmission.oktaId;
   const labsApplication = labsApplicationSubmission;
   console.log(labsApplicationSubmission);
@@ -178,9 +177,8 @@ export async function processLabsApplication(
     // Get the learner's Salesforce Contact ID by their OktaID
     const contactId = await contactDao.getContactIdByOktaId(oktaId);
     // Get the learner's JDS Track Enrollment ID by their Okta Id
-    const jdsTrackEnrollmentId = await jdsTrackEnrollmentDao.getJdsTrackEnrollmentIdByOktaId(
-      oktaId
-    );
+    const jdsTrackEnrollmentId =
+      await jdsTrackEnrollmentDao.getJdsTrackEnrollmentIdByOktaId(oktaId);
     // Get the learner's track based on their JDS Track Enrollment
     const track = await jdsTrackEnrollmentDao.getTrack(jdsTrackEnrollmentId);
     if (!track) {
@@ -190,7 +188,6 @@ export async function processLabsApplication(
     const labsTimeSlots = await labsTimeSlotDao.getLabsTimeSlots();
 
     // Get the first valid time slot for the learner based on their track
-
     const sortedTimeSlots = [
       `${labsApplication.timeSlotChoiceMorning}.Morning`,
       `${labsApplication.timeSlotChoiceAfternoon}.Afternoon`,
@@ -267,7 +264,10 @@ export async function processLabsApplication(
     console.log("💰💰💰 payload 💰💰💰", payload);
 
     const assignments = await sortingHatDao.postBuildTeams(payload);
-    console.log("🪧🪧🪧 assignments 🪧🪧🪧", JSON.stringify(assignments, null, 2));
+    console.log(
+      "🪧🪧🪧 assignments 🪧🪧🪧",
+      JSON.stringify(assignments, null, 2)
+    );
     if (!assignments) {
       throw new Error("Invalid response from SortingHat");
     }
