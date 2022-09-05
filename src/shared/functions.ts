@@ -83,7 +83,7 @@ export const parseCsvUrl = async (
   options?: Record<string, unknown>
 ): Promise<unknown> => {
   return new Promise((resolve, reject) => {
-    const dataStream: Stream = (request.get(url) as unknown) as Stream;
+    const dataStream: Stream = request.get(url) as unknown as Stream;
     const parseStream: NodeJS.ReadWriteStream = Papa.parse(
       Papa.NODE_STREAM_INPUT,
       options

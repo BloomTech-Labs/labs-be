@@ -38,7 +38,8 @@ export default class LabsApplicationDao {
         }
       }
     );
-    const sfLabsApplicationRecords = ((sfResult as unknown) as unknown[]) as ISalesforceLabsApplication[];
+    const sfLabsApplicationRecords =
+      sfResult as unknown as unknown[] as ISalesforceLabsApplication[];
     if (!sfLabsApplicationRecords || !sfLabsApplicationRecords.length) {
       return null;
     }
@@ -46,9 +47,8 @@ export default class LabsApplicationDao {
     if (!sfLabsApplication) {
       return null;
     }
-    const labsApplication = this.formatLabsApplicationFromSalesforce(
-      sfLabsApplication
-    );
+    const labsApplication =
+      this.formatLabsApplicationFromSalesforce(sfLabsApplication);
     return labsApplication;
   }
 

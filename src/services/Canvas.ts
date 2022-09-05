@@ -99,10 +99,8 @@ export async function processCourseModuleCompletion(
   lambdaId: string
 ): Promise<ModuleCompletion[] | null> {
   console.log(courseId, lambdaId);
-  const modules:
-    | Module[]
-    | CanvasError
-    | null = await modulesDao.getAllCompletionInCourse(courseId, lambdaId);
+  const modules: Module[] | CanvasError | null =
+    await modulesDao.getAllCompletionInCourse(courseId, lambdaId);
 
   if (isCanvasError(modules)) {
     console.error(modules);
@@ -208,9 +206,8 @@ export async function processCourseCompleted(
 ): Promise<boolean> {
   try {
     // Get all modules from the course along with completion information.
-    const modules:
-      | ModuleCompletion[]
-      | null = await processCourseModuleCompletion(courseId, lambdaId);
+    const modules: ModuleCompletion[] | null =
+      await processCourseModuleCompletion(courseId, lambdaId);
     if (!modules) {
       //return false;
       throw new Error(
@@ -219,9 +216,8 @@ export async function processCourseCompleted(
     }
 
     // Get which modules must be completed from Airtable (SMT: "Labs - Courses")
-    const completionModuleIds:
-      | number[]
-      | null = await canvasCoursesDao.getCompletionModules(courseId);
+    const completionModuleIds: number[] | null =
+      await canvasCoursesDao.getCompletionModules(courseId);
 
     // Check if all modules that need to be completed have been completed.
     for (const completionModuleId of completionModuleIds || []) {
@@ -252,9 +248,8 @@ export async function processAllRequiredCoursesCompleted(
 
     for (const courseId of courseIds || []) {
       // Get all modules from the course along with completion information.
-      const modules:
-        | ModuleCompletion[]
-        | null = await processCourseModuleCompletion(courseId, lambdaId);
+      const modules: ModuleCompletion[] | null =
+        await processCourseModuleCompletion(courseId, lambdaId);
       if (!modules) {
         throw new Error(
           `No course modules found for course ${courseId} and learner ${lambdaId}`
@@ -262,9 +257,8 @@ export async function processAllRequiredCoursesCompleted(
       }
 
       // Get which modules must be completed from Airtable (SMT: "Labs - Courses")
-      const completionModuleIds:
-        | number[]
-        | null = await canvasCoursesDao.getCompletionModules(courseId);
+      const completionModuleIds: number[] | null =
+        await canvasCoursesDao.getCompletionModules(courseId);
 
       // Check if all modules that need to be completed have been completed.
       for (const completionModuleId of completionModuleIds || []) {
