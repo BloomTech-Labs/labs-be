@@ -7,9 +7,8 @@ import { postLabsApplication, getLabsApplication } from "./LabsApplication";
 const baseRouter = Router();
 baseRouter.get("/labsApplication/:oktaId", getLabsApplication);
 baseRouter.post("/labsApplication", postLabsApplication);
-baseRouter.get("/", function(req, res) {
-    res.send("Hi!")
-})
-
+baseRouter.get("/", function (req, res) {
+  res.send("Hi!");
+});
 
 export default baseRouter;
