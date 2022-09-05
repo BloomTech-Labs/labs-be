@@ -61,7 +61,7 @@ export default class ContactDao {
         .map((record) => record.Contact__r["Okta_Id__c"])
         .filter(Boolean);
     }
-    return (projects as unknown) as LabsProject[];
+    return projects as unknown as LabsProject[];
   }
 
   /**

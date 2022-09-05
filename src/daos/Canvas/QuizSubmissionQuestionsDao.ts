@@ -3,7 +3,8 @@ import QuizSubmissionQuestion, {
 } from "@entities/QuizSubmissionQuestion";
 import CanvasClient from "@daos/Canvas/client";
 
-export type QuizSubmissionQuestionResponse = Promise<QuizSubmissionQuestion | null>;
+export type QuizSubmissionQuestionResponse =
+  Promise<QuizSubmissionQuestion | null>;
 export type QuizSubmissionQuestionsArrayResponse = Promise<
   QuizSubmissionQuestion[] | null
 >;
@@ -27,7 +28,7 @@ class QuizSubmissionQuestionsDao implements IQuizSubmissionQuestionsDao {
     quizSubmissionId: number
   ): QuizSubmissionQuestionsArrayResponse {
     const path = `quiz_submissions/${quizSubmissionId}/questions?per_page=100`;
-    const response = ((await this.client.get(path)) as unknown) as Record<
+    const response = (await this.client.get(path)) as unknown as Record<
       string,
       QuizSubmissionQuestion[]
     >;

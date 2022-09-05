@@ -36,7 +36,7 @@ class QuizSubmissionDao implements IQuizSubmissionDao {
     lambdaId: string
   ): QuizSubmissionArrayResponse {
     const path = `courses/${courseId}/quizzes/${quizId}/submissions/sis_user_id:${lambdaId}`;
-    const response = ((await this.client.get(path)) as unknown) as Record<
+    const response = (await this.client.get(path)) as unknown as Record<
       string,
       QuizSubmission[]
     >;
@@ -52,7 +52,7 @@ class QuizSubmissionDao implements IQuizSubmissionDao {
     quizId: number
   ): QuizSubmissionArrayResponse {
     const path = `courses/${courseId}/quizzes/${quizId}/submissions?per_page=100`;
-    const response = ((await this.client.get(path)) as unknown) as Record<
+    const response = (await this.client.get(path)) as unknown as Record<
       string,
       QuizSubmission[]
     >;
@@ -70,7 +70,7 @@ class QuizSubmissionDao implements IQuizSubmissionDao {
     lambdaId: string
   ): QuizSubmissionArrayResponse {
     const path = `courses/${courseId}/quizzes/${quizId}/submissions/sis_user_id:${lambdaId}?per_page=100`;
-    const response = ((await this.client.get(path)) as unknown) as Record<
+    const response = (await this.client.get(path)) as unknown as Record<
       string,
       QuizSubmission[]
     >;

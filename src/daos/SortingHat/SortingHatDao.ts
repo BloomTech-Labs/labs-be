@@ -29,10 +29,10 @@ class SortingHatDao implements ISortingHatDao {
     const path = "sortinghat";
 
     const body = payload;
-    return ((await this.client.post(
+    return (await this.client.post(
       path,
       body
-    )) as unknown) as TeambuildingOutput;
+    )) as unknown as TeambuildingOutput;
   }
 }
 
