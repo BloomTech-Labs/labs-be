@@ -46,7 +46,7 @@ export async function postLabsApplication(
   res: Response
 ): Promise<Response> {
   const labsApplicationSubmission = req.body as ILabsApplicationSubmission;
-  console.log(JSON.stringify(labsApplicationSubmission));
+  console.log('🪂 REQ.BODY 🪂', req.body);
   try {
     return res.json(await processLabsApplication(labsApplicationSubmission));
   } catch (error) {
