@@ -23,9 +23,9 @@ export default class JDSTrackEnrollmentDao {
     await this.client.login();
     const sfResult = await this.client.connection.query(
       `
-        SELECT Id, Application__r.Contact__r.Okta_Id__c
+        SELECT Id, Application__r.Contact__r.Name, Application__r.Contact__r.Okta_ID__c
         FROM JDS_Track_Enrollment__c
-        WHERE Application__r.Contact__r.Okta_Id__c='${oktaId}'
+        WHERE Application__r.Contact__r.Okta_ID__c = '${oktaId}'
         LIMIT 1
       `,
       {},

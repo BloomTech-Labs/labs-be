@@ -174,6 +174,7 @@ export async function processLabsApplication(
   try {
     // Parse the learner's GitHub handle as a profile URL
     const gitHubUrl = await buildGitHubUrl(labsApplication.gitHubHandle || "");
+    
     // Get the learner's Salesforce Contact ID by their OktaID
     const contactId = await contactDao.getContactIdByOktaId(oktaId);
     // Get the learner's JDS Track Enrollment ID by their Okta Id
@@ -285,6 +286,7 @@ export async function processLabsApplication(
 
     return await labsProjectDao.getProject(projectId);
   } catch (error) {
+    console.log({ error });
     return Promise.reject(error);
   }
 }

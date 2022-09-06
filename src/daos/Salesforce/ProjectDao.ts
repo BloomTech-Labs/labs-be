@@ -32,7 +32,6 @@ export default class ProjectDao {
       }
     );
     const sfLabsProjects = sfResult.records as Record<string, unknown>[];
-    console.log(sfLabsProjects);
     const labsProjects = sfLabsProjects.map((record) => ({
       id: record.Name as string,
       product: record.Labs_Product__c as string,

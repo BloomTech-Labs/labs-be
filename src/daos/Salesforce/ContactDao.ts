@@ -28,8 +28,10 @@ export default class ContactDao {
       {},
       (err, result) => {
         if (err) {
+          console.log({ err });
           void Promise.reject(err);
         } else {
+          console.log(JSON.stringify(result));
           return result;
         }
       }
@@ -50,6 +52,7 @@ export default class ContactDao {
   ): Promise<LabsProject[]> {
     await this.client.login();
     for (const project of projects) {
+      console.log(project);
       const trackEnrollments = await this.client.connection.query<{
         Contact__r: { Okta_Id__c: string };
       }>(

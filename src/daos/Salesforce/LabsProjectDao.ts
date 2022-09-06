@@ -10,6 +10,7 @@ export default class LabsProjectDao {
   }
 
   public async getProject(projectId: string): Promise<IFinalLabsProject> {
+    console.log(projectId);
     await this.client.login();
     const sfResult = await this.client.connection.query<{
       Labs_Time_Slot__r: { Name: string };
@@ -21,8 +22,10 @@ export default class LabsProjectDao {
       {},
       (err, result) => {
         if (err) {
+          console.log("ERROR: ", { err });
           void Promise.reject(err);
         } else {
+          console.log("SUCCESS RESULT: ", result)
           return result;
         }
       }
