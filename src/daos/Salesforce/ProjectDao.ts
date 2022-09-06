@@ -16,7 +16,7 @@ export default class ProjectDao {
     await this.client.login();
     const sfResult = await this.client.connection.query(
       `
-        SELECT Name, Active__c, Labs_Product__c, Team_Members__c, Team_Code__c, Tracks__c, Release_Manager__c
+        SELECT Name, Active__c, Labs_Product__c, Team_Code__c, Tracks__c, Release_Manager__c
         FROM Labs_Project__c
         WHERE Active__c = TRUE
         LIMIT 100
@@ -39,9 +39,7 @@ export default class ProjectDao {
       teamCode: record.Team_Code__c as string,
       tracks: ((record.Tracks__c as string) || "").split(";").filter((x) => x),
       releaseManager: (record.Release_Manager__c as string) || "",
-      // teamMemberSmtIds need to be converted from Salesforce Contact IDs
-      // into oktaIds.
-      teamMemberSmtIds: (record.Team_Members__c as string[]) || [],
+      teamMemberSmtIds: [],
     }));
 
     return Promise.resolve(labsProjects);

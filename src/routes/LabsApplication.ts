@@ -46,12 +46,10 @@ export async function postLabsApplication(
   res: Response
 ): Promise<Response> {
   const labsApplicationSubmission = req.body as ILabsApplicationSubmission;
-
+  console.log('🪂 REQ.BODY 🪂', req.body);
   try {
-    await processLabsApplication(labsApplicationSubmission);
+    return res.json(await processLabsApplication(labsApplicationSubmission));
   } catch (error) {
     return res.json({ status: INTERNAL_SERVER_ERROR, message: error });
   }
-
-  return res.sendStatus(OK);
 }

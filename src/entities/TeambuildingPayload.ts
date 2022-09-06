@@ -10,43 +10,43 @@ export interface ITeamBuildingProject {
 }
 
 export interface ILabsApplication {
-    // labsTimeSlot?: [string];
-    timeSlotChoice1?: string;
-    timeSlotChoice2?: string;
-    timeSlotChoice3?: string;
-    timeSlotChoice4?: string;
-    gitHubHandle?: string;
-    gitExpertise?: number;
-    dockerExpertise?: number;
-    playByEar?: number;
-    detailOriented?: number;
-    speakUpInDiscussions?: number;
-    soloOrSocial?: string;
-    meaningOrValue?: string;
-    feelsRightOrMakesSense?: string;
-    favoriteOrCollect?: string;
-    tpmSkill1?: string;
-    tpmSkill2?: string;
-    tpmSkill3?: string;
-    tpmInterest1?: number;
-    tpmInterest2?: number;
-    tpmInterest3?: number;
-    tpmInterest4?: number;
-    uxInterest1?: number;
-    uxInterest2?: number;
-    frontendInterest1?: number;
-    frontendInterest2?: number;
-    backendInterest1?: number;
-    backendInterest2?: number;
-    dataEngInterest1?: number;
-    dataEngInterest2?: number;
-    dataEngInterest3?: number;
-    mlEngInterest1?: number;
-    mlEngInterest2?: number;
-    mlEngInterest3?: number;
-    mlOpsInterest1?: number;
-    mlOpsInterest2?: number;
-    mlOpsInterest3?: number;
+  labsTimeSlot?: [string];
+  timeSlotChoice1?: string;
+  timeSlotChoice2?: string;
+  timeSlotChoice3?: string;
+  timeSlotChoice4?: string;
+  gitHubHandle?: string;
+  gitExpertise?: number;
+  dockerExpertise?: number;
+  playByEar?: number;
+  detailOriented?: number;
+  speakUpInDiscussions?: number;
+  soloOrSocial?: string;
+  meaningOrValue?: string;
+  feelsRightOrMakesSense?: string;
+  favoriteOrCollect?: string;
+  tpmSkill1?: string;
+  tpmSkill2?: string;
+  tpmSkill3?: string;
+  tpmInterest1?: number;
+  tpmInterest2?: number;
+  tpmInterest3?: number;
+  tpmInterest4?: number;
+  uxInterest1?: number;
+  uxInterest2?: number;
+  frontendInterest1?: number;
+  frontendInterest2?: number;
+  backendInterest1?: number;
+  backendInterest2?: number;
+  dataEngInterest1?: number;
+  dataEngInterest2?: number;
+  dataEngInterest3?: number;
+  mlEngInterest1?: number;
+  mlEngInterest2?: number;
+  mlEngInterest3?: number;
+  mlOpsInterest1?: number;
+  mlOpsInterest2?: number;
+  mlOpsInterest3?: number;
 }
 
 export interface ILabsApplicationSubmission {
@@ -67,9 +67,17 @@ export interface ILabsApplicationSubmission {
   meaningOrValue?: "A. Deeper meaning" | "B. Higher value";
   feelsRightOrMakesSense?: "A. It feels right" | "B. It makes sense";
   favoriteOrCollect?: "A. Find your favorite" | "B. Collect them all";
-  tpmSkill1?: "A. tell their team what to do" | "B. coordinate their team’s workflow" | "C. manage their team members instead of writing any code" | "D. make sure each function within the team doesn’t interact with the others";
+  tpmSkill1?:
+    | "A. tell their team what to do"
+    | "B. coordinate their team’s workflow"
+    | "C. manage their team members instead of writing any code"
+    | "D. make sure each function within the team doesn’t interact with the others";
   tpmSkill2?: "A. True" | "B. False";
-  tpmSkill3?: "A. Give them space—people need breathing room, not to be put under pressure." | "B. Address it during the next team standup meeting by singling them out to impart some motivation—then follow up with them afterward to make sure they understand the severity of the situation." | "C. Address it during the next team standup meeting while going around the room having everyone report their progress—then work with the team to figure out how to unblock them." | "D. Reach out to them on Slack every few days to check in.";
+  tpmSkill3?:
+    | "A. Give them space—people need breathing room, not to be put under pressure."
+    | "B. Address it during the next team standup meeting by singling them out to impart some motivation—then follow up with them afterward to make sure they understand the severity of the situation."
+    | "C. Address it during the next team standup meeting while going around the room having everyone report their progress—then work with the team to figure out how to unblock them."
+    | "D. Reach out to them on Slack every few days to check in.";
   tpmInterest1?: number;
   tpmInterest2?: number;
   tpmInterest3?: number;

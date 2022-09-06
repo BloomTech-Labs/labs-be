@@ -4,7 +4,6 @@ import oktaConfig from "@shared/oktaConfig";
 import { IUser } from "@entities/User";
 import UserDao from "@daos/User/UserDao";
 
-
 const makeUserFromClaims = (claims: JwtClaims): IUser => {
   return {
     email: claims.email as string,

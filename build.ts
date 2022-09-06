@@ -19,9 +19,7 @@ import childProcess from "child_process";
     );
     // Copy back-end files
     await exec("tsc --build tsconfig.prod.json", "./");
-  } catch (err) {
-
-  }
+  } catch (err) {}
 })();
 
 function remove(loc: string): Promise<void> {

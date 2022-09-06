@@ -94,4 +94,11 @@ export class LabsProject implements ILabsProject {
   }
 }
 
+export interface IFinalLabsProject {
+  labsProduct: string;
+  releaseManager: string;
+  timeSlot: string;
+  teamCode: string;
+}
+
 export default LabsProject;
