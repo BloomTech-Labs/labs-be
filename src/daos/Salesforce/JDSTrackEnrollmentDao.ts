@@ -262,8 +262,7 @@ export default class JDSTrackEnrollmentDao {
       .update(
         {
           Id: jdsTrackEnrollmentId,
-          Labs_Projects__c: projectId,
-          Debug__c: `${Date.now().toString()} - ${typeof projectId}`
+          Labs_Projects__c: projectId
         },
         (error, result) => {
           if (error || !result.success) {
