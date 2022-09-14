@@ -60,9 +60,13 @@ export default class ContactDao {
           Select Contact__r.Okta_Id__c from JDS_Track_Enrollment__c Where Labs_Projects__r.Name In ('${project.id}')
         `
       );
+      console.log("TRACK ENROLLMENT IDs", JSON.stringify(trackEnrollments.records))
+      // filter out any nulls, 
+
+      // map over by OKtaID
+      trackEnrollments.records = trackEnrollments.records.filter(record => record.Contact__r !== null);
       project.teamMemberSmtIds = trackEnrollments.records
-        .map((record) => record.Contact__r["Okta_Id__c"])
-        .filter(Boolean);
+        .map((record) => record.Contact__r["Okta_Id__c"]);
     }
     return projects as unknown as LabsProject[];
   }
