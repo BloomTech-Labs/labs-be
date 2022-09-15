@@ -28,10 +28,10 @@ export async function getLabsApplication(
   try {
     results = await getLabsApplicationByOktaId(oktaId);
   } catch (error) {
-    return res.json({ status: INTERNAL_SERVER_ERROR, message: error });
+    return res.send({ status: INTERNAL_SERVER_ERROR, message: error });
   }
 
-  return res.json({ exists: results ? true : false, data: results });
+  return res.send({ exists: results ? true : false, data: results });
 }
 
 /**
@@ -48,8 +48,8 @@ export async function postLabsApplication(
   const labsApplicationSubmission = req.body as ILabsApplicationSubmission;
   console.log("🪂 REQ.BODY 🪂", req.body);
   try {
-    return res.json(await processLabsApplication(labsApplicationSubmission));
+    return res.send(await processLabsApplication(labsApplicationSubmission));
   } catch (error) {
-    return res.json({ status: INTERNAL_SERVER_ERROR, message: error });
+    return res.send({ status: INTERNAL_SERVER_ERROR, message: error });
   }
 }
