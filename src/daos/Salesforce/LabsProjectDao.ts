@@ -25,7 +25,7 @@ export default class LabsProjectDao {
           console.log("ERROR: ", { err });
           void Promise.reject(err);
         } else {
-          console.log("SUCCESS RESULT: ", result)
+          console.log("SUCCESS RESULT: ", JSON.stringify(result));
           return result;
         }
       }
