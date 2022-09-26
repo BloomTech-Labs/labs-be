@@ -69,7 +69,7 @@ export interface ILabsApplicationSubmission {
   favoriteOrCollect?: "A. Find your favorite" | "B. Collect them all";
   tpmSkill1?:
     | "A. tell their team what to do"
-    | "B. coordinate their team’s workflow"
+    | "B. coordinate their team's workflow"
     | "C. manage their team members instead of writing any code"
     | "D. make sure each function within the team doesn’t interact with the others";
   tpmSkill2?: "A. True" | "B. False";
