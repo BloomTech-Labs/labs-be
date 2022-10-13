@@ -1,7 +1,10 @@
 import jsforce from "jsforce";
+import logger from "@shared/Logger";
 
 export default class SalesforceClient {
   public connection: jsforce.Connection;
+
+  private sfuser?: jsforce.UserInfo;
   private SF_LOGIN_URL: string;
   private SF_USERNAME: string;
   private SF_PASSWORD: string;
@@ -33,29 +36,48 @@ export default class SalesforceClient {
       loginUrl: SF_LOGIN_URL,
       version: "54.0",
     });
-
-    // return (async (): Promise<SalesforceClient> => {
-    //     await this.login();
-    //     return this;
-    // })() as unknown as SalesforceClient;
+    // seriously a pain that this has to be called externally
+    // void this.login().then(() => {
+    //   logger.info("SalesforceClient initialized");
+    // });
   }
 
+  public readonly commonQueryHandler = (
+    err?: Error,
+    result?: jsforce.QueryResult<unknown>
+  ): void => {
+    if (err) {
+      logger.err(`🛑 Query handler Error: \n${err.name} - ${err.message}`);
+    } else {
+      logger.info(`⚡️ Query handler result: \n${JSON.stringify(result)}`);
+    }
+  };
+
   public async login(): Promise<jsforce.UserInfo> {
-    const connection = this.connection;
-    return await connection.login(
-      this.SF_USERNAME,
-      this.SF_PASSWORD + this.SF_TOKEN,
-      (err, userInfo) => {
-        if (err) {
-          console.error(err);
-          //return reject(err);
-        } else {
-          console.log(`👤 SFDC User ID: ${userInfo.id}`);
-          console.log(`🏢 SFDC Org ID: ${userInfo.organizationId}`);
-          console.log(`🌐 SFDC url: ${this.SF_LOGIN_URL}\n`);
-          //resolve({ connection, userInfo });
-        }
-      }
-    );
+    let result: Promise<jsforce.UserInfo>;
+    // check if user has been memoized
+    if (!this.sfuser) {
+      result = this.connection
+        .login(this.SF_USERNAME, this.SF_PASSWORD + this.SF_TOKEN)
+        .then((userInfo) => {
+          // memoize the user's info
+          this.sfuser = userInfo;
+          logger.info(`Logged In
+            👤 SFDC User ID: ${userInfo.id}
+            🏢 SFDC Org ID: ${userInfo.organizationId}
+            📧 SFDC Url: ${this.SF_LOGIN_URL}
+          `);
+          return userInfo;
+        })
+        .catch((err) => {
+          if (err) {
+            logger.err(`🛑 Login Error: \n${err as string}`);
+          }
+          return Promise.reject(err);
+        });
+    } else {
+      result = Promise.resolve(this.sfuser);
+    }
+    return result;
   }
 }
