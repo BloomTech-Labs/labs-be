@@ -2,5 +2,5 @@
   "watch": ["spec"],
   "ext": "spec.ts",
   "ignore": ["spec/support"],
-  "exec": "./node_modules/.bin/ts-node -r tsconfig-paths/register ./spec"
+  "exec": "npx ts-node  -r dotenv/config -r tsconfig-paths/register ./spec"
 }

@@ -1,28 +1,23 @@
-// import "./loadEnv";
-// import find from "find";
-// import Jasmine from "jasmine";
-// import commandLineArgs from "command-line-args";
-// import logger from "@shared/Logger";
+import "./loadEnv";
+import find from "find";
+import Jasmine from "jasmine";
+import commandLineArgs from "command-line-args";
+import logger from "@shared/Logger";
 
-// // Setup command line options
-// const options = commandLineArgs([
-//   {
-//     name: "testFile",
-//     alias: "f",
-//     type: String,
-//   },
-// ]);
+// Setup command line options
+const options = commandLineArgs([
+  {
+    name: "testFile",
+    alias: "f",
+    type: String,
+  },
+]);
 
-// // Init Jasmine
-// const jasmine = new Jasmine(null);
+// Init Jasmine
+const jasmine = new Jasmine({});
 
-// // Set location of test files
-// jasmine.loadConfig({
-//   random: true,
-//   spec_dir: "spec",
-//   spec_files: ["./tests/**/*.spec.ts"],
-//   stopSpecOnExpectationFailure: false,
-// });
+// Set location of test files
+jasmine.loadConfigFile("spec/support/jasmine.json");
 
 // // On complete callback function
 // jasmine.onComplete((passed: boolean) => {
