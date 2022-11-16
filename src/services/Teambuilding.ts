@@ -227,7 +227,7 @@ export async function processLabsApplication(
     // Build payload for SortingHat
     const learner: ITeamBuildingLearner = {
       oktaId: oktaId,
-      name: oktaId,
+      name: oktaId, // TODO (FF): Remove or get actual name from Contact
       track: track,
       storyPoints: 0,
       labsProject: "",
@@ -286,7 +286,7 @@ export async function processLabsApplication(
 
     return await labsProjectDao.getProject(projectId);
   } catch (error) {
-    console.log({ error });
-    return Promise.reject(error);
+    console.error({ error, labsApplication });
+    return Promise.reject({ error, labsApplication });
   }
 }
