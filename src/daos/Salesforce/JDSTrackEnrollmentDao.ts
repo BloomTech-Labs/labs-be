@@ -106,6 +106,11 @@ export default class JDSTrackEnrollmentDao {
             JDS_Track_Enrollment__r.Labs_Projects__c, JDS_Track_Enrollment__r.Current_JDS_Sprint_Enrollment__c, JDS_Track_Enrollment__r.Contact__r.Okta_Id__c, JDS_Track_Enrollment__r.Contact__r.Name
           FROM Labs_Application__c
           WHERE JDS_Track_Enrollment__r.Current_JDS_Sprint_Enrollment__r.Sprint_Number__c >= 21 AND JDS_Track_Enrollment__r.Current_JDS_Sprint_Enrollment__r.Sprint_Number__c <= 24
+          AND JDS_Track_Enrollment__r.Application__r.Withdrawal_Date__c = NULL
+          AND JDS_Track_Enrollment__r.Application__r.Contact__r.Graduation_Date__c = NULL
+          AND JDS_Track_Enrollment__r.JDS_Graduation_Timestamp__c = NULL
+          AND JDS_Track_Enrollment__r.JDS_Labs_Completed_Timestamp__c = NULL
+          AND JDS_Track_Enrollment__r.Hired_Early__c != TRUE
           AND JDS_Track_Enrollment__r.Class_Applied_For__c = 'CS Web Dev'
         `;
       case Track.DS:
@@ -132,6 +137,11 @@ export default class JDSTrackEnrollmentDao {
             JDS_Track_Enrollment__r.Labs_Projects__c, JDS_Track_Enrollment__r.Current_JDS_Sprint_Enrollment__c, JDS_Track_Enrollment__r.Contact__r.Okta_Id__c, JDS_Track_Enrollment__r.Contact__r.Name
           FROM Labs_Application__c
           WHERE JDS_Track_Enrollment__r.Current_JDS_Sprint_Enrollment__r.Sprint_Number__c >= 21 AND JDS_Track_Enrollment__r.Current_JDS_Sprint_Enrollment__r.Sprint_Number__c <= 24
+          AND JDS_Track_Enrollment__r.Application__r.Withdrawal_Date__c = NULL
+          AND JDS_Track_Enrollment__r.Application__r.Contact__r.Graduation_Date__c = NULL
+          AND JDS_Track_Enrollment__r.JDS_Graduation_Timestamp__c = NULL
+          AND JDS_Track_Enrollment__r.JDS_Labs_Completed_Timestamp__c = NULL
+          AND JDS_Track_Enrollment__r.Hired_Early__c != TRUE
           AND JDS_Track_Enrollment__r.Class_Applied_For__c = 'Data Science'
         `;
         break;
@@ -159,35 +169,18 @@ export default class JDSTrackEnrollmentDao {
             JDS_Track_Enrollment__r.Labs_Projects__c, JDS_Track_Enrollment__r.Current_JDS_Sprint_Enrollment__c, JDS_Track_Enrollment__r.Contact__r.Okta_Id__c, JDS_Track_Enrollment__r.Contact__r.Name
           FROM Labs_Application__c
           WHERE JDS_Track_Enrollment__r.Current_JDS_Sprint_Enrollment__r.Sprint_Number__c >= 33 AND JDS_Track_Enrollment__r.Current_JDS_Sprint_Enrollment__r.Sprint_Number__c <= 36
+          AND JDS_Track_Enrollment__r.Application__r.Withdrawal_Date__c = NULL
+          AND JDS_Track_Enrollment__r.Application__r.Contact__r.Graduation_Date__c = NULL
+          AND JDS_Track_Enrollment__r.JDS_Graduation_Timestamp__c = NULL
+          AND JDS_Track_Enrollment__r.JDS_Labs_Completed_Timestamp__c = NULL
+          AND JDS_Track_Enrollment__r.Hired_Early__c != TRUE
           AND JDS_Track_Enrollment__r.Class_Applied_For__c = 'Backend'
         `;
         break;
       default:
-        query = `
-          SELECT
-            Labs_Time_Slot__c,
-            Your_Github_handle__c,
-            Git_Expertise__c,
-            Docker_expertise__c,
-            Play_By_Ear__c,
-            Detail_Oriented__c,
-            Speak_Up_In_Discussions__c,
-            What_activities_do_you_prefer__c,
-            What_do_you_prefer_to_seek_in_your_work__c,
-            Choices_are_easier_when__c,
-            In_general_which_method_do_you_prefer__c,
-            Technical_project_manager_should__c,
-            When_their_team_is_facing_a_blocker__c,
-            Interested_in_becoming_a_people_manager__c,
-            I_enjoy_running_meetings__c,
-            I_enjoy_managing_the_flow_of_information__c,
-            How_do_you_approach_the_situation__c,
-            JDS_Track_Enrollment__c,
-            JDS_Track_Enrollment__r.Labs_Projects__c, JDS_Track_Enrollment__r.Current_JDS_Sprint_Enrollment__c, JDS_Track_Enrollment__r.Contact__r.Okta_Id__c, JDS_Track_Enrollment__r.Contact__r.Name
-          FROM Labs_Application__c
-          WHERE JDS_Track_Enrollment__r.Current_JDS_Sprint_Enrollment__r.Sprint_Number__c >= 21 AND JDS_Track_Enrollment__r.Current_JDS_Sprint_Enrollment__r.Sprint_Number__c <= 24
-          AND JDS_Track_Enrollment__r.Class_Applied_For__c = 'CS Web Dev'
-        `;
+        const error = `No track found for value: ${track}`;
+        console.error(error);
+        throw new Error(error);
     }
 
     await this.client.login();
